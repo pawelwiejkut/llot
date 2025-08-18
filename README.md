@@ -43,7 +43,7 @@
 
 ```bash
 # Clone and start
-git clone https://github.com/yourusername/llot.git
+git clone https://github.com/pawelwiejkut/llot.git
 cd llot
 docker-compose up -d
 
@@ -58,7 +58,7 @@ docker-compose up -d
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/yourusername/llot.git
+git clone https://github.com/pawelwiejkut/llot.git
 cd llot
 
 # 2. Set up Python environment
