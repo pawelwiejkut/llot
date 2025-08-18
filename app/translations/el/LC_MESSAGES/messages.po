@@ -1,0 +1,92 @@
+# Ελληνικά translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: el
+"
+"Language-Team: Greek
+"
+"Plural-Forms: nplurals=2; plural=(n != 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Τοπικός Μεταφραστής LLM Ollama"
+
+msgid "— local llm ollama translator"
+msgstr "— τοπικός μεταφραστής llm ollama"
+
+msgid "Model"
+msgstr "Μοντέλο"
+
+msgid "Source"
+msgstr "Πηγή"
+
+msgid "Target"
+msgstr "Στόχος"
+
+msgid "Tone"
+msgstr "Τόνος"
+
+msgid "Swap direction"
+msgstr "Εναλλαγή κατεύθυνσης"
+
+msgid "Recent translations history:"
+msgstr "Ιστορικό πρόσφατων μεταφράσεων:"
+
+msgid "none"
+msgstr "κανένα"
+
+msgid "Text to translate"
+msgstr "Κείμενο προς μετάφραση"
+
+msgid "Paste or type text..."
+msgstr "Επικολλήστε ή πληκτρολογήστε κείμενο..."
+
+msgid "Translation starts automatically"
+msgstr "Η μετάφραση ξεκινά αυτόματα"
+
+msgid "Translating..."
+msgstr "Μεταφράζω..."
+
+msgid "Result"
+msgstr "Αποτέλεσμα"
+
+msgid "Error:"
+msgstr "Σφάλμα:"
+
+msgid "Auto (detect)"
+msgstr "Αυτόματα (ανίχνευση)"
+
+msgid "Neutral"
+msgstr "Ουδέτερος"
+
+msgid "Formal"
+msgstr "Επίσημος"
+
+msgid "Informal"
+msgstr "Ανεπίσημος"
+
+msgid "Friendly"
+msgstr "Φιλικός"
+
+msgid "Technical"
+msgstr "Τεχνικός"
+
+msgid "Poetic"
+msgstr "Ποιητικός"
+

@@ -1,0 +1,83 @@
+# Chinese translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-01-01 12:00+0000\n"
+"PO-Revision-Date: 2025-01-01 12:00+0000\n"
+"Last-Translator: LLOT Team\n"
+"Language: zh\n"
+"Language-Team: Chinese\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — 本地LLM Ollama翻译器"
+
+msgid "— local llm ollama translator"
+msgstr "— 本地llm ollama翻译器"
+
+msgid "Ollama"
+msgstr "Ollama"
+
+msgid "Model"
+msgstr "模型"
+
+msgid "Source"
+msgstr "源语言"
+
+msgid "Target"
+msgstr "目标语言"
+
+msgid "Tone"
+msgstr "语调"
+
+msgid "Swap direction"
+msgstr "交换方向"
+
+msgid "Recent translations history:"
+msgstr "最近翻译历史："
+
+msgid "none"
+msgstr "无"
+
+msgid "Text to translate"
+msgstr "要翻译的文本"
+
+msgid "Paste or type text..."
+msgstr "粘贴或输入文本..."
+
+msgid "Translation starts automatically"
+msgstr "翻译自动开始"
+
+msgid "Translating..."
+msgstr "翻译中..."
+
+msgid "Result"
+msgstr "结果"
+
+msgid "Error:"
+msgstr "错误："
+
+msgid "Auto (detect)"
+msgstr "自动（检测）"
+
+msgid "Neutral"
+msgstr "中性"
+
+msgid "Formal"
+msgstr "正式"
+
+msgid "Informal"
+msgstr "非正式"
+
+msgid "Friendly"
+msgstr "友好"
+
+msgid "Technical"
+msgstr "技术性"
+
+msgid "Poetic"
+msgstr "诗意"

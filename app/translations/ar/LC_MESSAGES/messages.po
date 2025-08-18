@@ -1,0 +1,83 @@
+# Arabic translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-01-01 12:00+0000\n"
+"PO-Revision-Date: 2025-01-01 12:00+0000\n"
+"Last-Translator: LLOT Team\n"
+"Language: ar\n"
+"Language-Team: Arabic\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — مترجم Ollama LLM المحلي"
+
+msgid "— local llm ollama translator"
+msgstr "— مترجم ollama llm محلي"
+
+msgid "Ollama"
+msgstr "Ollama"
+
+msgid "Model"
+msgstr "النموذج"
+
+msgid "Source"
+msgstr "المصدر"
+
+msgid "Target"
+msgstr "الهدف"
+
+msgid "Tone"
+msgstr "النبرة"
+
+msgid "Swap direction"
+msgstr "تبديل الاتجاه"
+
+msgid "Recent translations history:"
+msgstr "تاريخ الترجمات الأخيرة:"
+
+msgid "none"
+msgstr "لا يوجد"
+
+msgid "Text to translate"
+msgstr "النص المراد ترجمته"
+
+msgid "Paste or type text..."
+msgstr "الصق أو اكتب النص..."
+
+msgid "Translation starts automatically"
+msgstr "تبدأ الترجمة تلقائياً"
+
+msgid "Translating..."
+msgstr "جارٍ الترجمة..."
+
+msgid "Result"
+msgstr "النتيجة"
+
+msgid "Error:"
+msgstr "خطأ:"
+
+msgid "Auto (detect)"
+msgstr "تلقائي (كشف)"
+
+msgid "Neutral"
+msgstr "محايد"
+
+msgid "Formal"
+msgstr "رسمي"
+
+msgid "Informal"
+msgstr "غير رسمي"
+
+msgid "Friendly"
+msgstr "ودود"
+
+msgid "Technical"
+msgstr "تقني"
+
+msgid "Poetic"
+msgstr "شاعري"

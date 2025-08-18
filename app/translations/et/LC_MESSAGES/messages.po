@@ -1,0 +1,83 @@
+# Estonian translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-01-01 12:00+0000\n"
+"PO-Revision-Date: 2025-01-01 12:00+0000\n"
+"Last-Translator: LLOT Team\n"
+"Language: et\n"
+"Language-Team: Estonian\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Kohalik LLM Ollama Tõlkija"
+
+msgid "— local llm ollama translator"
+msgstr "— kohalik llm ollama tõlkija"
+
+msgid "Ollama"
+msgstr "Ollama"
+
+msgid "Model"
+msgstr "Mudel"
+
+msgid "Source"
+msgstr "Allikas"
+
+msgid "Target"
+msgstr "Sihtmärk"
+
+msgid "Tone"
+msgstr "Toon"
+
+msgid "Swap direction"
+msgstr "Vaheta suunda"
+
+msgid "Recent translations history:"
+msgstr "Hiljutiste tõlgete ajalugu:"
+
+msgid "none"
+msgstr "pole"
+
+msgid "Text to translate"
+msgstr "Tõlgitav tekst"
+
+msgid "Paste or type text..."
+msgstr "Kleebi või kirjuta tekst..."
+
+msgid "Translation starts automatically"
+msgstr "Tõlkimine algab automaatselt"
+
+msgid "Translating..."
+msgstr "Tõlgin..."
+
+msgid "Result"
+msgstr "Tulemus"
+
+msgid "Error:"
+msgstr "Viga:"
+
+msgid "Auto (detect)"
+msgstr "Auto (tuvasta)"
+
+msgid "Neutral"
+msgstr "Neutraalne"
+
+msgid "Formal"
+msgstr "Ametlik"
+
+msgid "Informal"
+msgstr "Mitteametlik"
+
+msgid "Friendly"
+msgstr "Sõbralik"
+
+msgid "Technical"
+msgstr "Tehniline"
+
+msgid "Poetic"
+msgstr "Poeetiline"

@@ -1,0 +1,92 @@
+# தமிழ் translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: ta
+"
+"Language-Team: Tamil
+"
+"Plural-Forms: nplurals=2; plural=(n != 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — உள்ளூர் LLM Ollama மொழிபெயர்ப்பாளர்"
+
+msgid "— local llm ollama translator"
+msgstr "— உள்ளூர் llm ollama மொழிபெயர்ப்பாளர்"
+
+msgid "Model"
+msgstr "மாதிரி"
+
+msgid "Source"
+msgstr "மூலம்"
+
+msgid "Target"
+msgstr "இலக்கு"
+
+msgid "Tone"
+msgstr "தொனி"
+
+msgid "Swap direction"
+msgstr "திசையை மாற்று"
+
+msgid "Recent translations history:"
+msgstr "சமீபத்திய மொழிபெயர்ப்பு வரலாறு:"
+
+msgid "none"
+msgstr "எதுவும் இல்லை"
+
+msgid "Text to translate"
+msgstr "மொழிபெயர்க்க வேண்டிய உரை"
+
+msgid "Paste or type text..."
+msgstr "உரையை ஒட்டவும் அல்லது தட்டச்சு செய்யவும்..."
+
+msgid "Translation starts automatically"
+msgstr "மொழிபெயர்ப்பு தானாகவே தொடங்குகிறது"
+
+msgid "Translating..."
+msgstr "மொழிபெயர்க்கிறது..."
+
+msgid "Result"
+msgstr "முடிவு"
+
+msgid "Error:"
+msgstr "பிழை:"
+
+msgid "Auto (detect)"
+msgstr "தானாக (கண்டறிதல்)"
+
+msgid "Neutral"
+msgstr "நடுநிலை"
+
+msgid "Formal"
+msgstr "முறையான"
+
+msgid "Informal"
+msgstr "முறைசாரா"
+
+msgid "Friendly"
+msgstr "நட்பானது"
+
+msgid "Technical"
+msgstr "தொழில்நுட்பம்"
+
+msgid "Poetic"
+msgstr "கவிதையான"
+

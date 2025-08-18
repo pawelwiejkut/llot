@@ -1,0 +1,92 @@
+# Malti translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: mt
+"
+"Language-Team: Maltese
+"
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : n==0 || (n%100 > 1 && n%100 < 11) ? 1 : (n%100 > 10 && n%100 < 20) ? 2 : 3);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Traduttur LLM Ollama Lokali"
+
+msgid "— local llm ollama translator"
+msgstr "— traduttur llm ollama lokali"
+
+msgid "Model"
+msgstr "Mudell"
+
+msgid "Source"
+msgstr "Sors"
+
+msgid "Target"
+msgstr "Mira"
+
+msgid "Tone"
+msgstr "Ton"
+
+msgid "Swap direction"
+msgstr "Ibdel direzzjoni"
+
+msgid "Recent translations history:"
+msgstr "Storja tat-traduzzjonijiet riċenti:"
+
+msgid "none"
+msgstr "xejn"
+
+msgid "Text to translate"
+msgstr "Test biex jittraduċi"
+
+msgid "Paste or type text..."
+msgstr "Waħħal jew ittajpja test..."
+
+msgid "Translation starts automatically"
+msgstr "It-traduzzjoni tibda awtomatikament"
+
+msgid "Translating..."
+msgstr "Qed nittradduċi..."
+
+msgid "Result"
+msgstr "Riżultat"
+
+msgid "Error:"
+msgstr "Żball:"
+
+msgid "Auto (detect)"
+msgstr "Awtomatiku (issib)"
+
+msgid "Neutral"
+msgstr "Newtrali"
+
+msgid "Formal"
+msgstr "Formali"
+
+msgid "Informal"
+msgstr "Informali"
+
+msgid "Friendly"
+msgstr "Ħabiba"
+
+msgid "Technical"
+msgstr "Tekniku"
+
+msgid "Poetic"
+msgstr "Poetiku"
+

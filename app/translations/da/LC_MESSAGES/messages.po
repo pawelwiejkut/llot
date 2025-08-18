@@ -1,0 +1,92 @@
+# Dansk translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: da
+"
+"Language-Team: Danish
+"
+"Plural-Forms: nplurals=2; plural=(n != 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Lokal LLM Ollama Oversætter"
+
+msgid "— local llm ollama translator"
+msgstr "— lokal llm ollama oversætter"
+
+msgid "Model"
+msgstr "Model"
+
+msgid "Source"
+msgstr "Kilde"
+
+msgid "Target"
+msgstr "Mål"
+
+msgid "Tone"
+msgstr "Tone"
+
+msgid "Swap direction"
+msgstr "Skift retning"
+
+msgid "Recent translations history:"
+msgstr "Seneste oversættelseshistorik:"
+
+msgid "none"
+msgstr "ingen"
+
+msgid "Text to translate"
+msgstr "Tekst at oversætte"
+
+msgid "Paste or type text..."
+msgstr "Indsæt eller skriv tekst..."
+
+msgid "Translation starts automatically"
+msgstr "Oversættelse starter automatisk"
+
+msgid "Translating..."
+msgstr "Oversætter..."
+
+msgid "Result"
+msgstr "Resultat"
+
+msgid "Error:"
+msgstr "Fejl:"
+
+msgid "Auto (detect)"
+msgstr "Auto (detect)"
+
+msgid "Neutral"
+msgstr "Neutral"
+
+msgid "Formal"
+msgstr "Formel"
+
+msgid "Informal"
+msgstr "Uformel"
+
+msgid "Friendly"
+msgstr "Venlig"
+
+msgid "Technical"
+msgstr "Teknisk"
+
+msgid "Poetic"
+msgstr "Poetisk"
+

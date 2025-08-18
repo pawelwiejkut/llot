@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  llot:
+    build: .
+    container_name: llot
+    ports:
+      - "8080:8080"
+    environment:
+      # Connect to host Ollama (recommended for existing setups)
+      - OLLAMA_HOST=http://host.docker.internal:11434  # Docker Desktop (Mac/Windows)
+      # - OLLAMA_HOST=http://172.17.0.1:11434           # Linux Docker
+      # - OLLAMA_HOST=http://ollama:11434                # Use bundled Ollama service
+      
+      - OL_MODEL=gemma2:9b                               # Recommended model
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8080
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+    # Uncomment if using bundled Ollama
+    # depends_on:
+    #   - ollama
+    restart: unless-stopped
+    networks:
+      - llot-network
+
+  # Optional: Include Ollama if you don't have it installed
+  # Uncomment this section if you want LLOT to manage Ollama for you
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: llot-ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #     - ./models:/root/.ollama/models  # Optional: bind mount for model persistence
+  #   environment:
+  #     - OLLAMA_HOST=0.0.0.0
+  #   restart: unless-stopped
+  #   networks:
+  #     - llot-network
+  #   # Uncomment for GPU support (NVIDIA)
+  #   # deploy:
+  #   #   resources:
+  #   #     reservations:
+  #   #       devices:
+  #   #         - driver: nvidia
+  #   #           count: 1
+  #   #           capabilities: [gpu]
+
+networks:
+  llot-network:
+    driver: bridge
+
+# Uncomment if using bundled Ollama
+# volumes:
+#   ollama_data:

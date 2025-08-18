@@ -1,0 +1,92 @@
+# Hrvatski translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: hr
+"
+"Language-Team: Croatian
+"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Lokalni LLM Ollama Prevoditelj"
+
+msgid "— local llm ollama translator"
+msgstr "— lokalni llm ollama prevoditelj"
+
+msgid "Model"
+msgstr "Model"
+
+msgid "Source"
+msgstr "Izvor"
+
+msgid "Target"
+msgstr "Cilj"
+
+msgid "Tone"
+msgstr "Ton"
+
+msgid "Swap direction"
+msgstr "Zamijeni smjer"
+
+msgid "Recent translations history:"
+msgstr "Povijest nedavnih prijevoda:"
+
+msgid "none"
+msgstr "nema"
+
+msgid "Text to translate"
+msgstr "Tekst za prevođenje"
+
+msgid "Paste or type text..."
+msgstr "Zalijepite ili utipkajte tekst..."
+
+msgid "Translation starts automatically"
+msgstr "Prevođenje počinje automatski"
+
+msgid "Translating..."
+msgstr "Prevodim..."
+
+msgid "Result"
+msgstr "Rezultat"
+
+msgid "Error:"
+msgstr "Greška:"
+
+msgid "Auto (detect)"
+msgstr "Auto (otkri)"
+
+msgid "Neutral"
+msgstr "Neutralan"
+
+msgid "Formal"
+msgstr "Formalan"
+
+msgid "Informal"
+msgstr "Neformalan"
+
+msgid "Friendly"
+msgstr "Prijateljski"
+
+msgid "Technical"
+msgstr "Tehnički"
+
+msgid "Poetic"
+msgstr "Poetičan"
+

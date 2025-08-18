@@ -1,0 +1,92 @@
+# Türkçe translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: tr
+"
+"Language-Team: Turkish
+"
+"Plural-Forms: nplurals=2; plural=(n > 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Yerel LLM Ollama Çevirmen"
+
+msgid "— local llm ollama translator"
+msgstr "— yerel llm ollama çevirmen"
+
+msgid "Model"
+msgstr "Model"
+
+msgid "Source"
+msgstr "Kaynak"
+
+msgid "Target"
+msgstr "Hedef"
+
+msgid "Tone"
+msgstr "Ton"
+
+msgid "Swap direction"
+msgstr "Yönü değiştir"
+
+msgid "Recent translations history:"
+msgstr "Son çeviriler geçmişi:"
+
+msgid "none"
+msgstr "hiçbiri"
+
+msgid "Text to translate"
+msgstr "Çevrilecek metin"
+
+msgid "Paste or type text..."
+msgstr "Metni yapıştırın veya yazın..."
+
+msgid "Translation starts automatically"
+msgstr "Çeviri otomatik olarak başlar"
+
+msgid "Translating..."
+msgstr "Çeviriyor..."
+
+msgid "Result"
+msgstr "Sonuç"
+
+msgid "Error:"
+msgstr "Hata:"
+
+msgid "Auto (detect)"
+msgstr "Otomatik (algıla)"
+
+msgid "Neutral"
+msgstr "Nötr"
+
+msgid "Formal"
+msgstr "Resmi"
+
+msgid "Informal"
+msgstr "Gayri resmi"
+
+msgid "Friendly"
+msgstr "Dostça"
+
+msgid "Technical"
+msgstr "Teknik"
+
+msgid "Poetic"
+msgstr "Şiirsel"
+

@@ -1,0 +1,59 @@
+# Standalone setup with included Ollama
+# Use this if you don't have Ollama installed on your host
+
+version: '3.8'
+
+services:
+  llot:
+    build: .
+    container_name: llot
+    ports:
+      - "8080:8080"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - OL_MODEL=gemma2:9b
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8080
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - llot-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: llot-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./models:/root/.ollama/models
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+    networks:
+      - llot-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    # Uncomment for GPU support (NVIDIA)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+networks:
+  llot-network:
+    driver: bridge
+
+volumes:
+  ollama_data:

@@ -1,0 +1,92 @@
+# Svenska translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: sv
+"
+"Language-Team: Swedish
+"
+"Plural-Forms: nplurals=2; plural=(n != 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Lokal LLM Ollama Översättare"
+
+msgid "— local llm ollama translator"
+msgstr "— lokal llm ollama översättare"
+
+msgid "Model"
+msgstr "Modell"
+
+msgid "Source"
+msgstr "Källa"
+
+msgid "Target"
+msgstr "Mål"
+
+msgid "Tone"
+msgstr "Ton"
+
+msgid "Swap direction"
+msgstr "Växla riktning"
+
+msgid "Recent translations history:"
+msgstr "Senaste översättningshistorik:"
+
+msgid "none"
+msgstr "ingen"
+
+msgid "Text to translate"
+msgstr "Text att översätta"
+
+msgid "Paste or type text..."
+msgstr "Klistra in eller skriv text..."
+
+msgid "Translation starts automatically"
+msgstr "Översättning startar automatiskt"
+
+msgid "Translating..."
+msgstr "Översätter..."
+
+msgid "Result"
+msgstr "Resultat"
+
+msgid "Error:"
+msgstr "Fel:"
+
+msgid "Auto (detect)"
+msgstr "Auto (upptäck)"
+
+msgid "Neutral"
+msgstr "Neutral"
+
+msgid "Formal"
+msgstr "Formell"
+
+msgid "Informal"
+msgstr "Informell"
+
+msgid "Friendly"
+msgstr "Vänlig"
+
+msgid "Technical"
+msgstr "Teknisk"
+
+msgid "Poetic"
+msgstr "Poetisk"
+

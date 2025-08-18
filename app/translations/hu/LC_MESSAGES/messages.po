@@ -1,0 +1,92 @@
+# Magyar translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: hu
+"
+"Language-Team: Hungarian
+"
+"Plural-Forms: nplurals=2; plural=(n != 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Helyi LLM Ollama Fordító"
+
+msgid "— local llm ollama translator"
+msgstr "— helyi llm ollama fordító"
+
+msgid "Model"
+msgstr "Modell"
+
+msgid "Source"
+msgstr "Forrás"
+
+msgid "Target"
+msgstr "Cél"
+
+msgid "Tone"
+msgstr "Hangnem"
+
+msgid "Swap direction"
+msgstr "Irány váltása"
+
+msgid "Recent translations history:"
+msgstr "Legutóbbi fordítások története:"
+
+msgid "none"
+msgstr "nincs"
+
+msgid "Text to translate"
+msgstr "Fordítandó szöveg"
+
+msgid "Paste or type text..."
+msgstr "Illessze be vagy írja be a szöveget..."
+
+msgid "Translation starts automatically"
+msgstr "A fordítás automatikusan elindul"
+
+msgid "Translating..."
+msgstr "Fordítás..."
+
+msgid "Result"
+msgstr "Eredmény"
+
+msgid "Error:"
+msgstr "Hiba:"
+
+msgid "Auto (detect)"
+msgstr "Automatikus (felismerés)"
+
+msgid "Neutral"
+msgstr "Semleges"
+
+msgid "Formal"
+msgstr "Formális"
+
+msgid "Informal"
+msgstr "Informális"
+
+msgid "Friendly"
+msgstr "Barátságos"
+
+msgid "Technical"
+msgstr "Műszaki"
+
+msgid "Poetic"
+msgstr "Költői"
+

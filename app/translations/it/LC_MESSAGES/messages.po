@@ -1,0 +1,92 @@
+# Italiano translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: it
+"
+"Language-Team: Italian
+"
+"Plural-Forms: nplurals=2; plural=(n != 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Traduttore LLM Ollama Locale"
+
+msgid "— local llm ollama translator"
+msgstr "— traduttore llm ollama locale"
+
+msgid "Model"
+msgstr "Modello"
+
+msgid "Source"
+msgstr "Origine"
+
+msgid "Target"
+msgstr "Destinazione"
+
+msgid "Tone"
+msgstr "Tono"
+
+msgid "Swap direction"
+msgstr "Inverti direzione"
+
+msgid "Recent translations history:"
+msgstr "Cronologia traduzioni recenti:"
+
+msgid "none"
+msgstr "nessuna"
+
+msgid "Text to translate"
+msgstr "Testo da tradurre"
+
+msgid "Paste or type text..."
+msgstr "Incolla o digita testo..."
+
+msgid "Translation starts automatically"
+msgstr "La traduzione inizia automaticamente"
+
+msgid "Translating..."
+msgstr "Traduzione in corso..."
+
+msgid "Result"
+msgstr "Risultato"
+
+msgid "Error:"
+msgstr "Errore:"
+
+msgid "Auto (detect)"
+msgstr "Auto (rileva)"
+
+msgid "Neutral"
+msgstr "Neutrale"
+
+msgid "Formal"
+msgstr "Formale"
+
+msgid "Informal"
+msgstr "Informale"
+
+msgid "Friendly"
+msgstr "Amichevole"
+
+msgid "Technical"
+msgstr "Tecnico"
+
+msgid "Poetic"
+msgstr "Poetico"
+

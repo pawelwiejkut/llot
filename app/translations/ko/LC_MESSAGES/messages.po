@@ -1,0 +1,92 @@
+# 한국어 translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: ko
+"
+"Language-Team: Korean
+"
+"Plural-Forms: nplurals=1; plural=0;
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — 로컬 LLM Ollama 번역기"
+
+msgid "— local llm ollama translator"
+msgstr "— 로컬 llm ollama 번역기"
+
+msgid "Model"
+msgstr "모델"
+
+msgid "Source"
+msgstr "원본"
+
+msgid "Target"
+msgstr "대상"
+
+msgid "Tone"
+msgstr "어조"
+
+msgid "Swap direction"
+msgstr "방향 바꾸기"
+
+msgid "Recent translations history:"
+msgstr "최근 번역 기록:"
+
+msgid "none"
+msgstr "없음"
+
+msgid "Text to translate"
+msgstr "번역할 텍스트"
+
+msgid "Paste or type text..."
+msgstr "텍스트를 붙여넣거나 입력하세요..."
+
+msgid "Translation starts automatically"
+msgstr "번역이 자동으로 시작됩니다"
+
+msgid "Translating..."
+msgstr "번역 중..."
+
+msgid "Result"
+msgstr "결과"
+
+msgid "Error:"
+msgstr "오류:"
+
+msgid "Auto (detect)"
+msgstr "자동 (감지)"
+
+msgid "Neutral"
+msgstr "중립"
+
+msgid "Formal"
+msgstr "정중한"
+
+msgid "Informal"
+msgstr "비공식적"
+
+msgid "Friendly"
+msgstr "친근한"
+
+msgid "Technical"
+msgstr "기술적"
+
+msgid "Poetic"
+msgstr "시적"
+

@@ -1,0 +1,92 @@
+# Slovenčina translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: sk
+"
+"Language-Team: Slovak
+"
+"Plural-Forms: nplurals=4; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Lokálny LLM Ollama Prekladač"
+
+msgid "— local llm ollama translator"
+msgstr "— lokálny llm ollama prekladač"
+
+msgid "Model"
+msgstr "Model"
+
+msgid "Source"
+msgstr "Zdroj"
+
+msgid "Target"
+msgstr "Cieľ"
+
+msgid "Tone"
+msgstr "Tón"
+
+msgid "Swap direction"
+msgstr "Vymeniť smer"
+
+msgid "Recent translations history:"
+msgstr "História nedávnych prekladov:"
+
+msgid "none"
+msgstr "žiadne"
+
+msgid "Text to translate"
+msgstr "Text na preklad"
+
+msgid "Paste or type text..."
+msgstr "Vložte alebo napíšte text..."
+
+msgid "Translation starts automatically"
+msgstr "Preklad sa spustí automaticky"
+
+msgid "Translating..."
+msgstr "Prekladám..."
+
+msgid "Result"
+msgstr "Výsledok"
+
+msgid "Error:"
+msgstr "Chyba:"
+
+msgid "Auto (detect)"
+msgstr "Auto (zistiť)"
+
+msgid "Neutral"
+msgstr "Neutrálny"
+
+msgid "Formal"
+msgstr "Formálny"
+
+msgid "Informal"
+msgstr "Neformálny"
+
+msgid "Friendly"
+msgstr "Priateľský"
+
+msgid "Technical"
+msgstr "Technický"
+
+msgid "Poetic"
+msgstr "Poetický"
+

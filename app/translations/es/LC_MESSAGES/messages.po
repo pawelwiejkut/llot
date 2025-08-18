@@ -1,0 +1,83 @@
+# Spanish translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-01-01 12:00+0000\n"
+"PO-Revision-Date: 2025-01-01 12:00+0000\n"
+"Last-Translator: LLOT Team\n"
+"Language: es\n"
+"Language-Team: Spanish\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Traductor LLM Ollama Local"
+
+msgid "— local llm ollama translator"
+msgstr "— traductor llm ollama local"
+
+msgid "Ollama"
+msgstr "Ollama"
+
+msgid "Model"
+msgstr "Modelo"
+
+msgid "Source"
+msgstr "Origen"
+
+msgid "Target"
+msgstr "Destino"
+
+msgid "Tone"
+msgstr "Tono"
+
+msgid "Swap direction"
+msgstr "Intercambiar dirección"
+
+msgid "Recent translations history:"
+msgstr "Historial de traducciones recientes:"
+
+msgid "none"
+msgstr "ninguna"
+
+msgid "Text to translate"
+msgstr "Texto a traducir"
+
+msgid "Paste or type text..."
+msgstr "Pegar o escribir texto..."
+
+msgid "Translation starts automatically"
+msgstr "La traducción comienza automáticamente"
+
+msgid "Translating..."
+msgstr "Traduciendo..."
+
+msgid "Result"
+msgstr "Resultado"
+
+msgid "Error:"
+msgstr "Error:"
+
+msgid "Auto (detect)"
+msgstr "Auto (detectar)"
+
+msgid "Neutral"
+msgstr "Neutral"
+
+msgid "Formal"
+msgstr "Formal"
+
+msgid "Informal"
+msgstr "Informal"
+
+msgid "Friendly"
+msgstr "Amigable"
+
+msgid "Technical"
+msgstr "Técnico"
+
+msgid "Poetic"
+msgstr "Poético"

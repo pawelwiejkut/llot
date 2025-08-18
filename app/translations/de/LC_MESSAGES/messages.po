@@ -1,0 +1,83 @@
+# German translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-01-01 12:00+0000\n"
+"PO-Revision-Date: 2025-01-01 12:00+0000\n"
+"Last-Translator: LLOT Team\n"
+"Language: de\n"
+"Language-Team: German\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Lokaler LLM Ollama Übersetzer"
+
+msgid "— local llm ollama translator"
+msgstr "— lokaler llm ollama übersetzer"
+
+msgid "Ollama"
+msgstr "Ollama"
+
+msgid "Model"
+msgstr "Modell"
+
+msgid "Source"
+msgstr "Quelle"
+
+msgid "Target"
+msgstr "Ziel"
+
+msgid "Tone"
+msgstr "Ton"
+
+msgid "Swap direction"
+msgstr "Richtung tauschen"
+
+msgid "Recent translations history:"
+msgstr "Letzte Übersetzungen:"
+
+msgid "none"
+msgstr "keine"
+
+msgid "Text to translate"
+msgstr "Zu übersetzender Text"
+
+msgid "Paste or type text..."
+msgstr "Text einfügen oder eingeben..."
+
+msgid "Translation starts automatically"
+msgstr "Übersetzung startet automatisch"
+
+msgid "Translating..."
+msgstr "Übersetze..."
+
+msgid "Result"
+msgstr "Ergebnis"
+
+msgid "Error:"
+msgstr "Fehler:"
+
+msgid "Auto (detect)"
+msgstr "Auto (erkennen)"
+
+msgid "Neutral"
+msgstr "Neutral"
+
+msgid "Formal"
+msgstr "Förmlich"
+
+msgid "Informal"
+msgstr "Informell"
+
+msgid "Friendly"
+msgstr "Freundlich"
+
+msgid "Technical"
+msgstr "Technisch"
+
+msgid "Poetic"
+msgstr "Poetisch"

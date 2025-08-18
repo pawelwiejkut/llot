@@ -1,0 +1,83 @@
+# Czech translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-01-01 12:00+0000\n"
+"PO-Revision-Date: 2025-01-01 12:00+0000\n"
+"Last-Translator: LLOT Team\n"
+"Language: cs\n"
+"Language-Team: Czech\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Místní LLM Ollama Překladač"
+
+msgid "— local llm ollama translator"
+msgstr "— místní llm ollama překladač"
+
+msgid "Ollama"
+msgstr "Ollama"
+
+msgid "Model"
+msgstr "Model"
+
+msgid "Source"
+msgstr "Zdroj"
+
+msgid "Target"
+msgstr "Cíl"
+
+msgid "Tone"
+msgstr "Tón"
+
+msgid "Swap direction"
+msgstr "Prohodit směr"
+
+msgid "Recent translations history:"
+msgstr "Historie posledních překladů:"
+
+msgid "none"
+msgstr "žádné"
+
+msgid "Text to translate"
+msgstr "Text k překladu"
+
+msgid "Paste or type text..."
+msgstr "Vložte nebo napište text..."
+
+msgid "Translation starts automatically"
+msgstr "Překlad začíná automaticky"
+
+msgid "Translating..."
+msgstr "Překládám..."
+
+msgid "Result"
+msgstr "Výsledek"
+
+msgid "Error:"
+msgstr "Chyba:"
+
+msgid "Auto (detect)"
+msgstr "Auto (detekce)"
+
+msgid "Neutral"
+msgstr "Neutrální"
+
+msgid "Formal"
+msgstr "Formální"
+
+msgid "Informal"
+msgstr "Neformální"
+
+msgid "Friendly"
+msgstr "Přátelský"
+
+msgid "Technical"
+msgstr "Technický"
+
+msgid "Poetic"
+msgstr "Poetický"

@@ -1,0 +1,92 @@
+# Slovenščina translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: sl
+"
+"Language-Team: Slovenian
+"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n%100==4 ? 2 : 3);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Lokalni LLM Ollama Prevajalnik"
+
+msgid "— local llm ollama translator"
+msgstr "— lokalni llm ollama prevajalnik"
+
+msgid "Model"
+msgstr "Model"
+
+msgid "Source"
+msgstr "Vir"
+
+msgid "Target"
+msgstr "Cilj"
+
+msgid "Tone"
+msgstr "Ton"
+
+msgid "Swap direction"
+msgstr "Zamenjaj smer"
+
+msgid "Recent translations history:"
+msgstr "Zgodovina nedavnih prevodov:"
+
+msgid "none"
+msgstr "brez"
+
+msgid "Text to translate"
+msgstr "Besedilo za prevod"
+
+msgid "Paste or type text..."
+msgstr "Prilepite ali vnesite besedilo..."
+
+msgid "Translation starts automatically"
+msgstr "Prevajanje se začne samodejno"
+
+msgid "Translating..."
+msgstr "Prevajam..."
+
+msgid "Result"
+msgstr "Rezultat"
+
+msgid "Error:"
+msgstr "Napaka:"
+
+msgid "Auto (detect)"
+msgstr "Samodejno (zaznaj)"
+
+msgid "Neutral"
+msgstr "Nevtralen"
+
+msgid "Formal"
+msgstr "Formalen"
+
+msgid "Informal"
+msgstr "Neformalen"
+
+msgid "Friendly"
+msgstr "Prijazen"
+
+msgid "Technical"
+msgstr "Tehnični"
+
+msgid "Poetic"
+msgstr "Poetičen"
+

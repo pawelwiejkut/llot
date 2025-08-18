@@ -1,0 +1,83 @@
+# Hindi translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-01-01 12:00+0000\n"
+"PO-Revision-Date: 2025-01-01 12:00+0000\n"
+"Last-Translator: LLOT Team\n"
+"Language: hi\n"
+"Language-Team: Hindi\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — स्थानीय LLM Ollama अनुवादक"
+
+msgid "— local llm ollama translator"
+msgstr "— स्थानीय llm ollama अनुवादक"
+
+msgid "Ollama"
+msgstr "Ollama"
+
+msgid "Model"
+msgstr "मॉडल"
+
+msgid "Source"
+msgstr "स्रोत"
+
+msgid "Target"
+msgstr "लक्ष्य"
+
+msgid "Tone"
+msgstr "स्वर"
+
+msgid "Swap direction"
+msgstr "दिशा बदलें"
+
+msgid "Recent translations history:"
+msgstr "हाल के अनुवाद इतिहास:"
+
+msgid "none"
+msgstr "कोई नहीं"
+
+msgid "Text to translate"
+msgstr "अनुवाद करने के लिए टेक्स्ट"
+
+msgid "Paste or type text..."
+msgstr "टेक्स्ट पेस्ट करें या टाइप करें..."
+
+msgid "Translation starts automatically"
+msgstr "अनुवाद स्वचालित रूप से शुरू होता है"
+
+msgid "Translating..."
+msgstr "अनुवाद हो रहा है..."
+
+msgid "Result"
+msgstr "परिणाम"
+
+msgid "Error:"
+msgstr "त्रुटि:"
+
+msgid "Auto (detect)"
+msgstr "स्वचालित (पहचानें)"
+
+msgid "Neutral"
+msgstr "तटस्थ"
+
+msgid "Formal"
+msgstr "औपचारिक"
+
+msgid "Informal"
+msgstr "अनौपचारिक"
+
+msgid "Friendly"
+msgstr "मित्रवत"
+
+msgid "Technical"
+msgstr "तकनीकी"
+
+msgid "Poetic"
+msgstr "काव्यात्मक"

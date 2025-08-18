@@ -1,0 +1,92 @@
+# Български translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: bg
+"
+"Language-Team: Bulgarian
+"
+"Plural-Forms: nplurals=2; plural=(n != 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Локален LLM Ollama Преводач"
+
+msgid "— local llm ollama translator"
+msgstr "— локален llm ollama преводач"
+
+msgid "Model"
+msgstr "Модел"
+
+msgid "Source"
+msgstr "Източник"
+
+msgid "Target"
+msgstr "Цел"
+
+msgid "Tone"
+msgstr "Тон"
+
+msgid "Swap direction"
+msgstr "Размени посоката"
+
+msgid "Recent translations history:"
+msgstr "История на последните преводи:"
+
+msgid "none"
+msgstr "няма"
+
+msgid "Text to translate"
+msgstr "Текст за превод"
+
+msgid "Paste or type text..."
+msgstr "Поставете или въведете текст..."
+
+msgid "Translation starts automatically"
+msgstr "Преводът започва автоматично"
+
+msgid "Translating..."
+msgstr "Превеждам..."
+
+msgid "Result"
+msgstr "Резултат"
+
+msgid "Error:"
+msgstr "Грешка:"
+
+msgid "Auto (detect)"
+msgstr "Авто (разпознаване)"
+
+msgid "Neutral"
+msgstr "Неутрален"
+
+msgid "Formal"
+msgstr "Официален"
+
+msgid "Informal"
+msgstr "Неофициален"
+
+msgid "Friendly"
+msgstr "Приятелски"
+
+msgid "Technical"
+msgstr "Технически"
+
+msgid "Poetic"
+msgstr "Поетичен"
+

@@ -1,0 +1,92 @@
+# ไทย translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: th
+"
+"Language-Team: Thai
+"
+"Plural-Forms: nplurals=1; plural=0;
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — นักแปลภาษา LLM Ollama ในเครื่อง"
+
+msgid "— local llm ollama translator"
+msgstr "— นักแปลภาษา llm ollama ในเครื่อง"
+
+msgid "Model"
+msgstr "โมเดล"
+
+msgid "Source"
+msgstr "ต้นทาง"
+
+msgid "Target"
+msgstr "ปลายทาง"
+
+msgid "Tone"
+msgstr "น้ำเสียง"
+
+msgid "Swap direction"
+msgstr "สลับทิศทาง"
+
+msgid "Recent translations history:"
+msgstr "ประวัติการแปลล่าสุด:"
+
+msgid "none"
+msgstr "ไม่มี"
+
+msgid "Text to translate"
+msgstr "ข้อความที่จะแปล"
+
+msgid "Paste or type text..."
+msgstr "วางหรือพิมพ์ข้อความ..."
+
+msgid "Translation starts automatically"
+msgstr "การแปลเริ่มต้นโดยอัตโนมัติ"
+
+msgid "Translating..."
+msgstr "กำลังแปล..."
+
+msgid "Result"
+msgstr "ผลลัพธ์"
+
+msgid "Error:"
+msgstr "ข้อผิดพลาด:"
+
+msgid "Auto (detect)"
+msgstr "อัตโนมัติ (ตรวจจับ)"
+
+msgid "Neutral"
+msgstr "เป็นกลาง"
+
+msgid "Formal"
+msgstr "เป็นทางการ"
+
+msgid "Informal"
+msgstr "ไม่เป็นทางการ"
+
+msgid "Friendly"
+msgstr "เป็นมิตร"
+
+msgid "Technical"
+msgstr "เชิงเทคนิค"
+
+msgid "Poetic"
+msgstr "เชิงบทกวี"
+

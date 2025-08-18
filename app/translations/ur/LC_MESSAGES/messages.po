@@ -1,0 +1,92 @@
+# اردو translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: ur
+"
+"Language-Team: Urdu
+"
+"Plural-Forms: nplurals=2; plural=(n != 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — مقامی LLM Ollama مترجم"
+
+msgid "— local llm ollama translator"
+msgstr "— مقامی llm ollama مترجم"
+
+msgid "Model"
+msgstr "ماڈل"
+
+msgid "Source"
+msgstr "ماخذ"
+
+msgid "Target"
+msgstr "ہدف"
+
+msgid "Tone"
+msgstr "لہجہ"
+
+msgid "Swap direction"
+msgstr "سمت تبدیل کریں"
+
+msgid "Recent translations history:"
+msgstr "حالیہ ترجموں کی تاریخ:"
+
+msgid "none"
+msgstr "کوئی نہیں"
+
+msgid "Text to translate"
+msgstr "ترجمہ کرنے والا متن"
+
+msgid "Paste or type text..."
+msgstr "متن چپکائیں یا ٹائپ کریں..."
+
+msgid "Translation starts automatically"
+msgstr "ترجمہ خودکار طور پر شروع ہوتا ہے"
+
+msgid "Translating..."
+msgstr "ترجمہ کر رہا ہے..."
+
+msgid "Result"
+msgstr "نتیجہ"
+
+msgid "Error:"
+msgstr "خرابی:"
+
+msgid "Auto (detect)"
+msgstr "خودکار (شناخت)"
+
+msgid "Neutral"
+msgstr "غیر جانبدار"
+
+msgid "Formal"
+msgstr "رسمی"
+
+msgid "Informal"
+msgstr "غیر رسمی"
+
+msgid "Friendly"
+msgstr "دوستانہ"
+
+msgid "Technical"
+msgstr "تکنیکی"
+
+msgid "Poetic"
+msgstr "شاعرانہ"
+

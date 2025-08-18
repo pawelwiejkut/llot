@@ -1,0 +1,92 @@
+# Nederlands translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: nl
+"
+"Language-Team: Dutch
+"
+"Plural-Forms: nplurals=2; plural=(n != 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Lokale LLM Ollama Vertaler"
+
+msgid "— local llm ollama translator"
+msgstr "— lokale llm ollama vertaler"
+
+msgid "Model"
+msgstr "Model"
+
+msgid "Source"
+msgstr "Bron"
+
+msgid "Target"
+msgstr "Doel"
+
+msgid "Tone"
+msgstr "Toon"
+
+msgid "Swap direction"
+msgstr "Richting omwisselen"
+
+msgid "Recent translations history:"
+msgstr "Recente vertalingsgeschiedenis:"
+
+msgid "none"
+msgstr "geen"
+
+msgid "Text to translate"
+msgstr "Te vertalen tekst"
+
+msgid "Paste or type text..."
+msgstr "Plak of typ tekst..."
+
+msgid "Translation starts automatically"
+msgstr "Vertaling start automatisch"
+
+msgid "Translating..."
+msgstr "Vertalen..."
+
+msgid "Result"
+msgstr "Resultaat"
+
+msgid "Error:"
+msgstr "Fout:"
+
+msgid "Auto (detect)"
+msgstr "Auto (detecteren)"
+
+msgid "Neutral"
+msgstr "Neutraal"
+
+msgid "Formal"
+msgstr "Formeel"
+
+msgid "Informal"
+msgstr "Informeel"
+
+msgid "Friendly"
+msgstr "Vriendelijk"
+
+msgid "Technical"
+msgstr "Technisch"
+
+msgid "Poetic"
+msgstr "Poëtisch"
+

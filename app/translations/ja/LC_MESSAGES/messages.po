@@ -1,0 +1,83 @@
+# Japanese translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-01-01 12:00+0000\n"
+"PO-Revision-Date: 2025-01-01 12:00+0000\n"
+"Last-Translator: LLOT Team\n"
+"Language: ja\n"
+"Language-Team: Japanese\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — ローカルLLM Ollama翻訳ツール"
+
+msgid "— local llm ollama translator"
+msgstr "— ローカルllm ollama翻訳ツール"
+
+msgid "Ollama"
+msgstr "Ollama"
+
+msgid "Model"
+msgstr "モデル"
+
+msgid "Source"
+msgstr "ソース"
+
+msgid "Target"
+msgstr "ターゲット"
+
+msgid "Tone"
+msgstr "トーン"
+
+msgid "Swap direction"
+msgstr "方向を交換"
+
+msgid "Recent translations history:"
+msgstr "最近の翻訳履歴："
+
+msgid "none"
+msgstr "なし"
+
+msgid "Text to translate"
+msgstr "翻訳するテキスト"
+
+msgid "Paste or type text..."
+msgstr "テキストを貼り付けまたは入力..."
+
+msgid "Translation starts automatically"
+msgstr "翻訳は自動的に開始されます"
+
+msgid "Translating..."
+msgstr "翻訳中..."
+
+msgid "Result"
+msgstr "結果"
+
+msgid "Error:"
+msgstr "エラー："
+
+msgid "Auto (detect)"
+msgstr "自動（検出）"
+
+msgid "Neutral"
+msgstr "中立"
+
+msgid "Formal"
+msgstr "丁寧"
+
+msgid "Informal"
+msgstr "カジュアル"
+
+msgid "Friendly"
+msgstr "フレンドリー"
+
+msgid "Technical"
+msgstr "技術的"
+
+msgid "Poetic"
+msgstr "詩的"

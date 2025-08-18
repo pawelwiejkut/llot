@@ -1,0 +1,92 @@
+# বাংলা translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: bn
+"
+"Language-Team: Bengali
+"
+"Plural-Forms: nplurals=2; plural=(n != 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — স্থানীয় LLM Ollama অনুবাদক"
+
+msgid "— local llm ollama translator"
+msgstr "— স্থানীয় llm ollama অনুবাদক"
+
+msgid "Model"
+msgstr "মডেল"
+
+msgid "Source"
+msgstr "উৎস"
+
+msgid "Target"
+msgstr "লক্ষ্য"
+
+msgid "Tone"
+msgstr "স্বর"
+
+msgid "Swap direction"
+msgstr "দিক পরিবর্তন করুন"
+
+msgid "Recent translations history:"
+msgstr "সাম্প্রতিক অনুবাদের ইতিহাস:"
+
+msgid "none"
+msgstr "কিছুই নেই"
+
+msgid "Text to translate"
+msgstr "অনুবাদ করার জন্য পাঠ্য"
+
+msgid "Paste or type text..."
+msgstr "পাঠ্য পেস্ট বা টাইপ করুন..."
+
+msgid "Translation starts automatically"
+msgstr "অনুবাদ স্বয়ংক্রিয়ভাবে শুরু হয়"
+
+msgid "Translating..."
+msgstr "অনুবাদ করা হচ্ছে..."
+
+msgid "Result"
+msgstr "ফলাফল"
+
+msgid "Error:"
+msgstr "ত্রুটি:"
+
+msgid "Auto (detect)"
+msgstr "স্বয়ংক্রিয় (সনাক্ত)"
+
+msgid "Neutral"
+msgstr "নিরপেক্ষ"
+
+msgid "Formal"
+msgstr "আনুষ্ঠানিক"
+
+msgid "Informal"
+msgstr "অনানুষ্ঠানিক"
+
+msgid "Friendly"
+msgstr "বন্ধুত্বপূর্ণ"
+
+msgid "Technical"
+msgstr "প্রযুক্তিগত"
+
+msgid "Poetic"
+msgstr "কাব্যিক"
+

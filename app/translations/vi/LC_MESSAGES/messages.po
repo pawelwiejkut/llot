@@ -1,0 +1,92 @@
+# Tiếng Việt translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: vi
+"
+"Language-Team: Vietnamese
+"
+"Plural-Forms: nplurals=1; plural=0;
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Trình Dịch LLM Ollama Cục Bộ"
+
+msgid "— local llm ollama translator"
+msgstr "— trình dịch llm ollama cục bộ"
+
+msgid "Model"
+msgstr "Mô hình"
+
+msgid "Source"
+msgstr "Nguồn"
+
+msgid "Target"
+msgstr "Đích"
+
+msgid "Tone"
+msgstr "Giọng điệu"
+
+msgid "Swap direction"
+msgstr "Đổi hướng"
+
+msgid "Recent translations history:"
+msgstr "Lịch sử dịch gần đây:"
+
+msgid "none"
+msgstr "không có"
+
+msgid "Text to translate"
+msgstr "Văn bản cần dịch"
+
+msgid "Paste or type text..."
+msgstr "Dán hoặc nhập văn bản..."
+
+msgid "Translation starts automatically"
+msgstr "Dịch tự động bắt đầu"
+
+msgid "Translating..."
+msgstr "Đang dịch..."
+
+msgid "Result"
+msgstr "Kết quả"
+
+msgid "Error:"
+msgstr "Lỗi:"
+
+msgid "Auto (detect)"
+msgstr "Tự động (phát hiện)"
+
+msgid "Neutral"
+msgstr "Trung tính"
+
+msgid "Formal"
+msgstr "Trang trọng"
+
+msgid "Informal"
+msgstr "Thân mật"
+
+msgid "Friendly"
+msgstr "Thân thiện"
+
+msgid "Technical"
+msgstr "Kỹ thuật"
+
+msgid "Poetic"
+msgstr "Thơ ca"
+

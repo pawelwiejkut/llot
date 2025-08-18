@@ -1,0 +1,92 @@
+# Suomi translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0
+"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS
+"
+"POT-Creation-Date: 2025-01-01 12:00+0000
+"
+"PO-Revision-Date: 2025-01-01 12:00+0000
+"
+"Last-Translator: LLOT Team
+"
+"Language: fi
+"
+"Language-Team: Finnish
+"
+"Plural-Forms: nplurals=2; plural=(n != 1);
+"
+"MIME-Version: 1.0
+"
+"Content-Type: text/plain; charset=utf-8
+"
+"Content-Transfer-Encoding: 8bit
+"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Paikallinen LLM Ollama Kääntäjä"
+
+msgid "— local llm ollama translator"
+msgstr "— paikallinen llm ollama kääntäjä"
+
+msgid "Model"
+msgstr "Malli"
+
+msgid "Source"
+msgstr "Lähde"
+
+msgid "Target"
+msgstr "Kohde"
+
+msgid "Tone"
+msgstr "Sävy"
+
+msgid "Swap direction"
+msgstr "Vaihda suunta"
+
+msgid "Recent translations history:"
+msgstr "Viimeaikaisten käännösten historia:"
+
+msgid "none"
+msgstr "ei mitään"
+
+msgid "Text to translate"
+msgstr "Käännettävä teksti"
+
+msgid "Paste or type text..."
+msgstr "Liitä tai kirjoita teksti..."
+
+msgid "Translation starts automatically"
+msgstr "Käännös alkaa automaattisesti"
+
+msgid "Translating..."
+msgstr "Käännetään..."
+
+msgid "Result"
+msgstr "Tulos"
+
+msgid "Error:"
+msgstr "Virhe:"
+
+msgid "Auto (detect)"
+msgstr "Auto (tunnista)"
+
+msgid "Neutral"
+msgstr "Neutraali"
+
+msgid "Formal"
+msgstr "Muodollinen"
+
+msgid "Informal"
+msgstr "Epämuodollinen"
+
+msgid "Friendly"
+msgstr "Ystävällinen"
+
+msgid "Technical"
+msgstr "Tekninen"
+
+msgid "Poetic"
+msgstr "Runollinen"
+

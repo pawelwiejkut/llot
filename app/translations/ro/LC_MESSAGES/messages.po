@@ -1,0 +1,83 @@
+# Romanian translation for LLOT
+msgid ""
+msgstr ""
+"Project-Id-Version: LLOT 1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-01-01 12:00+0000\n"
+"PO-Revision-Date: 2025-01-01 12:00+0000\n"
+"Last-Translator: LLOT Team\n"
+"Language: ro\n"
+"Language-Team: Romanian\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Traducător LLM Ollama Local"
+
+msgid "— local llm ollama translator"
+msgstr "— traducător llm ollama local"
+
+msgid "Ollama"
+msgstr "Ollama"
+
+msgid "Model"
+msgstr "Model"
+
+msgid "Source"
+msgstr "Sursă"
+
+msgid "Target"
+msgstr "Țintă"
+
+msgid "Tone"
+msgstr "Ton"
+
+msgid "Swap direction"
+msgstr "Schimbă direcția"
+
+msgid "Recent translations history:"
+msgstr "Istoricul traducerilor recente:"
+
+msgid "none"
+msgstr "niciuna"
+
+msgid "Text to translate"
+msgstr "Text de tradus"
+
+msgid "Paste or type text..."
+msgstr "Lipește sau tastează text..."
+
+msgid "Translation starts automatically"
+msgstr "Traducerea începe automat"
+
+msgid "Translating..."
+msgstr "Se traduce..."
+
+msgid "Result"
+msgstr "Rezultat"
+
+msgid "Error:"
+msgstr "Eroare:"
+
+msgid "Auto (detect)"
+msgstr "Auto (detectare)"
+
+msgid "Neutral"
+msgstr "Neutru"
+
+msgid "Formal"
+msgstr "Formal"
+
+msgid "Informal"
+msgstr "Informal"
+
+msgid "Friendly"
+msgstr "Prietenos"
+
+msgid "Technical"
+msgstr "Tehnic"
+
+msgid "Poetic"
+msgstr "Poetic"
