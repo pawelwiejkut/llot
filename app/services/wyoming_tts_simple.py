@@ -29,12 +29,17 @@ class SimpleWyomingTTSService:
             loop.close()
     
     async def _synthesize_async(self, text, voice):
-        """Simple async synthesis for wyoming 1.5.4"""
+        """Simple async synthesis for wyoming 1.5.4 with OS-specific fixes"""
         audio_chunks = []
+        client = None
         
         try:
+            print(f"DEBUG: Connecting to Wyoming at {self.host}:{self.port}", flush=True)
             client = AsyncTcpClient(self.host, self.port)
-            await asyncio.wait_for(client.connect(), timeout=5.0)
+            
+            # Longer timeout for Linux compatibility
+            await asyncio.wait_for(client.connect(), timeout=10.0)
+            print(f"DEBUG: Connected successfully", flush=True)
             
             # Send synthesis request
             synthesize_request = Synthesize(
@@ -42,26 +47,53 @@ class SimpleWyomingTTSService:
                 voice=SynthesizeVoice(name=voice)
             )
             
-            await client.write_event(synthesize_request.event())
+            print(f"DEBUG: Sending synthesis request", flush=True)
+            await asyncio.wait_for(client.write_event(synthesize_request.event()), timeout=5.0)
             
-            # Collect audio chunks
+            # Collect audio chunks with timeout
+            chunk_count = 0
+            max_wait_time = 30.0  # Max 30 seconds for entire synthesis
+            start_time = asyncio.get_event_loop().time()
+            
+            print(f"DEBUG: Waiting for audio chunks", flush=True)
             while True:
-                event = await client.read_event()
+                # Check for overall timeout
+                if asyncio.get_event_loop().time() - start_time > max_wait_time:
+                    print(f"DEBUG: Overall timeout reached after {max_wait_time}s", flush=True)
+                    break
+                
+                try:
+                    # Shorter timeout per event to avoid hanging
+                    event = await asyncio.wait_for(client.read_event(), timeout=5.0)
+                except asyncio.TimeoutError:
+                    print(f"DEBUG: Timeout waiting for next event, got {chunk_count} chunks so far", flush=True)
+                    break
                 
                 if event is None:
+                    print(f"DEBUG: Received None event, ending", flush=True)
                     break
                     
                 if AudioChunk.is_type(event.type):
                     chunk = AudioChunk.from_event(event)
                     audio_chunks.append(chunk.audio)
+                    chunk_count += 1
+                    print(f"DEBUG: Received audio chunk {chunk_count}, size: {len(chunk.audio)}", flush=True)
                 elif event.type == "tts-done":
+                    print(f"DEBUG: TTS done event received", flush=True)
                     break
             
-            await client.disconnect()
+            print(f"DEBUG: Synthesis complete, got {len(audio_chunks)} chunks", flush=True)
             
         except Exception as e:
-            print(f"DEBUG: Wyoming synthesis error: {e}")
+            print(f"DEBUG: Wyoming synthesis error: {e}", flush=True)
             raise
+        finally:
+            if client:
+                try:
+                    await asyncio.wait_for(client.disconnect(), timeout=2.0)
+                    print(f"DEBUG: Disconnected from Wyoming", flush=True)
+                except Exception as e:
+                    print(f"DEBUG: Error disconnecting: {e}", flush=True)
             
         return audio_chunks
     
