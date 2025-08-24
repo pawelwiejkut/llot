@@ -102,23 +102,6 @@ class StreamingWyomingTTSService:
         
         return generate_audio_stream()
     
-    def _create_fmt_chunk(self, sample_rate, bits_per_sample, channels):
-        """Create WAV format chunk"""
-        byte_rate = sample_rate * channels * bits_per_sample // 8
-        block_align = channels * bits_per_sample // 8
-        
-        fmt_data = io.BytesIO()
-        fmt_data.write(b'fmt ')
-        fmt_data.write(struct.pack('<I', 16))  # fmt chunk size
-        fmt_data.write(struct.pack('<H', 1))   # PCM format
-        fmt_data.write(struct.pack('<H', channels))
-        fmt_data.write(struct.pack('<I', sample_rate))
-        fmt_data.write(struct.pack('<I', byte_rate))
-        fmt_data.write(struct.pack('<H', block_align))
-        fmt_data.write(struct.pack('<H', bits_per_sample))
-        
-        return fmt_data.getvalue()
-    
     async def _synthesize_streaming_async(self, text, voice, chunk_queue):
         """Official Wyoming streaming synthesis using SynthesizeStart/Chunk/Stop protocol"""
         client = AsyncTcpClient(self.host, self.port)

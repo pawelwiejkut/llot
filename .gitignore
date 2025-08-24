@@ -47,6 +47,19 @@ Thumbs.db
 *.log
 logs/
 
-# Test files
+# Test files  
 cookies*.txt
 debug_cookies.txt
+test_*.py
+test_*.wav
+test_*.js
+*_backup.py
+*_old.py
+*_new.py
+streaming_audio_example.js
+convert_pcm_to_wav.py
+wyoming_*.py
+opencode.json
+
+# Audio test files
+*.wav

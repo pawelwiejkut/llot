@@ -5,3 +5,4 @@ langdetect==1.0.9
 python-dotenv==1.0.0
 gunicorn==21.2.0
 pytest==7.4.0
+wyoming==1.5.4

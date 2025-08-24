@@ -498,17 +498,17 @@ async function commitHistoryIfStable(){
 
 function triggerAutoTranslate(){
   if(debounceId) clearTimeout(debounceId);
-  console.log('DEBUG: triggerAutoTranslate called');
+  // Auto-translate triggered
   // Shorter debounce for better responsiveness, and ensure minimum text length
   debounceId = setTimeout(()=> {
     const srcText = document.getElementById('source_text').value.trim();
-    console.log('DEBUG: After debounce - text length:', srcText.length, 'text:', JSON.stringify(srcText.substring(0, 50) + '...'));
+    debugLog('After debounce - text length:', srcText.length, 'text:', JSON.stringify(srcText.substring(0, 50) + '...'));
     // Only translate if we have at least 2 characters (to avoid single letter translations)
     if(srcText.length >= 2) {
-      console.log('DEBUG: Calling autoTranslate');
+      debugLog('Calling autoTranslate');
       autoTranslate();
     } else {
-      console.log('DEBUG: Text too short, not translating');
+      debugLog('Text too short, not translating');
     }
   }, 250);
 }
@@ -647,6 +647,10 @@ function loadPrefs(){
 }
 
 // Event listeners and initialization
+// Debug logging helper
+const DEBUG = false; // Set to false in production
+const debugLog = (...args) => DEBUG && console.log(...args);
+
 document.addEventListener('DOMContentLoaded', function() {
   // Load history from localStorage - ignore server-side history
   historyItems = getHistoryItems();
@@ -793,10 +797,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     ttsBtn.addEventListener('click', async () => {
     const resultText = getPlainResult().trim();
-    console.log('DEBUG: TTS button clicked, extracted text:', JSON.stringify(resultText));
-    console.log('DEBUG: Text length:', resultText.length);
+    debugLog('TTS button clicked, extracted text:', JSON.stringify(resultText));
+    debugLog('Text length:', resultText.length);
     if (!resultText) {
-      console.log('DEBUG: No text found, aborting TTS');
+      debugLog('No text found, aborting TTS');
       return;
     }
     

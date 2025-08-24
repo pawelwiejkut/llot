@@ -4,9 +4,10 @@ LLOT - Local LLM Ollama Translator
 Main application entry point
 """
 
+import os
+import sys
 from app import create_app
 from app.config import Config
-import sys
 
 app = create_app()
 
@@ -17,7 +18,6 @@ if __name__ == "__main__":
     print(f"Model: {config.DEFAULT_MODEL}")
     
     try:
-        import os
         debug_mode = os.environ.get('FLASK_DEBUG', '0') == '1'
         app.run(
             host=config.LISTEN_HOST, 
