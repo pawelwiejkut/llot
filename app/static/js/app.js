@@ -125,9 +125,27 @@ function _(key) {
 function setStatus(text, timeoutMs){
   const box = document.getElementById('status');
   const statusText = document.getElementById('status_text');
-  if(text){ statusText.textContent = text; box.style.display = 'inline-flex'; }
-  else { box.style.display = 'none'; }
+  console.log('DEBUG: setStatus called with:', JSON.stringify(text), 'timeout:', timeoutMs);
+  console.log('DEBUG: Status elements found:', !!box, !!statusText);
+  if(text){ 
+    statusText.textContent = text; 
+    box.style.display = 'inline-flex'; 
+    console.log('DEBUG: Status set to visible with text:', text);
+  } else { 
+    box.style.display = 'none'; 
+    console.log('DEBUG: Status hidden');
+  }
   if(text && timeoutMs){ setTimeout(()=>{ box.style.display='none'; }, timeoutMs); }
+}
+
+function setTranslationHint(text){
+  const hintEl = document.getElementById('translation_hint');
+  const badge = document.getElementById('detected_badge');
+  if(hintEl && text){
+    // Preserve the badge element
+    const badgeHtml = badge ? badge.outerHTML : '<span id="detected_badge" class="badge" style="display:none;"></span>';
+    hintEl.innerHTML = text + badgeHtml;
+  }
 }
 
 function autoGrow(el){
@@ -154,8 +172,43 @@ function setSelectValue(sel, val){
   if(opt) sel.value = val;
 }
 
-function getPlainResult(){ return document.getElementById('result').innerText; }
-function setResultPlain(text){ renderResultInteractive(text); }
+// Store the complete translation text to prevent DOM corruption issues
+let storedCompleteText = '';
+
+function getPlainResult(){ 
+  const resultEl = document.getElementById('result');
+  if (!resultEl) {
+    console.error('DEBUG: Result element not found');
+    return '';
+  }
+  
+  // Use textContent to get all text regardless of CSS styling
+  const currentText = resultEl.textContent || '';
+  
+  // Debug logging
+  console.log('DEBUG: DOM textContent length:', currentText.length);
+  console.log('DEBUG: Stored complete text length:', storedCompleteText.length);
+  console.log('DEBUG: Current DOM text:', JSON.stringify(currentText.substring(0, 100) + '...'));
+  console.log('DEBUG: Stored text:', JSON.stringify(storedCompleteText.substring(0, 100) + '...'));
+  
+  // If current DOM text is shorter than stored text and stored text starts with current text,
+  // it means DOM was truncated - return the complete stored text
+  if (storedCompleteText.length > currentText.length && 
+      storedCompleteText.startsWith(currentText.replace(/…$/, ''))) {
+    console.log('DEBUG: DOM appears truncated, returning stored complete text');
+    return storedCompleteText;
+  }
+  
+  // Otherwise return current DOM text
+  console.log('DEBUG: Returning current DOM text');
+  return currentText;
+}
+function setResultPlain(text){ 
+  // Store the complete text before rendering
+  storedCompleteText = text || '';
+  console.log('DEBUG: Stored complete text (length:', storedCompleteText.length, '):', JSON.stringify(storedCompleteText.substring(0, 100) + '...'));
+  renderResultInteractive(text); 
+}
 
 function swap(){
   const srcTa = document.getElementById('source_text');
@@ -195,7 +248,7 @@ function getHistoryItems(){
 
 function saveHistoryItems(items){
   try {
-    localStorage.setItem('lt_history', JSON.stringify(items.slice(0,5)));
+    localStorage.setItem('lt_history', JSON.stringify(items.slice(0,3)));
   } catch(e) {}
 }
 
@@ -205,7 +258,7 @@ function renderHistoryChips(){
   const wrap = document.getElementById('history');
   if(!wrap) return;
   wrap.innerHTML = '';
-  const items = historyItems.slice(0,5);
+  const items = historyItems.slice(0,3);
   if(items.length === 0){
     const span = document.createElement('span');
     span.className = 'small';
@@ -259,7 +312,23 @@ function renderResultInteractive(text){
   const parts = tokenizeForUI(text);
   parts.forEach((p) => {
     if (/^\s+$/.test(p) || /^[.,!?;:()«»„"""—–-]$/.test(p)) {
-      frag.appendChild(document.createTextNode(p));
+      // Preserve newlines and other whitespace properly
+      if (p.includes('\n')) {
+        // Split by newlines and handle each part
+        const lines = p.split('\n');
+        lines.forEach((line, index) => {
+          if (index > 0) {
+            frag.appendChild(document.createElement('br'));
+          }
+          if (line.trim() === '' && line.length > 0) {
+            frag.appendChild(document.createTextNode(line));
+          } else if (line.length > 0) {
+            frag.appendChild(document.createTextNode(line));
+          }
+        });
+      } else {
+        frag.appendChild(document.createTextNode(p));
+      }
     } else {
       const span = document.createElement('span');
       span.className = 'token';
@@ -271,12 +340,21 @@ function renderResultInteractive(text){
   });
   box.appendChild(frag);
   
-  // Show TTS button if there's translated text
+  // Show TTS button if there's translated text, but keep it disabled initially (only if TTS is enabled)
   const ttsBtn = document.getElementById('tts-btn');
-  if (text && text.trim()) {
-    ttsBtn.style.display = 'flex';
-  } else {
-    ttsBtn.style.display = 'none';
+  if (ttsBtn) {
+    if (text && text.trim()) {
+      ttsBtn.style.display = 'flex';
+      ttsBtn.classList.add('disabled');
+      ttsBtn.setAttribute('disabled', 'true');
+      // Enable after a short delay to ensure text is fully rendered
+      setTimeout(() => {
+        ttsBtn.classList.remove('disabled');
+        ttsBtn.removeAttribute('disabled');
+      }, 200);
+    } else {
+      ttsBtn.style.display = 'none';
+    }
   }
 }
 
@@ -410,8 +488,8 @@ async function commitHistoryIfStable(){
   historyItems = historyItems.filter(h => !(h.source === item.source && h.target === item.target));
   // Add to beginning
   historyItems.unshift(item);
-  // Keep only 5 items
-  if(historyItems.length > 5) historyItems.length = 5;
+  // Keep only 3 items
+  if(historyItems.length > 3) historyItems.length = 3;
   
   // Save to localStorage
   saveHistoryItems(historyItems);
@@ -420,7 +498,19 @@ async function commitHistoryIfStable(){
 
 function triggerAutoTranslate(){
   if(debounceId) clearTimeout(debounceId);
-  debounceId = setTimeout(()=> autoTranslate(), 350);
+  console.log('DEBUG: triggerAutoTranslate called');
+  // Shorter debounce for better responsiveness, and ensure minimum text length
+  debounceId = setTimeout(()=> {
+    const srcText = document.getElementById('source_text').value.trim();
+    console.log('DEBUG: After debounce - text length:', srcText.length, 'text:', JSON.stringify(srcText.substring(0, 50) + '...'));
+    // Only translate if we have at least 2 characters (to avoid single letter translations)
+    if(srcText.length >= 2) {
+      console.log('DEBUG: Calling autoTranslate');
+      autoTranslate();
+    } else {
+      console.log('DEBUG: Text too short, not translating');
+    }
+  }, 250);
 }
 
 async function autoTranslate(){
@@ -429,9 +519,13 @@ async function autoTranslate(){
   const target_lang = document.getElementById('target_lang').value;
   const tone = document.getElementById('tone').value;
 
+  console.log('DEBUG: autoTranslate called with text:', JSON.stringify(source_text.substring(0, 50) + '...'));
+  console.log('DEBUG: Translation settings:', source_lang, '→', target_lang, 'tone:', tone);
+
   userChosenPhrases = [];
 
   if(!source_text){
+    console.log('DEBUG: No source text, clearing results');
     setResultPlain('');
     document.getElementById('detected_badge').style.display='none';
     setStatus('');
@@ -446,7 +540,11 @@ async function autoTranslate(){
   latestSeq = mySeq;
 
   try{
+    console.log('DEBUG: Setting status to translating...');
     setStatus(_('translating'));
+    // Hide translation hint during translation
+    const hintEl = document.getElementById('translation_hint');
+    if(hintEl) hintEl.style.display = 'none';
     const r = await fetch('/api/translate?no_history=1', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -454,12 +552,17 @@ async function autoTranslate(){
       signal: ab.signal
     });
     const j = await r.json();
+    console.log('DEBUG: Translation response received:', j);
     if(j.error){
+      console.log('DEBUG: Translation error:', j.error);
       setResultPlain('');
       document.getElementById('detected_badge').style.display='none';
       return;
     }
-    if(mySeq !== latestSeq){ return; }
+    if(mySeq !== latestSeq){ 
+      console.log('DEBUG: Sequence mismatch, ignoring result. mySeq:', mySeq, 'latestSeq:', latestSeq);
+      return; 
+    }
 
     setResultPlain(j.translated || '');
     latestInputSnapshot = source_text;
@@ -478,9 +581,27 @@ async function autoTranslate(){
 
     planIdleCommit();
   }catch(e){
-    if(e.name !== 'AbortError'){ }
+    console.log('DEBUG: Translation error caught:', e);
+    if(e.name !== 'AbortError'){ 
+      console.log('DEBUG: Non-abort error during translation');
+      // Only clear status on real errors, not aborts
+      setStatus('');
+      const hintEl = document.getElementById('translation_hint');
+      if(hintEl) hintEl.style.display = '';
+    } else {
+      console.log('DEBUG: Translation aborted - keeping status for next request');
+      // Don't clear status on abort - let next request handle it
+    }
   } finally {
-    setStatus('');
+    // Only clear status if this is the latest request
+    if(mySeq === latestSeq) {
+      console.log('DEBUG: Translation finally block - clearing status (latest request)');
+      setStatus('');
+      const hintEl = document.getElementById('translation_hint');
+      if(hintEl) hintEl.style.display = '';
+    } else {
+      console.log('DEBUG: Translation finally block - not latest request, keeping status');
+    }
     syncResultMinHeight();
   }
 }
@@ -558,18 +679,130 @@ document.addEventListener('DOMContentLoaded', function() {
     triggerAutoTranslate();
   }
   
-  // TTS functionality
+  // Progressive Streaming TTS Implementation
+  class StreamingTTSPlayer {
+    constructor() {
+      this.audioElement = null;
+      this.objectUrl = null;
+      this.isPlaying = false;
+    }
+
+    async playStreaming(text, language) {
+      console.log('TTS: Starting streaming with backend pauses for:', text, 'language:', language);
+      
+      try {
+        // Use streaming backend with sentence pauses
+        const response = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: text,
+            language: language,
+            streaming: true  // Use Wyoming streaming with backend pauses
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Streaming failed with status: ${response.status}`);
+        }
+
+        // Process as blob for reliable audio playback
+        const audioBlob = await response.blob();
+        console.log('TTS: Received streaming blob with pauses:', audioBlob.size, 'bytes, type:', audioBlob.type);
+        
+        this.objectUrl = URL.createObjectURL(audioBlob);
+        this.audioElement = new Audio(this.objectUrl);
+        
+        // Add event listeners for better debugging
+        this.audioElement.addEventListener('canplay', () => {
+          console.log('TTS: Audio can play, duration:', this.audioElement.duration);
+        });
+        
+        this.audioElement.addEventListener('loadedmetadata', () => {
+          console.log('TTS: Metadata loaded, duration:', this.audioElement.duration, 'seconds');
+        });
+        
+        this.audioElement.addEventListener('error', (e) => {
+          console.error('TTS: Audio element error:', e.target.error);
+        });
+        
+        console.log('TTS: Wyoming streaming with pauses successful, starting playback');
+        await this.audioElement.play();
+        console.log('TTS: Playback started successfully');
+        return this.audioElement;
+        
+      } catch (streamError) {
+        console.warn('TTS: Wyoming streaming failed, using fast mode:', streamError.message);
+        return await this.playFast(text, language);
+      }
+    }
+
+    async playFast(text, language) {
+      console.log('TTS: Using fast mode');
+      
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: text,
+          language: language,
+          streaming: false  // Use fast mode for reliability
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('TTS request failed');
+      }
+
+      const audioBlob = await response.blob();
+      this.objectUrl = URL.createObjectURL(audioBlob);
+      
+      this.audioElement = new Audio(this.objectUrl);
+      await this.audioElement.play();
+      
+      return this.audioElement;
+    }
+
+    stop() {
+      if (this.audioElement) {
+        this.audioElement.pause();
+        this.audioElement.currentTime = 0;
+      }
+      
+      if (this.objectUrl) {
+        URL.revokeObjectURL(this.objectUrl);
+        this.objectUrl = null;
+      }
+      
+      this.isPlaying = false;
+    }
+
+    addEventListener(event, callback) {
+      if (this.audioElement) {
+        this.audioElement.addEventListener(event, callback);
+      }
+    }
+  }
+
+  // TTS functionality (only if TTS button exists)
   const ttsBtn = document.getElementById('tts-btn');
-  let currentAudio = null;
   
-  ttsBtn.addEventListener('click', async () => {
+  if (ttsBtn) {
+    // Initialize streaming TTS player
+    const streamingPlayer = new StreamingTTSPlayer();
+    
+    ttsBtn.addEventListener('click', async () => {
     const resultText = getPlainResult().trim();
-    if (!resultText) return;
+    console.log('DEBUG: TTS button clicked, extracted text:', JSON.stringify(resultText));
+    console.log('DEBUG: Text length:', resultText.length);
+    if (!resultText) {
+      console.log('DEBUG: No text found, aborting TTS');
+      return;
+    }
     
     // Stop current audio if playing
-    if (currentAudio && !currentAudio.ended) {
-      currentAudio.pause();
-      currentAudio = null;
+    if (streamingPlayer.isPlaying) {
+      streamingPlayer.stop();
       ttsBtn.classList.remove('playing');
       return;
     }
@@ -594,61 +827,39 @@ document.addEventListener('DOMContentLoaded', function() {
       
       const ttsLang = langMap[targetLang] || 'pl';
       
-      console.log('TTS: Requesting audio for:', resultText, 'in language:', ttsLang);
+      console.log('TTS: Using streaming player for:', resultText, 'in language:', ttsLang);
       
-      const response = await fetch('/api/tts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          text: resultText,
-          language: ttsLang
-        })
-      });
-      
-      console.log('TTS: Response status:', response.status, response.statusText);
-      
-      if (!response.ok) {
-        throw new Error('TTS request failed');
-      }
-      
-      const audioBlob = await response.blob();
-      console.log('TTS: Received audio blob:', audioBlob.size, 'bytes, type:', audioBlob.type);
-      
-      const audioUrl = URL.createObjectURL(audioBlob);
-      console.log('TTS: Created audio URL:', audioUrl);
-      
-      currentAudio = new Audio(audioUrl);
-      console.log('TTS: Created Audio object');
-      
-      // Switch from loading to playing
+      // Switch from loading to playing  
       ttsBtn.classList.remove('loading');
       ttsBtn.classList.add('playing');
       
-      currentAudio.addEventListener('ended', () => {
-        console.log('TTS: Audio playback ended');
-        ttsBtn.classList.remove('playing');
-        URL.revokeObjectURL(audioUrl);
-        currentAudio = null;
-      });
+      // Use streaming player with fallback to fast mode
+      const audioElement = await streamingPlayer.playStreaming(resultText, ttsLang);
+      streamingPlayer.isPlaying = true;
       
-      currentAudio.addEventListener('error', (e) => {
-        console.error('TTS: Audio playback error:', e);
-        ttsBtn.classList.remove('playing');
-        ttsBtn.classList.remove('loading');
-        URL.revokeObjectURL(audioUrl);
-        currentAudio = null;
-      });
+      // Set up completion handlers
+      if (audioElement) {
+        audioElement.addEventListener('ended', () => {
+          console.log('TTS: Streaming audio ended');
+          ttsBtn.classList.remove('playing');
+          streamingPlayer.stop();
+        });
+        
+        audioElement.addEventListener('error', (error) => {
+          console.error('TTS: Streaming audio error:', error);
+          ttsBtn.classList.remove('playing');
+          ttsBtn.classList.remove('loading');
+          streamingPlayer.stop();
+        });
+      }
       
-      console.log('TTS: Starting audio playback');
-      await currentAudio.play();
-      console.log('TTS: Audio playback started successfully');
+      console.log('TTS: Streaming audio started');
       
     } catch (error) {
       console.error('TTS error:', error);
       ttsBtn.classList.remove('playing');
       ttsBtn.classList.remove('loading');
     }
-  });
+    });
+  }
 });

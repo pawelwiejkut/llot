@@ -101,7 +101,7 @@ label.small { display:inline-block; margin-bottom:14px; color:#475569; font-size
 
 /* Historia pod dropdownami */
 .history-block { margin-top:16px; }
-.history { margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; }
+.history { margin-top:12px; display:flex; gap:10px; flex-wrap:nowrap; }
 
 /* Pola tekstowe */
 textarea {
@@ -144,7 +144,7 @@ textarea:focus { outline: none; border-color:#93c5fd; box-shadow: 0 0 0 3px var(
 
 .result-box {
   flex: 1;
-  white-space:pre-wrap; overflow:auto; padding:14px;
+  white-space:pre-wrap; overflow:auto; padding:14px 50px 14px 14px;
   border-radius:10px; border:1px dashed #e3e7ee; background:#fbfcff;
   line-height:1.6; font-size:var(--fs-result);
 }
@@ -153,10 +153,10 @@ textarea:focus { outline: none; border-color:#93c5fd; box-shadow: 0 0 0 3px var(
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 8px;
+  border-radius: 6px;
+  padding: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -165,6 +165,9 @@ textarea:focus { outline: none; border-color:#93c5fd; box-shadow: 0 0 0 3px var(
   color: #6b7280;
   backdrop-filter: blur(4px);
   z-index: 10;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  width: 32px;
+  height: 32px;
 }
 
 .tts-button:hover {
@@ -184,14 +187,28 @@ textarea:focus { outline: none; border-color:#93c5fd; box-shadow: 0 0 0 3px var(
   border-color: #059669;
 }
 
-.tts-button.loading {
-  color: #f59e0b;
-  background: rgba(254, 243, 199, 0.9);
-  border-color: #f59e0b;
+.tts-button:disabled,
+.tts-button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: #9ca3af;
+  border-color: #e5e7eb;
 }
 
-.tts-button.loading svg {
-  animation: spin-tts 1s linear infinite;
+.tts-button:disabled:hover,
+.tts-button.disabled:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.95);
+  color: #9ca3af;
+  border-color: #e5e7eb;
+}
+
+.tts-button.loading {
+  color: #9ca3af;
+  background: rgba(243, 244, 246, 0.9);
+  border-color: #9ca3af;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @keyframes spin-tts {
@@ -200,7 +217,7 @@ textarea:focus { outline: none; border-color:#93c5fd; box-shadow: 0 0 0 3px var(
 }
 
 /* Historia chipy */
-.chip { background:#eef3ff; padding:8px 12px; border-radius:999px; font-size:18px; color:#1b4ed8; cursor:pointer; }
+.chip { background:#eef3ff; padding:8px 12px; border-radius:999px; font-size:18px; color:#1b4ed8; cursor:pointer; flex-shrink:1; min-width:0; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .chip:hover{ background:#e3ebff; }
 
 /* Dropdown alternatyw */

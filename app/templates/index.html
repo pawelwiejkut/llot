@@ -112,7 +112,7 @@
         <label class="small">{{ _('Text to translate') }}</label>
         <textarea name="source_text" id="source_text" placeholder="{{ _('Paste or type text...') }}">{{ last_input|default('') }}</textarea>
         <div class="controls">
-          <div class="small">{{ _('Translation starts automatically') }}<span id="detected_badge" class="badge" style="display:none;"></span></div>
+          <div class="small" id="translation_hint">{{ _('Translation starts automatically') }}<span id="detected_badge" class="badge" style="display:none;"></span></div>
           <div id="status" class="status" aria-live="polite"><div class="spinner"></div><span id="status_text">{{ _('Translating...') }}</span></div>
           <div style="flex:1"></div>
         </div>
@@ -121,11 +121,13 @@
         <label class="small">{{ _('Result') }}</label>
         <div class="result-container">
           <div class="result-box" id="result">{{ translated|default('') }}</div>
+          {% if tts_enabled %}
           <button id="tts-btn" class="tts-button" title="{{ _('Listen to pronunciation') }}" style="display: none;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
+          {% endif %}
         </div>
       </div>
     </div>

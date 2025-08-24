@@ -22,6 +22,7 @@
 - 🔧 **Tone Control** - Formal, informal, technical, or poetic translations
 - 📝 **Interactive Refinement** - Click any word to get alternative translations
 - 📚 **Translation History** - Keep track of your recent translations
+- 🔊 **Text-to-Speech (TTS)** - Listen to translations with Wyoming Piper integration
 - 🐳 **Docker Ready** - One-command deployment with Docker Compose
 - 🎨 **Modern UI** - Responsive design that works on all devices
 
@@ -96,6 +97,12 @@ APP_PORT=8080
 FLASK_ENV=production
 FLASK_DEBUG=0
 
+# Text-to-Speech Configuration (Optional)
+# Wyoming Piper TTS server - enables audio pronunciation feature
+# If not set, TTS button will be hidden
+WYOMING_PIPER_HOST=your.piper.server.ip
+WYOMING_PIPER_PORT=10200
+
 # Language Configuration
 # Optional: Limit available translation languages (comma-separated)
 # If not set, all 40+ supported languages will be available
@@ -107,6 +114,29 @@ TRANSLATION_LANGUAGES=en,es,fr,de,pl,it,pt
 - **Interface Language**: Automatically detected from browser's Accept-Language header in production mode
 - **Debug Mode**: Manual language selector available when `FLASK_DEBUG=1` 
 - **Translation Languages**: Configurable via `TRANSLATION_LANGUAGES` environment variable
+
+### Text-to-Speech (TTS) Setup
+
+LLOT supports high-quality text-to-speech using **Wyoming Piper** for audio pronunciation:
+
+**Prerequisites:**
+- Wyoming Piper TTS server running (separate service)
+- Network access between LLOT and Piper server
+
+**Features:**
+- 🔊 **High-Quality Audio** - Crystal clear speech synthesis
+- 🌍 **Multi-language Support** - Supports German, English, Polish, and more
+- ⚡ **Smart Streaming** - Optimized audio delivery with natural sentence pauses
+- 🎛️ **Automatic Speed Control** - Slower, clearer speech with 2-second pauses between sentences
+
+**Configuration:**
+```bash
+# Enable TTS by setting Wyoming Piper server details
+WYOMING_PIPER_HOST=10.0.20.134
+WYOMING_PIPER_PORT=10200
+```
+
+If not configured, the TTS button will be automatically hidden.
 
 ### 🤖 Recommended Setup
 
@@ -316,6 +346,14 @@ POST /api/history/save
   "source_text": "Hello",
   "translated": "Hola",
   "target_lang": "es" 
+}
+
+# Text-to-Speech (if Wyoming Piper configured)
+POST /api/tts
+{
+  "text": "Hello world",
+  "language": "en",
+  "streaming": true
 }
 ```
 
