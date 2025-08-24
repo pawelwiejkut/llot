@@ -207,76 +207,40 @@ def text_to_speech():
                 }
             )
         
+        # Check if Wyoming Piper is configured
+        wyoming_host = os.getenv("WYOMING_PIPER_HOST")
+        if not wyoming_host:
+            return jsonify({"error": "TTS service not configured. Set WYOMING_PIPER_HOST environment variable."}), 500
+            
         logger.info(f"TTS: Using Wyoming TTS for text: '{text}', voice: '{voice}', streaming: {use_streaming}")
         
-        if use_streaming:
-            # Use streaming TTS for real-time audio playback
-            print(f"DEBUG: Using streaming Wyoming TTS for text: '{text}', voice: '{voice}'", flush=True)
-            try:
-                from app.services.wyoming_tts_streaming import StreamingWyomingTTSService
-                
-                streaming_tts = StreamingWyomingTTSService()
-                audio_stream = streaming_tts.synthesize_streaming(text, voice)
-                
-                # Check if streaming generated enough audio (for longer texts)
-                # Collect the stream to check size first
-                stream_data = list(audio_stream)
-                total_size = sum(len(chunk) for chunk in stream_data)
-                expected_min_size = len(text) * 100  # Conservative: expect ~100 bytes per character for full audio
-                
-                print(f"DEBUG: Streaming generated {total_size} bytes, expected min {expected_min_size} (text len: {len(text)})", flush=True)
-                
-                if total_size < expected_min_size and len(text) > 80:
-                    print(f"DEBUG: Streaming audio too short for long text ({total_size} < {expected_min_size}), falling back to fast mode", flush=True)
-                    use_streaming = False
-                else:
-                    # Return streaming response
-                    def regenerate_stream():
-                        for chunk in stream_data:
-                            yield chunk
-                    
-                    return Response(
-                        regenerate_stream(),
-                        mimetype="audio/wav",
-                        headers={
-                            "Content-Disposition": "attachment; filename=tts.wav",
-                            "Cache-Control": "no-cache",
-                            "Transfer-Encoding": "chunked"
-                        }
-                    )
-                
-            except Exception as e:
-                print(f"DEBUG: Streaming TTS error: {e}, falling back to standard", flush=True)
-                use_streaming = False  # Fall back to standard approach
-        
-        if not use_streaming:
-            # Use fast optimized TTS
-            print(f"DEBUG: Using fast Wyoming TTS for text: '{text}', voice: '{voice}'", flush=True)
-            try:
-                from app.services.wyoming_tts_streaming import FastWyomingTTSService
-                
-                fast_tts = FastWyomingTTSService()
-                wav_content = fast_tts.synthesize_fast(text, voice)
-                print(f"DEBUG: Generated WAV with {len(wav_content)} bytes using fast Wyoming", flush=True)
-                
-                # Cache the result
-                if len(tts_cache) > 50:
-                    tts_cache.clear()
-                tts_cache[cache_key] = wav_content
-                print("DEBUG: Cached TTS result", flush=True)
-                
-                return Response(
-                    wav_content,
-                    mimetype="audio/wav",
-                    headers={
-                        "Content-Disposition": "attachment; filename=tts.wav",
-                        "Content-Length": str(len(wav_content))
-                    }
-                )
-                
-            except Exception as e:
-                print(f"DEBUG: Fast TTS error: {e}", flush=True)
-                return jsonify({"error": f"TTS service error: {str(e)}"}), 500
+        # Use simple Wyoming TTS compatible with wyoming 1.5.4
+        print(f"DEBUG: Using simple Wyoming TTS for text: '{text}', voice: '{voice}'", flush=True)
+        try:
+            from app.services.wyoming_tts_simple import SimpleWyomingTTSService
+            
+            simple_tts = SimpleWyomingTTSService()
+            wav_content = simple_tts.synthesize(text, voice)
+            print(f"DEBUG: Generated WAV with {len(wav_content)} bytes using simple Wyoming", flush=True)
+            
+            # Cache the result
+            if len(tts_cache) > 50:
+                tts_cache.clear()
+            tts_cache[cache_key] = wav_content
+            print("DEBUG: Cached TTS result", flush=True)
+            
+            return Response(
+                wav_content,
+                mimetype="audio/wav",
+                headers={
+                    "Content-Disposition": "attachment; filename=tts.wav",
+                    "Content-Length": str(len(wav_content))
+                }
+            )
+            
+        except Exception as e:
+            print(f"DEBUG: Simple TTS error: {e}", flush=True)
+            return jsonify({"error": f"TTS service error: {str(e)}"}), 500
             
     except Exception as e:
         logger.error(f"TTS endpoint error: {e}")

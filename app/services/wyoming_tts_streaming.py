@@ -6,7 +6,7 @@ import io
 import struct
 from flask import Response
 from wyoming.client import AsyncTcpClient
-from wyoming.tts import Synthesize, SynthesizeVoice, SynthesizeStart, SynthesizeChunk, SynthesizeStop
+from wyoming.tts import Synthesize, SynthesizeVoice
 from wyoming.audio import AudioChunk
 import threading
 import queue
@@ -15,8 +15,11 @@ import queue
 class StreamingWyomingTTSService:
     def __init__(self, host=None, port=None):
         import os
-        self.host = host or os.getenv("WYOMING_PIPER_HOST", "10.0.20.134")
+        self.host = host or os.getenv("WYOMING_PIPER_HOST")
         self.port = port or int(os.getenv("WYOMING_PIPER_PORT", "10200"))
+        
+        if not self.host:
+            raise ValueError("WYOMING_PIPER_HOST environment variable is required")
     
     def synthesize_streaming(self, text, voice):
         """Stream TTS audio in real-time as chunks arrive"""
@@ -251,8 +254,11 @@ class StreamingWyomingTTSService:
 class FastWyomingTTSService:
     def __init__(self, host=None, port=None):
         import os
-        self.host = host or os.getenv("WYOMING_PIPER_HOST", "10.0.20.134")
+        self.host = host or os.getenv("WYOMING_PIPER_HOST")
         self.port = port or int(os.getenv("WYOMING_PIPER_PORT", "10200"))
+        
+        if not self.host:
+            raise ValueError("WYOMING_PIPER_HOST environment variable is required")
     
     def synthesize_fast(self, text, voice):
         """Fast synthesis with connection pooling and optimizations"""
