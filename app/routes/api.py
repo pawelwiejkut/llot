@@ -188,7 +188,11 @@ def text_to_speech():
             "id": "id_ID-fajri-medium"
         }
         
-        voice = voice_map.get(language, "pl_PL-darkman-medium")
+        # Primary voice selection with fallback chain
+        voice = voice_map.get(language)
+        if not voice:
+            # Fallback chain: requested -> English -> Polish
+            voice = voice_map.get("en", voice_map.get("pl", "pl_PL-darkman-medium"))
         
         # Check cache first (only for non-streaming requests)
         cache_key = f"{text}:{voice}"

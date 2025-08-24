@@ -4,33 +4,103 @@
 
 set -e
 
-echo "🌐 LLOT - Local LLM Ollama Translator Setup"
-echo "=========================================="
-echo ""
+CONFIG_FILE=".llot_setup.conf"
 
 # Function to check if command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Check prerequisites
-echo "🔍 Checking prerequisites..."
-if ! command_exists docker; then
-    echo "❌ Docker is not installed. Please install Docker first."
-    echo "   Visit: https://docs.docker.com/get-docker/"
-    exit 1
+# Function to save configuration
+save_config() {
+    cat > "$CONFIG_FILE" << EOF
+# LLOT Setup Configuration - Auto-generated
+OLLAMA_CHOICE=$1
+OLLAMA_HOST=$2
+OLLAMA_PORT=$3
+MODEL_NAME=$4
+PIPER_HOST=$5
+PIPER_PORT=$6
+LANGUAGE_CODES=$7
+LAST_UPDATED=$(date)
+EOF
+    echo "💾 Configuration saved to $CONFIG_FILE"
+}
+
+# Function to check for previous configuration
+check_previous_config() {
+    if [[ -f "$CONFIG_FILE" ]]; then
+        source "$CONFIG_FILE"
+        echo "🌐 LLOT - Local LLM Ollama Translator Setup"
+        echo "=========================================="
+        echo ""
+        echo "📂 Found previous configuration from: $LAST_UPDATED"
+        echo "   • Ollama choice: $OLLAMA_CHOICE"
+        echo "   • Model: $MODEL_NAME"
+        [[ -n "$OLLAMA_HOST" ]] && echo "   • Ollama: $OLLAMA_HOST:$OLLAMA_PORT"
+        [[ -n "$PIPER_HOST" ]] && echo "   • Wyoming Piper: $PIPER_HOST:$PIPER_PORT"
+        [[ -n "$LANGUAGE_CODES" ]] && echo "   • Languages: $LANGUAGE_CODES"
+        echo ""
+        read -p "Use previous configuration? (y/n): " use_previous
+        if [[ $use_previous == "y" || $use_previous == "Y" ]]; then
+            return 0
+        else
+            echo "Starting fresh configuration..."
+            echo ""
+            return 1
+        fi
+    else
+        echo "🌐 LLOT - Local LLM Ollama Translator Setup"
+        echo "=========================================="
+        echo ""
+        return 1
+    fi
+}
+
+# Check for previous configuration at startup
+if check_previous_config; then
+    ollama_choice=$OLLAMA_CHOICE
+    ollama_host=$OLLAMA_HOST
+    ollama_port=$OLLAMA_PORT
+    model_name=$MODEL_NAME
+    piper_host=$PIPER_HOST
+    piper_port=$PIPER_PORT
+    language_codes=$LANGUAGE_CODES
+    
+    # Set up compose file based on previous choice
+    case $ollama_choice in
+        1) compose_file="docker-compose.local.yml" ;;
+        2) compose_file="docker-compose.standalone.yml" ;;
+        3) compose_file="docker-compose.full.yml" ;;
+    esac
+    
+    # Skip to environment file creation
+    skip_config=true
+else
+    skip_config=false
 fi
 
-if ! command_exists docker-compose; then
-    echo "❌ Docker Compose is not installed. Please install Docker Compose first."
-    echo "   Visit: https://docs.docker.com/compose/install/"
-    exit 1
+# Check prerequisites only if not using previous config
+if [[ $skip_config == false ]]; then
+    echo "🔍 Checking prerequisites..."
+    if ! command_exists docker; then
+        echo "❌ Docker is not installed. Please install Docker first."
+        echo "   Visit: https://docs.docker.com/get-docker/"
+        exit 1
+    fi
+
+    if ! command_exists docker-compose; then
+        echo "❌ Docker Compose is not installed. Please install Docker Compose first."
+        echo "   Visit: https://docs.docker.com/compose/install/"
+        exit 1
+    fi
+
+    echo "✅ Docker and Docker Compose are installed"
+    echo ""
 fi
 
-echo "✅ Docker and Docker Compose are installed"
-echo ""
-
-# Ask about Ollama
+# Ask about Ollama (skip if using previous config)
+if [[ $skip_config == false ]]; then
 echo "📡 Ollama Configuration"
 echo "======================"
 echo "LLOT needs access to an Ollama server for translation."
@@ -113,9 +183,10 @@ EOF
 esac
 
 echo ""
+fi # End of skip_config check
 
-# Ask about Wyoming Piper if not already included
-if [[ $ollama_choice != "3" ]]; then
+# Ask about Wyoming Piper if not already included (skip if using previous config)
+if [[ $skip_config == false ]] && [[ $ollama_choice != "3" ]]; then
     echo "🔊 Wyoming Piper TTS (Optional)"
     echo "==============================="
     echo "Would you like text-to-speech functionality?"
@@ -137,7 +208,8 @@ if [[ $ollama_choice != "3" ]]; then
     echo ""
 fi
 
-# Ask about model preference
+# Ask about model preference (skip if using previous config)
+if [[ $skip_config == false ]]; then
 echo "🤖 Model Configuration"
 echo "======================"
 echo "Which Gemma3 model would you like to use for translation?"
@@ -175,8 +247,10 @@ fi
 
 echo "✅ Model configured: $model_name"
 echo ""
+fi # End of skip_config check for model
 
-# Ask about language limitations
+# Ask about language limitations (skip if using previous config)
+if [[ $skip_config == false ]]; then
 echo "🌍 Language Configuration"
 echo "========================="
 echo "By default, LLOT supports 40+ translation languages."
@@ -193,6 +267,7 @@ else
     echo "✅ All 40+ languages will be available"
 fi
 echo ""
+fi # End of skip_config check for languages
 
 # Create .env file
 echo "📝 Creating environment configuration..."
@@ -215,6 +290,9 @@ ${language_codes:+# Remove the # above to activate language limitation}
 EOF
 
 echo "✅ Created .env file"
+
+# Save current configuration
+save_config "$ollama_choice" "$ollama_host" "$ollama_port" "$model_name" "$piper_host" "$piper_port" "$language_codes"
 echo ""
 
 # Final summary and startup
