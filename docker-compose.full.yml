@@ -1,0 +1,111 @@
+# Complete setup with Ollama + Wyoming Piper TTS
+# Use this for a fully self-contained installation
+
+version: '3.8'
+
+services:
+  llot:
+    build: .
+    container_name: llot
+    ports:
+      - "8080:8080"
+    environment:
+      # Ollama configuration (local container)
+      - OLLAMA_HOST=http://ollama:11434
+      - OL_MODEL=${OL_MODEL:-gemma3:27b}
+      
+      # Wyoming Piper TTS configuration (local container)
+      - WYOMING_PIPER_HOST=piper
+      - WYOMING_PIPER_PORT=10200
+      
+      # Application settings
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8080
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - FLASK_DEBUG=${FLASK_DEBUG:-0}
+      
+      # Optional: Limit available languages
+      # - TRANSLATION_LANGUAGES=en,de,pl,es,fr
+    depends_on:
+      ollama:
+        condition: service_healthy
+      piper:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - llot-network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: llot-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./models:/root/.ollama/models
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+    networks:
+      - llot-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    # Uncomment for NVIDIA GPU support
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  piper:
+    image: rhasspy/wyoming-piper:latest
+    container_name: llot-piper
+    ports:
+      - "10200:10200"
+    volumes:
+      - piper_data:/data
+    environment:
+      - PIPER_PORT=10200
+      - PIPER_HOST=0.0.0.0
+    command: >
+      --piper /usr/share/piper/piper
+      --data-dir /data
+      --download-dir /data
+      --voice en_US-lessac-medium
+      --voice de_DE-thorsten-medium
+      --voice pl_PL-darkman-medium
+      --voice es_ES-sharvard-medium
+      --voice fr_FR-siwis-medium
+      --voice pt_BR-faber-medium
+      --voice ru_RU-ruslan-medium
+      --voice cs_CZ-jirka-medium
+      --voice nl_NL-mls_5809-low
+      --voice da_DK-talesyntese-medium
+      --voice fi_FI-harri-medium
+      --voice ar_JO-kareem-low
+      --voice hi_IN-male-medium
+      --voice tr_TR-dfki-medium
+      --voice zh_CN-huayan-x_low
+    restart: unless-stopped
+    networks:
+      - llot-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10200/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+networks:
+  llot-network:
+    driver: bridge
+
+volumes:
+  ollama_data:
+  piper_data:

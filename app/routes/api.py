@@ -158,16 +158,34 @@ def text_to_speech():
         use_streaming = data.get("streaming", False)  # Use streaming when requested
         print(f"DEBUG: TTS language: {language}, streaming param: {data.get('streaming')}, use_streaming: {use_streaming}", flush=True)
         
-        # Map languages to Wyoming TTS voices
+        # Map languages to Wyoming Piper TTS voices (only supported languages)
         voice_map = {
-            "pl": "pl_PL-darkman-medium",
-            "en": "en_US-lessac-medium", 
-            "de": "de_DE-thorsten-medium",
+            # Western European
+            "en": "en_US-lessac-medium",
+            "de": "de_DE-thorsten-medium", 
             "fr": "fr_FR-siwis-medium",
             "es": "es_ES-sharvard-medium",
-            "it": "it_IT-riccardo-x_low",
+            "pt": "pt_BR-faber-medium",
+            "nl": "nl_NL-mls_5809-low",
+            "da": "da_DK-talesyntese-medium",
+            "fi": "fi_FI-harri-medium", 
+            "no": "no_NO-talesyntese-medium",
+            
+            # Central/Eastern European
+            "pl": "pl_PL-darkman-medium",
+            "cs": "cs_CZ-jirka-medium",
+            "sk": "sk_SK-lili-medium",
+            "hu": "hu_HU-anna-medium",
+            "ro": "ro_RO-mihai-medium",
             "ru": "ru_RU-ruslan-medium",
-            "cs": "cs_CZ-jirka-medium"
+            
+            # Other languages
+            "ar": "ar_JO-kareem-low",
+            "hi": "hi_IN-male-medium",
+            "tr": "tr_TR-dfki-medium",
+            "vi": "vi_VN-vais1000-medium",
+            "zh": "zh_CN-huayan-x_low",
+            "id": "id_ID-fajri-medium"
         }
         
         voice = voice_map.get(language, "pl_PL-darkman-medium")

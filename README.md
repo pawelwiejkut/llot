@@ -30,28 +30,61 @@
 
 ## 📋 Prerequisites
 
-- **Ollama** installed and running (with translation models like `gemma2`, `llama3`, `mistral`)
 - **Docker & Docker Compose** (recommended) OR **Python 3.8+**
 - **2GB+ RAM** (depends on your chosen model)
+
+### External Services (Optional)
+- **Ollama Server** - For LLM translation (can be remote URL or local installation)
+- **Wyoming Piper** - For text-to-speech functionality (can be remote URL or local installation)
 
 ---
 
 ## 🚀 Quick Start
 
-### Option 1: Docker Compose (Recommended)
+### 🎯 **Automatic Setup (Recommended)**
 
-**The fastest way to get up and running:**
+**The easiest way - guided setup script:**
 
 ```bash
-# Clone and start
+# Clone and run setup
 git clone https://github.com/pawelwiejkut/llot.git
 cd llot
-docker-compose up -d
+./setup.sh
 
-# Access at http://localhost:8080
+# Follow the prompts to configure:
+# • Your Ollama server (external URL or local install)
+# • Wyoming Piper TTS (optional, for audio)
+# • Translation model preference
+# • Automatic startup
 ```
 
-**That's it!** LLOT will automatically connect to your Ollama instance.
+### 🔧 **Manual Setup Options**
+
+**Choose the setup that fits your infrastructure:**
+
+#### Option A: External Servers (Recommended)
+```bash
+# Use your existing Ollama/Wyoming servers
+cp docker-compose.yml docker-compose.local.yml
+# Edit docker-compose.local.yml:
+# - OLLAMA_HOST=http://your-ollama-server:11434
+# - WYOMING_PIPER_HOST=your-piper-server (optional)
+docker-compose -f docker-compose.local.yml up -d
+```
+
+#### Option B: Local Ollama Only
+```bash
+# Installs Ollama locally via Docker
+docker-compose -f docker-compose.standalone.yml up -d
+```
+
+#### Option C: Complete Local Installation
+```bash
+# Installs both Ollama + Wyoming Piper locally
+docker-compose -f docker-compose.full.yml up -d
+```
+
+**Access LLOT at:** http://localhost:8080
 
 ### Option 2: Manual Installation
 
@@ -85,26 +118,29 @@ python run.py
 Create `.env` file for custom settings:
 
 ```bash
-# Ollama Configuration
-OLLAMA_HOST=http://localhost:11434
-OL_MODEL=gemma3:27b                   # Your preferred model
+# 🔗 External Service Configuration
+# ==================================
+# Configure your external Ollama server URL
+OLLAMA_HOST=http://your-ollama-server:11434
+OL_MODEL=gemma3:27b
 
-# App Settings  
+# 🔊 Optional: Wyoming Piper TTS Configuration  
+# =============================================
+# Enable text-to-speech by configuring your Piper server
+# If not set, TTS button will be automatically hidden
+WYOMING_PIPER_HOST=your-piper-server
+WYOMING_PIPER_PORT=10200
+
+# 🚀 Application Settings
+# =======================
 APP_HOST=0.0.0.0
 APP_PORT=8080
-
-# Production Settings
 FLASK_ENV=production
 FLASK_DEBUG=0
 
-# Text-to-Speech Configuration (Optional)
-# Wyoming Piper TTS server - enables audio pronunciation feature
-# If not set, TTS button will be hidden
-WYOMING_PIPER_HOST=your.piper.server.ip
-WYOMING_PIPER_PORT=10200
-
-# Language Configuration
-# Optional: Limit available translation languages (comma-separated)
+# 🌍 Optional: Language Configuration
+# ===================================
+# Limit available translation languages (comma-separated)
 # If not set, all 40+ supported languages will be available
 TRANSLATION_LANGUAGES=en,es,fr,de,pl,it,pt
 ```
@@ -124,10 +160,11 @@ LLOT supports high-quality text-to-speech using **Wyoming Piper** for audio pron
 - Network access between LLOT and Piper server
 
 **Features:**
-- 🔊 **High-Quality Audio** - Crystal clear speech synthesis
-- 🌍 **Multi-language Support** - Supports German, English, Polish, and more
+- 🔊 **High-Quality Audio** - Crystal clear speech synthesis using Piper neural voices
+- 🌍 **Multi-language Support** - 20+ languages including German, English, Polish, Spanish, French, Russian, Arabic, Chinese, and more
 - ⚡ **Smart Streaming** - Optimized audio delivery with natural sentence pauses
 - 🎛️ **Automatic Speed Control** - Slower, clearer speech with 2-second pauses between sentences
+- 🔍 **Smart Language Detection** - TTS button automatically shows/hides based on language support
 
 **Configuration:**
 ```bash
@@ -137,6 +174,45 @@ WYOMING_PIPER_PORT=10200
 ```
 
 If not configured, the TTS button will be automatically hidden.
+
+### Supported TTS Languages
+
+**✅ Languages with full TTS support (20):**
+🇺🇸 English • 🇩🇪 German • 🇫🇷 French • 🇪🇸 Spanish • 🇵🇹 Portuguese • 🇳🇱 Dutch • 🇩🇰 Danish • 🇫🇮 Finnish • 🇳🇴 Norwegian • 🇵🇱 Polish • 🇨🇿 Czech • 🇸🇰 Slovak • 🇭🇺 Hungarian • 🇷🇴 Romanian • 🇷🇺 Russian • 🇸🇦 Arabic • 🇮🇳 Hindi • 🇹🇷 Turkish • 🇻🇳 Vietnamese • 🇨🇳 Chinese • 🇮🇩 Indonesian
+
+**⚠️ Translation-only languages (17):**
+🇧🇬 Bulgarian • 🇧🇩 Bengali • 🇬🇷 Greek • 🇪🇪 Estonian • 🇮🇪 Irish • 🇭🇷 Croatian • 🇮🇹 Italian • 🇯🇵 Japanese • 🇰🇷 Korean • 🇱🇹 Lithuanian • 🇱🇻 Latvian • 🇲🇹 Maltese • 🇸🇮 Slovenian • 🇸🇪 Swedish • 🇮🇳 Tamil • 🇹🇭 Thai • 🇵🇰 Urdu
+
+*TTS button automatically appears only for supported languages*
+
+## 🏗️ Deployment Scenarios
+
+LLOT is designed to work flexibly with your existing infrastructure:
+
+### 🌐 **Scenario 1: Microservices Architecture (Recommended)**
+```yaml
+# Each service runs independently
+• LLOT: Docker container (this repo)  
+• Ollama: External server/container
+• Wyoming Piper: External server/container (optional)
+```
+**Benefits:** Scalable, resource-efficient, can reuse existing services
+
+### 🖥️ **Scenario 2: All-in-One Server**
+```yaml  
+# Everything on one machine
+• LLOT + Ollama + Wyoming: docker-compose.full.yml
+```
+**Benefits:** Simple setup, no network dependencies
+
+### ☁️ **Scenario 3: Hybrid Cloud**
+```yaml
+# Mix local and remote services
+• LLOT: Local Docker
+• Ollama: Cloud GPU instance 
+• Wyoming: Local Docker
+```
+**Benefits:** GPU acceleration with local privacy
 
 ### 🤖 Recommended Setup
 

@@ -340,13 +340,25 @@ function renderResultInteractive(text){
   });
   box.appendChild(frag);
   
-  // Show TTS button if there's translated text, but keep it disabled initially (only if TTS is enabled)
+  // Show TTS button if there's translated text and language is supported (only if TTS is enabled)
   const ttsBtn = document.getElementById('tts-btn');
   if (ttsBtn) {
-    if (text && text.trim()) {
+    // Check if current target language supports TTS
+    const targetLang = document.getElementById('target_lang').value;
+    const supportedTtsLanguages = {
+      'en': true, 'de': true, 'fr': true, 'es': true, 'pt': true, 'nl': true, 
+      'da': true, 'fi': true, 'no': true, 'pl': true, 'cs': true, 'sk': true, 
+      'hu': true, 'ro': true, 'ru': true, 'ar': true, 'hi': true, 'tr': true, 
+      'vi': true, 'zh': true, 'id': true
+    };
+    
+    const languageSupported = supportedTtsLanguages[targetLang];
+    
+    if (text && text.trim() && languageSupported) {
       ttsBtn.style.display = 'flex';
       ttsBtn.classList.add('disabled');
       ttsBtn.setAttribute('disabled', 'true');
+      ttsBtn.title = 'Listen to pronunciation';
       // Enable after a short delay to ensure text is fully rendered
       setTimeout(() => {
         ttsBtn.classList.remove('disabled');
@@ -354,6 +366,10 @@ function renderResultInteractive(text){
       }, 200);
     } else {
       ttsBtn.style.display = 'none';
+      if (text && text.trim() && !languageSupported) {
+        // Language not supported - could show a tooltip or message
+        debugLog('TTS not available for target language:', targetLang);
+      }
     }
   }
 }
@@ -817,19 +833,45 @@ document.addEventListener('DOMContentLoaded', function() {
       // Get target language for TTS
       const targetLang = document.getElementById('target_lang').value;
       
-      // Map language codes to TTS languages
+      // Map language codes to supported TTS languages (Wyoming Piper voices)
       const langMap = {
-        'de': 'de',
-        'en': 'en', 
+        // Western European
+        'en': 'en',
+        'de': 'de', 
         'fr': 'fr',
         'es': 'es',
-        'it': 'it',
-        'ru': 'ru',
+        'pt': 'pt',
+        'nl': 'nl',
+        'da': 'da',
+        'fi': 'fi',
+        'no': 'no',
+        
+        // Central/Eastern European  
+        'pl': 'pl',
         'cs': 'cs',
-        'pl': 'pl'
+        'sk': 'sk',
+        'hu': 'hu',
+        'ro': 'ro',
+        'ru': 'ru',
+        
+        // Other languages
+        'ar': 'ar',
+        'hi': 'hi', 
+        'tr': 'tr',
+        'vi': 'vi',
+        'zh': 'zh',
+        'id': 'id'
       };
       
-      const ttsLang = langMap[targetLang] || 'pl';
+      const ttsLang = langMap[targetLang];
+      
+      // Check if target language is supported by TTS
+      if (!ttsLang) {
+        console.log('TTS: Language', targetLang, 'not supported, using fallback language: pl');
+        // Hide TTS button for unsupported languages or use fallback
+        debugLog('TTS not available for language:', targetLang);
+        return; // Don't play TTS for unsupported languages
+      }
       
       console.log('TTS: Using streaming player for:', resultText, 'in language:', ttsLang);
       

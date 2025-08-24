@@ -7,20 +7,24 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # All .env variables - customize as needed
-      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}  # Docker Desktop (Mac/Windows)
-      # - OLLAMA_HOST=http://172.17.0.1:11434           # Linux Docker
-      # - OLLAMA_HOST=http://ollama:11434                # Use bundled Ollama service
+      # 🔗 CONFIGURE YOUR OLLAMA SERVER URL HERE
+      # Replace with your actual Ollama server URL:
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://your-ollama-server:11434}
       
-      - OL_MODEL=${OL_MODEL:-gemma3:27b}                 # Model from .env or default
+      # 🔗 OPTIONAL: Configure Wyoming Piper TTS (for audio)
+      # Replace with your actual Wyoming Piper server:
+      # - WYOMING_PIPER_HOST=your-piper-server
+      # - WYOMING_PIPER_PORT=10200
+      
+      # Application settings
+      - OL_MODEL=${OL_MODEL:-gemma3:27b}
       - APP_HOST=${APP_HOST:-0.0.0.0}
       - APP_PORT=${APP_PORT:-8080}
       - FLASK_ENV=${FLASK_ENV:-production}
       - FLASK_DEBUG=${FLASK_DEBUG:-0}
-      # - TRANSLATION_LANGUAGES=${TRANSLATION_LANGUAGES:-}  # Uncomment to limit languages
-    # Uncomment if using bundled Ollama
-    # depends_on:
-    #   - ollama
+      
+      # Optional: Limit available languages (comma-separated)
+      # - TRANSLATION_LANGUAGES=${TRANSLATION_LANGUAGES:-en,de,pl,es,fr}
     restart: unless-stopped
     networks:
       - llot-network
