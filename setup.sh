@@ -47,12 +47,16 @@ case $ollama_choice in
         echo ""
         echo "🔗 External Ollama Configuration"
         echo "================================"
-        read -p "Enter your Ollama server URL (e.g., http://192.168.1.100:11434): " ollama_url
+        read -p "Enter your Ollama server IP/hostname: " ollama_host
+        read -p "Enter Ollama port (default 11434): " ollama_port
+        ollama_port=${ollama_port:-11434}
         
-        if [[ -z "$ollama_url" ]]; then
-            echo "❌ Ollama URL cannot be empty"
+        if [[ -z "$ollama_host" ]]; then
+            echo "❌ Ollama host cannot be empty"
             exit 1
         fi
+        
+        ollama_url="http://$ollama_host:$ollama_port"
         
         # Create local docker-compose with external Ollama
         cat > docker-compose.local.yml << EOF
@@ -81,7 +85,7 @@ networks:
 EOF
         
         compose_file="docker-compose.local.yml"
-        echo "✅ Created configuration for external Ollama: $ollama_url"
+        echo "✅ Created configuration for external Ollama: $ollama_host:$ollama_port"
         ;;
         
     2)
@@ -200,8 +204,8 @@ echo "=================="
 echo "Configuration:"
 echo "  • Compose file: $compose_file"
 echo "  • Ollama model: $model_name"
-if [[ -n "$ollama_url" ]]; then
-    echo "  • Ollama server: $ollama_url"
+if [[ -n "$ollama_host" ]]; then
+    echo "  • Ollama server: $ollama_host:$ollama_port"
 fi
 if [[ -n "$piper_host" ]]; then
     echo "  • Wyoming Piper: $piper_host:$piper_port"
