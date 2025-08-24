@@ -17,7 +17,7 @@ services:
       - APP_PORT=${APP_PORT:-8080}
       - FLASK_ENV=${FLASK_ENV:-production}
       - FLASK_DEBUG=${FLASK_DEBUG:-0}
-      - TRANSLATION_LANGUAGES=${TRANSLATION_LANGUAGES:-}
+      # - TRANSLATION_LANGUAGES=${TRANSLATION_LANGUAGES:-}  # Uncomment to limit languages
     # Uncomment if using bundled Ollama
     # depends_on:
     #   - ollama
