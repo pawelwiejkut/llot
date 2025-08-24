@@ -123,15 +123,8 @@ if [[ $ollama_choice != "3" ]]; then
         read -p "Enter Wyoming Piper port (default 10200): " piper_port
         piper_port=${piper_port:-10200}
         
-        # Add Wyoming Piper configuration
-        if [[ $ollama_choice == "1" ]]; then
-            cat >> docker-compose.local.yml << EOF
-
-      # Wyoming Piper TTS configuration
-      - WYOMING_PIPER_HOST=$piper_host
-      - WYOMING_PIPER_PORT=$piper_port
-EOF
-        fi
+        # Add Wyoming Piper configuration to .env file (handled later)
+        echo "ℹ️  Wyoming Piper will be configured in .env file"
         
         echo "✅ Configured Wyoming Piper TTS: $piper_host:$piper_port"
     else
@@ -143,19 +136,21 @@ fi
 # Ask about model preference
 echo "🤖 Model Configuration"
 echo "======================"
-echo "Which Ollama model would you like to use for translation?"
-echo "1) gemma3:27b (recommended, requires ~32GB RAM)"
-echo "2) llama3:8b (lighter, requires ~8GB RAM)"  
-echo "3) mistral:7b (fastest, requires ~4GB RAM)"
-echo "4) Custom model"
+echo "Which Gemma3 model would you like to use for translation?"
+echo "1) gemma3:27b (best quality)"
+echo "2) gemma3:12b (balanced performance)"  
+echo "3) gemma3:4b (multimodal support)"
+echo "4) gemma3:1b (lightweight)"
+echo "5) Custom model"
 echo ""
-read -p "Enter your choice (1-4): " model_choice
+read -p "Enter your choice (1-5): " model_choice
 
 case $model_choice in
     1) model_name="gemma3:27b" ;;
-    2) model_name="llama3:8b" ;;
-    3) model_name="mistral:7b" ;;
-    4) 
+    2) model_name="gemma3:12b" ;;
+    3) model_name="gemma3:4b" ;;
+    4) model_name="gemma3:1b" ;;
+    5) 
         read -p "Enter your custom model name: " model_name
         if [[ -z "$model_name" ]]; then
             echo "❌ Model name cannot be empty"
