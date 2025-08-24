@@ -176,6 +176,24 @@ fi
 echo "✅ Model configured: $model_name"
 echo ""
 
+# Ask about language limitations
+echo "🌍 Language Configuration"
+echo "========================="
+echo "By default, LLOT supports 40+ translation languages."
+echo "Would you like to limit available languages to improve performance?"
+echo ""
+read -p "Limit languages? (y/n): " limit_languages
+
+if [[ $limit_languages == "y" || $limit_languages == "Y" ]]; then
+    read -p "Enter language codes (default: en,de,pl,cs): " language_codes
+    language_codes=${language_codes:-"en,de,pl,cs"}
+    echo "✅ Limited to languages: $language_codes"
+else
+    language_codes=""
+    echo "✅ All 40+ languages will be available"
+fi
+echo ""
+
 # Create .env file
 echo "📝 Creating environment configuration..."
 cat > .env << EOF
@@ -192,7 +210,8 @@ ${piper_host:+WYOMING_PIPER_HOST=$piper_host}
 ${piper_port:+WYOMING_PIPER_PORT=$piper_port}
 
 # Optional: Limit available languages (comma-separated)
-# TRANSLATION_LANGUAGES=en,de,pl,es,fr
+${language_codes:+TRANSLATION_LANGUAGES=$language_codes}
+${language_codes:+# Remove the # above to activate language limitation}
 EOF
 
 echo "✅ Created .env file"
@@ -209,6 +228,11 @@ if [[ -n "$ollama_host" ]]; then
 fi
 if [[ -n "$piper_host" ]]; then
     echo "  • Wyoming Piper: $piper_host:$piper_port"
+fi
+if [[ -n "$language_codes" ]]; then
+    echo "  • Languages: $language_codes"
+else
+    echo "  • Languages: All 40+ supported"
 fi
 echo ""
 
