@@ -24,8 +24,8 @@ services:
       - FLASK_ENV=${FLASK_ENV:-production}
       - FLASK_DEBUG=${FLASK_DEBUG:-0}
       
-      # Optional: Limit available languages
-      # - TRANSLATION_LANGUAGES=en,de,pl,es,fr
+      # Optional: Limit available languages  
+      - TRANSLATION_LANGUAGES=${TRANSLATION_LANGUAGES:-}
     depends_on:
       ollama:
         condition: service_healthy

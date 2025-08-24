@@ -67,6 +67,11 @@ if check_previous_config; then
     piper_port=$PIPER_PORT
     language_codes=$LANGUAGE_CODES
     
+    # Set up ollama_url for option 1
+    if [[ $ollama_choice == "1" ]]; then
+        ollama_url="http://$ollama_host:$ollama_port"
+    fi
+    
     # Set up compose file based on previous choice
     case $ollama_choice in
         1) compose_file="docker-compose.local.yml" ;;
@@ -128,34 +133,8 @@ case $ollama_choice in
         
         ollama_url="http://$ollama_host:$ollama_port"
         
-        # Create local docker-compose with external Ollama
-        cat > docker-compose.local.yml << EOF
-version: '3.8'
-
-services:
-  llot:
-    build: .
-    container_name: llot
-    ports:
-      - "8080:8080"
-    environment:
-      - OLLAMA_HOST=$ollama_url
-      - OL_MODEL=\${OL_MODEL:-gemma3:27b}
-      - APP_HOST=0.0.0.0
-      - APP_PORT=8080
-      - FLASK_ENV=production
-      - FLASK_DEBUG=0
-    restart: unless-stopped
-    networks:
-      - llot-network
-
-networks:
-  llot-network:
-    driver: bridge
-EOF
-        
         compose_file="docker-compose.local.yml"
-        echo "✅ Created configuration for external Ollama: $ollama_host:$ollama_port"
+        echo "✅ Will create configuration for external Ollama: $ollama_host:$ollama_port"
         ;;
         
     2)
@@ -268,6 +247,39 @@ else
 fi
 echo ""
 fi # End of skip_config check for languages
+
+# Generate docker-compose.local.yml if using external Ollama (option 1)
+if [[ $ollama_choice == "1" ]]; then
+    echo "📝 Creating docker-compose configuration for external Ollama..."
+    cat > docker-compose.local.yml << EOF
+version: '3.8'
+
+services:
+  llot:
+    build: .
+    container_name: llot
+    ports:
+      - "8080:8080"
+    environment:
+      - OLLAMA_HOST=$ollama_url
+      - OL_MODEL=$model_name
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8080
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+${piper_host:+      - WYOMING_PIPER_HOST=$piper_host}
+${piper_port:+      - WYOMING_PIPER_PORT=$piper_port}
+${language_codes:+      - TRANSLATION_LANGUAGES=$language_codes}
+    restart: unless-stopped
+    networks:
+      - llot-network
+
+networks:
+  llot-network:
+    driver: bridge
+EOF
+    echo "✅ Created docker-compose.local.yml with all configurations"
+fi
 
 # Create .env file
 echo "📝 Creating environment configuration..."

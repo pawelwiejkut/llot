@@ -17,7 +17,9 @@ services:
       - APP_PORT=${APP_PORT:-8080}
       - FLASK_ENV=${FLASK_ENV:-production}
       - FLASK_DEBUG=${FLASK_DEBUG:-0}
-      # - TRANSLATION_LANGUAGES=${TRANSLATION_LANGUAGES:-}  # Uncomment to limit languages
+      - WYOMING_PIPER_HOST=${WYOMING_PIPER_HOST:-}
+      - WYOMING_PIPER_PORT=${WYOMING_PIPER_PORT:-}
+      - TRANSLATION_LANGUAGES=${TRANSLATION_LANGUAGES:-}
     depends_on:
       ollama:
         condition: service_healthy
