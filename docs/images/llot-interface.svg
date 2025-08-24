@@ -1,0 +1,75 @@
+<svg width="1200" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="600" fill="#f7f8fb"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="1200" height="80" fill="white" stroke="#e5e7eb" stroke-width="1"/>
+  
+  <!-- LLOT Logo -->
+  <circle cx="60" cy="40" r="20" fill="#2563eb"/>
+  <text x="90" y="35" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1e293b">LLOT</text>
+  <text x="90" y="50" font-family="Arial, sans-serif" font-size="12" fill="#64748b">— local llm ollama translator</text>
+  
+  <!-- Connection Info -->
+  <text x="1000" y="30" font-family="monospace" font-size="11" fill="#475569">Ollama: localhost:11434</text>
+  <text x="1000" y="50" font-family="monospace" font-size="11" fill="#475569">Model: gemma3:27b</text>
+  
+  <!-- Main Container -->
+  <rect x="40" y="100" width="1120" height="480" rx="12" fill="white" stroke="#e5e7eb" stroke-width="1" filter="drop-shadow(0 6px 18px rgba(15,15,15,0.06))"/>
+  
+  <!-- Language Selectors -->
+  <text x="60" y="140" font-family="Arial, sans-serif" font-size="14" fill="#475569">Source</text>
+  <rect x="60" y="150" width="120" height="36" rx="6" fill="#f9fafb" stroke="#e5e7eb"/>
+  <text x="75" y="170" font-family="Arial, sans-serif" font-size="14" fill="#111">Auto (detect)</text>
+  
+  <!-- Swap Button -->
+  <circle cx="220" cy="168" r="18" fill="#f3f4f6" stroke="#d1d5db"/>
+  <path d="m210 163 6 0 m4 0 -3 -3 3 -3 m-10 10 6 0 m4 0 -3 3 3 3" stroke="#334155" stroke-width="2" fill="none"/>
+  
+  <text x="260" y="140" font-family="Arial, sans-serif" font-size="14" fill="#475569">Target</text>
+  <rect x="260" y="150" width="120" height="36" rx="6" fill="#f9fafb" stroke="#e5e7eb"/>
+  <text x="275" y="170" font-family="Arial, sans-serif" font-size="14" fill="#111">German (de)</text>
+  
+  <text x="420" y="140" font-family="Arial, sans-serif" font-size="14" fill="#475569">Tone</text>
+  <rect x="420" y="150" width="100" height="36" rx="6" fill="#f9fafb" stroke="#e5e7eb"/>
+  <text x="435" y="170" font-family="Arial, sans-serif" font-size="14" fill="#111">Neutral</text>
+  
+  <!-- History -->
+  <text x="60" y="220" font-family="Arial, sans-serif" font-size="14" fill="#475569">Recent translations history:</text>
+  <rect x="60" y="230" width="80" height="30" rx="15" fill="#eef3ff"/>
+  <text x="75" y="248" font-family="Arial, sans-serif" font-size="13" fill="#1b4ed8">Hello → Hallo</text>
+  
+  <rect x="150" y="230" width="90" height="30" rx="15" fill="#eef3ff"/>
+  <text x="165" y="248" font-family="Arial, sans-serif" font-size="13" fill="#1b4ed8">Privacy → Privat</text>
+  
+  <!-- Input Area -->
+  <text x="60" y="290" font-family="Arial, sans-serif" font-size="14" fill="#475569">Text to translate</text>
+  <rect x="60" y="300" width="520" height="240" rx="8" fill="white" stroke="#e6e9ef"/>
+  <text x="80" y="330" font-family="Arial, sans-serif" font-size="20" fill="#111">Privacy-first translation service</text>
+  <text x="80" y="360" font-family="Arial, sans-serif" font-size="20" fill="#111">for self-hosters.</text>
+  <text x="80" y="420" font-family="Arial, sans-serif" font-size="20" fill="#111">No API keys, no cloud services,</text>
+  <text x="80" y="450" font-family="Arial, sans-serif" font-size="20" fill="#111">100% local processing.</text>
+  
+  <!-- Status -->
+  <circle cx="80" cy="560" r="6" fill="#10b981"/>
+  <text x="95" y="565" font-family="Arial, sans-serif" font-size="14" fill="#475569">Translation starts automatically</text>
+  
+  <!-- Output Area -->
+  <text x="620" y="290" font-family="Arial, sans-serif" font-size="14" fill="#475569">Result</text>
+  <rect x="620" y="300" width="520" height="240" rx="8" fill="#fbfcff" stroke="#e3e7ee" stroke-dasharray="4,4"/>
+  
+  <!-- TTS Button -->
+  <circle cx="1100" cy="320" r="16" fill="rgba(255,255,255,0.95)" stroke="#d1d5db"/>
+  <path d="m1092 315 4 3 -4 3 v -6 z m6 -1 c2 0 3 2 3 4 s-1 4 -3 4" stroke="#6b7280" stroke-width="1.5" fill="none"/>
+  
+  <text x="640" y="330" font-family="Arial, sans-serif" font-size="20" fill="#111">Datenschutz-orientierter</text>
+  <text x="640" y="360" font-family="Arial, sans-serif" font-size="20" fill="#111">Übersetzungsdienst für</text>
+  <text x="640" y="390" font-family="Arial, sans-serif" font-size="20" fill="#111">Self-Hoster.</text>
+  <text x="640" y="450" font-family="Arial, sans-serif" font-size="20" fill="#111">Keine API-Schlüssel, keine</text>
+  <text x="640" y="480" font-family="Arial, sans-serif" font-size="20" fill="#111">Cloud-Dienste, 100% lokale</text>
+  <text x="640" y="510" font-family="Arial, sans-serif" font-size="20" fill="#111">Verarbeitung.</text>
+  
+  <!-- Detected Badge -->
+  <rect x="400" y="550" width="80" height="24" rx="8" fill="#f3f4f6"/>
+  <text x="415" y="564" font-family="Arial, sans-serif" font-size="12" fill="#64748b">Detected: EN</text>
+</svg>

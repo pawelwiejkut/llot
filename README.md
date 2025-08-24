@@ -1,470 +1,184 @@
 # 🌐 LLOT - Local LLM Ollama Translator
 
-> **Privacy-first, self-hosted translation service powered by local LLMs**
+> **Privacy-first translation service for self-hosters**  
+> No API keys • No cloud services • No data collection • 100% local
 
-**No data leaves your network.** **No API keys required.** **100% offline translation** using your own Ollama models.
+[![Self-Hosted](https://img.shields.io/badge/Self--Hosted-100%25-green?style=for-the-badge&logo=docker)](https://github.com/pawelwiejkut/llot)
+[![Languages](https://img.shields.io/badge/Languages-40%2B-blue?style=for-the-badge)](https://github.com/pawelwiejkut/llot)
+[![Privacy](https://img.shields.io/badge/Privacy-First-red?style=for-the-badge&logo=shield)](https://github.com/pawelwiejkut/llot)
 
-![LLOT Screenshot](https://img.shields.io/badge/Self--Hosted-100%25-green?style=for-the-badge&logo=docker)
-![Languages](https://img.shields.io/badge/Languages-40%2B-blue?style=for-the-badge)
-![Privacy](https://img.shields.io/badge/Privacy-First-red?style=for-the-badge&logo=shield)
+## ✨ Why Self-Hosters Love LLOT
 
----
+| 🔒 **Total Privacy** | ⚡ **Lightning Fast** | 🏠 **Homelab Ready** |
+|:---:|:---:|:---:|
+| Your data never leaves your network | Real-time translation as you type | Docker deployment in minutes |
 
-## 🚀 Why LLOT?
+| 🌍 **40+ Languages** | 🔊 **Neural TTS** | 🔧 **Your Infrastructure** |
+|:---:|:---:|:---:|
+| Multilingual interface + smart detection | High-quality speech for 20+ languages | Use existing servers or install locally |  
 
-**Perfect for self-hosters who value privacy and control:**
-
-- 🔒 **Complete Privacy** - All translations happen locally on your hardware
-- 🏠 **Self-Hosted** - Deploy on your homelab, VPS, or any server you control
-- 🌍 **40+ Languages** - Interface supports major world languages + European languages
-- ⚡ **Real-time Translation** - Instant translation as you type
-- 🎯 **Smart Language Detection** - Automatically detects source language
-- 🔧 **Tone Control** - Formal, informal, technical, or poetic translations
-- 📝 **Interactive Refinement** - Click any word to get alternative translations
-- 📚 **Translation History** - Keep track of your recent translations
-- 🔊 **Text-to-Speech (TTS)** - Listen to translations with Wyoming Piper integration
-- 🐳 **Docker Ready** - One-command deployment with Docker Compose
-- 🎨 **Modern UI** - Responsive design that works on all devices
-
----
-
-## 📋 Prerequisites
-
-- **Docker & Docker Compose** (recommended) OR **Python 3.8+**
-- **2GB+ RAM** (depends on your chosen model)
-
-### External Services (Optional)
-- **Ollama Server** - For LLM translation (can be remote URL or local installation)
-- **Wyoming Piper** - For text-to-speech functionality (can be remote URL or local installation)
+![LLOT Interface](docs/images/llot-interface.svg)
+*Real-time translation with smart language detection and neural TTS*
 
 ---
 
 ## 🚀 Quick Start
 
-### 🎯 **Automatic Setup (Recommended)**
-
-**The easiest way - guided setup script:**
-
+### Option 1: Guided Setup (Recommended)
 ```bash
-# Clone and run setup
 git clone https://github.com/pawelwiejkut/llot.git
 cd llot
-./setup.sh
-
-# Follow the prompts to configure:
-# • Your Ollama server (external URL or local install)
-# • Wyoming Piper TTS (optional, for audio)
-# • Translation model preference
-# • Automatic startup
+./setup.sh  # Interactive setup wizard
 ```
 
-### 🔧 **Manual Setup Options**
+![Setup Demo](docs/images/setup-demo.svg)
+*Interactive setup wizard guides you through configuration*
 
-**Choose the setup that fits your infrastructure:**
-
-#### Option A: External Servers (Recommended)
+### Option 2: One-Line Deploy
 ```bash
-# Use your existing Ollama/Wyoming servers
-cp docker-compose.yml docker-compose.local.yml
-# Edit docker-compose.local.yml:
-# - OLLAMA_HOST=http://your-ollama-server:11434
-# - WYOMING_PIPER_HOST=your-piper-server (optional)
-docker-compose -f docker-compose.local.yml up -d
+# With your existing Ollama server
+git clone https://github.com/pawelwiejkut/llot.git && cd llot
+echo "OLLAMA_HOST=http://your-ollama-server:11434" > .env
+docker-compose up -d
 ```
 
-#### Option B: Local Ollama Only
+### Option 3: Complete Local Setup
 ```bash
-# Installs Ollama locally via Docker
-docker-compose -f docker-compose.standalone.yml up -d
-```
-
-#### Option C: Complete Local Installation
-```bash
-# Installs both Ollama + Wyoming Piper locally
+# Installs everything locally (Ollama + Wyoming Piper)
+git clone https://github.com/pawelwiejkut/llot.git && cd llot
 docker-compose -f docker-compose.full.yml up -d
 ```
 
-**Access LLOT at:** http://localhost:8080
+**🎯 Access LLOT:** http://localhost:8080
 
-### Option 2: Manual Installation
+---
 
-**For more control over your setup:**
+## 🏗️ Architecture Options
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/pawelwiejkut/llot.git
-cd llot
+Choose what fits your homelab:
 
-# 2. Set up Python environment
-python3 -m venv venv
-source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate    # Windows
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Configure (optional)
-cp .env.example .env
-# Edit .env if needed
-
-# 5. Run
-python run.py
+### 🌐 **Microservices** (Recommended)
+```yaml
+LLOT: Docker container
+Ollama: External server (your existing setup)
+Wyoming Piper: External server (optional TTS)
 ```
+**Perfect for:** Existing homelab infrastructure, resource optimization
+
+### 🖥️ **All-in-One**  
+```yaml
+LLOT + Ollama + Wyoming: Single docker-compose
+```
+**Perfect for:** New deployments, single-server setups
+
+### ☁️ **Hybrid Cloud**
+```yaml
+LLOT: Local Docker
+Ollama: Cloud GPU instance
+Wyoming: Local container
+```
+**Perfect for:** GPU acceleration with local privacy
 
 ---
 
 ## ⚙️ Configuration
 
-Create `.env` file for custom settings:
-
+### Quick Config (.env)
 ```bash
-# 🔗 External Service Configuration
-# ==================================
-# Configure your external Ollama server URL
+# Your Ollama server
 OLLAMA_HOST=http://your-ollama-server:11434
 OL_MODEL=gemma3:27b
 
-# 🔊 Optional: Wyoming Piper TTS Configuration  
-# =============================================
-# Enable text-to-speech by configuring your Piper server
-# If not set, TTS button will be automatically hidden
+# Optional: Wyoming Piper for TTS
 WYOMING_PIPER_HOST=your-piper-server
 WYOMING_PIPER_PORT=10200
 
-# 🚀 Application Settings
-# =======================
-APP_HOST=0.0.0.0
-APP_PORT=8080
-FLASK_ENV=production
-FLASK_DEBUG=0
-
-# 🌍 Optional: Language Configuration
-# ===================================
-# Limit available translation languages (comma-separated)
-# If not set, all 40+ supported languages will be available
-TRANSLATION_LANGUAGES=en,es,fr,de,pl,it,pt
+# Optional: Limit languages
+TRANSLATION_LANGUAGES=en,de,pl,es,fr
 ```
 
-### Language Settings
+### Recommended Models
+- **`gemma3:27b`** - Best quality (32GB RAM)
+- **`llama3:8b`** - Balanced (8GB RAM)
+- **`mistral:7b`** - Lightweight (4GB RAM)
 
-- **Interface Language**: Automatically detected from browser's Accept-Language header in production mode
-- **Debug Mode**: Manual language selector available when `FLASK_DEBUG=1` 
-- **Translation Languages**: Configurable via `TRANSLATION_LANGUAGES` environment variable
+---
 
-### Text-to-Speech (TTS) Setup
+## 🔊 Text-to-Speech Support
 
-LLOT supports high-quality text-to-speech using **Wyoming Piper** for audio pronunciation:
+**✅ Supported Languages (20):**  
+🇺🇸 🇩🇪 🇫🇷 🇪🇸 🇵🇹 🇳🇱 🇩🇰 🇫🇮 🇳🇴 🇵🇱 🇨🇿 🇸🇰 🇭🇺 🇷🇴 🇷🇺 🇸🇦 🇮🇳 🇹🇷 🇻🇳 🇨🇳 🇮🇩
 
-**Prerequisites:**
-- Wyoming Piper TTS server running (separate service)
-- Network access between LLOT and Piper server
+*TTS button appears automatically for supported languages*
 
-**Features:**
-- 🔊 **High-Quality Audio** - Crystal clear speech synthesis using Piper neural voices
-- 🌍 **Multi-language Support** - 20+ languages including German, English, Polish, Spanish, French, Russian, Arabic, Chinese, and more
-- ⚡ **Smart Streaming** - Optimized audio delivery with natural sentence pauses
-- 🎛️ **Automatic Speed Control** - Slower, clearer speech with 2-second pauses between sentences
-- 🔍 **Smart Language Detection** - TTS button automatically shows/hides based on language support
+---
 
-**Configuration:**
+## 🛠️ For Developers
+
+### Local Development
 ```bash
-# Enable TTS by setting Wyoming Piper server details
-WYOMING_PIPER_HOST=10.0.20.134
-WYOMING_PIPER_PORT=10200
-```
-
-If not configured, the TTS button will be automatically hidden.
-
-### Supported TTS Languages
-
-**✅ Languages with full TTS support (20):**
-🇺🇸 English • 🇩🇪 German • 🇫🇷 French • 🇪🇸 Spanish • 🇵🇹 Portuguese • 🇳🇱 Dutch • 🇩🇰 Danish • 🇫🇮 Finnish • 🇳🇴 Norwegian • 🇵🇱 Polish • 🇨🇿 Czech • 🇸🇰 Slovak • 🇭🇺 Hungarian • 🇷🇴 Romanian • 🇷🇺 Russian • 🇸🇦 Arabic • 🇮🇳 Hindi • 🇹🇷 Turkish • 🇻🇳 Vietnamese • 🇨🇳 Chinese • 🇮🇩 Indonesian
-
-**⚠️ Translation-only languages (17):**
-🇧🇬 Bulgarian • 🇧🇩 Bengali • 🇬🇷 Greek • 🇪🇪 Estonian • 🇮🇪 Irish • 🇭🇷 Croatian • 🇮🇹 Italian • 🇯🇵 Japanese • 🇰🇷 Korean • 🇱🇹 Lithuanian • 🇱🇻 Latvian • 🇲🇹 Maltese • 🇸🇮 Slovenian • 🇸🇪 Swedish • 🇮🇳 Tamil • 🇹🇭 Thai • 🇵🇰 Urdu
-
-*TTS button automatically appears only for supported languages*
-
-## 🏗️ Deployment Scenarios
-
-LLOT is designed to work flexibly with your existing infrastructure:
-
-### 🌐 **Scenario 1: Microservices Architecture (Recommended)**
-```yaml
-# Each service runs independently
-• LLOT: Docker container (this repo)  
-• Ollama: External server/container
-• Wyoming Piper: External server/container (optional)
-```
-**Benefits:** Scalable, resource-efficient, can reuse existing services
-
-### 🖥️ **Scenario 2: All-in-One Server**
-```yaml  
-# Everything on one machine
-• LLOT + Ollama + Wyoming: docker-compose.full.yml
-```
-**Benefits:** Simple setup, no network dependencies
-
-### ☁️ **Scenario 3: Hybrid Cloud**
-```yaml
-# Mix local and remote services
-• LLOT: Local Docker
-• Ollama: Cloud GPU instance 
-• Wyoming: Local Docker
-```
-**Benefits:** GPU acceleration with local privacy
-
-### 🤖 Recommended Setup
-
-**Preferred configuration for best results:**
-
-- **Model**: `gemma3:27b` for optimal translation quality (default)
-- **Hardware**: RTX 3090 or similar GPU recommended  
-- **Memory**: 32GB+ RAM for smooth performance
-
-**Quick setup:**
-```bash
-ollama pull gemma3:27b
-```
-
----
-
-## 🏆 Why Self-Hosters Love LLOT
-
-### ✅ **Privacy First**
-- **100% Local Processing** - Your translations never leave your server
-- **No API Keys Required** - No external service dependencies  
-- **No Data Collection** - Zero telemetry, zero tracking
-- **Offline Capable** - Works without internet after setup
-
-### ⚡ **Performance & Efficiency**
-- **Lightning Fast** - Sub-second translations with local LLMs
-- **Resource Friendly** - Optimized for home server hardware  
-- **Memory Efficient** - Translation history stored in browser localStorage
-- **Docker Ready** - One-command deployment with compose
-
-### 🛠️ **Self-Hosted Friendly**
-- **Modern Architecture** - Clean Flask app with proper separation
-- **Easy Configuration** - Simple `.env` file setup
-- **Reverse Proxy Ready** - Works behind nginx/traefik/caddy
-- **Health Checks** - Built-in monitoring endpoints
-- **Auto-Updates** - Git pull and rebuild workflow
-
-> 💬 **r/selfhosted approved!** Join the discussion and share your setup!
-
----
-
-## 🌍 Supported Languages
-
-**Interface available in 40+ languages including:**
-
-### 🌍 Major World Languages
-🇬🇧 English • 🇨🇳 中文 • 🇮🇳 हिन्दी • 🇪🇸 Español • 🇫🇷 Français • 🇸🇦 العربية • 🇧🇩 বাংলা • 🇵🇹 Português • 🇷🇺 Русский • 🇵🇰 اردو • 🇮🇩 Indonesia • 🇩🇪 Deutsch • 🇯🇵 日本語 • 🇹🇷 Türkçe • 🇰🇷 한국어 • 🇻🇳 Tiếng Việt
-
-### 🇪🇺 European Languages  
-🇵🇱 Polski • 🇮🇹 Italiano • 🇳🇱 Nederlands • 🇸🇪 Svenska • 🇩🇰 Dansk • 🇳🇴 Norsk • 🇫🇮 Suomi • 🇨🇿 Čeština • 🇸🇰 Slovenčina • 🇭🇺 Magyar • 🇷🇴 Română • 🇧🇬 Български • 🇭🇷 Hrvatski • 🇸🇮 Slovenščina • 🇱🇻 Latviešu • 🇱🇹 Lietuvių • 🇪🇪 Eesti • 🇬🇷 Ελληνικά • 🇲🇹 Malti • 🇮🇪 Gaeilge
-
----
-
-## 🐳 Docker Deployment
-
-### Using Docker Compose (Recommended)
-
-```yaml
-# docker-compose.yml included in repo
-version: '3.8'
-
-services:
-  llot:
-    build: .
-    ports:
-      - "8080:8080"
-    environment:
-      - OLLAMA_HOST=http://host.docker.internal:11434  # For Docker Desktop
-      # - OLLAMA_HOST=http://172.17.0.1:11434         # For Linux Docker
-    restart: unless-stopped
-```
-
-### Using Docker
-
-```bash
-# Build and run
-docker build -t llot .
-docker run -d \
-  --name llot \
-  -p 8080:8080 \
-  -e OLLAMA_HOST=http://host.docker.internal:11434 \
-  --restart unless-stopped \
-  llot
-```
-
----
-
-## 🏗️ Architecture
-
-**Modern, maintainable Flask application:**
-
-```
-llot/
-├── app/
-│   ├── models/           # Data models (languages, history)
-│   ├── services/         # Business logic (translation, ollama client)
-│   ├── routes/           # API endpoints and web routes
-│   ├── templates/        # HTML templates with i18n
-│   ├── static/           # CSS, JavaScript, assets
-│   └── translations/     # 40+ language translations
-├── tests/                # Unit tests
-├── docker-compose.yml    # Easy deployment
-├── Dockerfile           # Container definition
-└── requirements.txt     # Python dependencies
-```
-
-**Key Technologies:**
-- **Flask** with modern Blueprint architecture
-- **Flask-Babel** for internationalization
-- **Ollama API** for local LLM communication
-- **SQLite** for lightweight data storage (history)
-- **Docker** for easy deployment
-
----
-
-## 🔧 Development
-
-**Contributing or customizing:**
-
-```bash
-# Install development dependencies
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# Run tests
-make test
-# or
-pytest tests/ -v
-
-# Run development server
-make dev
-# or  
+cp .env.example .env  # Configure your servers
 python run.py
-
-# Lint and format
-make lint
-make format
 ```
 
-### Adding New Languages
-
-1. Add language to `app/config.py`:
-```python
-LANGUAGES = {
-    'your_lang': 'Your Language Name',
-    # ...
-}
-```
-
-2. Create translation files:
+### API Endpoints
 ```bash
-mkdir -p app/translations/your_lang/LC_MESSAGES/
-cp app/translations/en/LC_MESSAGES/messages.po app/translations/your_lang/LC_MESSAGES/
-# Translate the file
+POST /api/translate     # Main translation
+POST /api/tts          # Text-to-speech  
+POST /api/alternatives # Word alternatives
+POST /api/history/save # Save translation
 ```
 
-3. Add JavaScript translations to `app/static/js/app.js`
+### Common Issues
+
+**Can't connect to Ollama?**
+- Check `OLLAMA_HOST` in your `.env` file
+- Verify Ollama is running: `curl http://your-ollama:11434/api/tags`
+- For Docker Desktop: use `host.docker.internal:11434`
+
+**TTS not working?**  
+- Verify `WYOMING_PIPER_HOST` is set correctly
+- Check if your language is supported (see TTS section above)
+- TTS button only appears for supported languages
+
+**Model download slow?**
+- Use `docker exec llot-ollama ollama pull gemma3:27b` to pre-download
+- Consider using smaller models like `mistral:7b` for testing
 
 ---
 
-## 🔒 Privacy & Security
+## 🌟 Community
 
-**Why LLOT is perfect for privacy-conscious users:**
+**Found LLOT useful?** 
 
-- ✅ **No external API calls** - Everything runs locally
-- ✅ **No data collection** - We don't store, log, or transmit your translations  
-- ✅ **No telemetry** - Zero tracking or analytics
-- ✅ **No internet required** - Works completely offline
-- ✅ **You control the models** - Use any Ollama-compatible model
-- ✅ **Self-hosted** - Your server, your rules
-- ✅ **Open source** - Inspect every line of code
-
-**Perfect for:**
-- 🏢 **Corporate environments** with strict data policies
-- 🏠 **Home users** who value privacy
-- 🌐 **Air-gapped networks** without internet access
-- 🏥 **Healthcare/Legal** with sensitive documents
-- 🎓 **Educational institutions** with student privacy requirements
+⭐ **Star this repo** to support development  
+🐛 **Report issues** on [GitHub Issues](https://github.com/pawelwiejkut/llot/issues)  
+💬 **Discuss on** [r/selfhosted](https://reddit.com/r/selfhosted)  
+🔧 **Contribute** - PRs welcome!
 
 ---
 
-## 📊 API Reference
-
-**RESTful API for integration:**
-
-```bash
-# Translate text
-POST /api/translate
-{
-  "source_text": "Hello world",
-  "source_lang": "en", 
-  "target_lang": "es",
-  "tone": "neutral"
-}
-
-# Get alternative translations
-POST /api/alternatives
-{
-  "source_text": "Hello world",
-  "current_translation": "Hola mundo", 
-  "clicked_word": "mundo",
-  "target_lang": "es"
-}
-
-# Save to history
-POST /api/history/save
-{
-  "source_text": "Hello",
-  "translated": "Hola",
-  "target_lang": "es" 
-}
-
-# Text-to-Speech (if Wyoming Piper configured)
-POST /api/tts
-{
-  "text": "Hello world",
-  "language": "en",
-  "streaming": true
-}
-```
-
----
-
-## 🤝 Community & Support
-
-**Join the self-hosted community:**
-
-- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/llot/issues)
-- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/yourusername/llot/discussions)
-- 🗨️ **Chat**: [Discord Server](#) or [Matrix Room](#)
-- 📖 **Wiki**: [Documentation](https://github.com/yourusername/llot/wiki)
-
-**Contributing:**
-- PRs welcome for new languages, features, or bug fixes
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
-- Join our monthly community calls
-
----
-
-## 📝 License
+## 📜 License
 
 **MIT License** - Use commercially, modify freely, share with attribution.
 
-See [LICENSE](LICENSE) for full details.
+---
+
+<div align="center">
+
+**🏠 Made for the self-hosted community**
+
+[![GitHub stars](https://img.shields.io/github/stars/pawelwiejkut/llot?style=social)](https://github.com/pawelwiejkut/llot/stargazers)
+[![Docker Pulls](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://github.com/pawelwiejkut/llot)
 
 ---
 
-## ⭐ Star History
+### 📊 Quick Stats
+**40+ UI Languages** • **20+ TTS Languages** • **3 Deployment Options** • **100% Privacy**
 
-**If LLOT helps you maintain privacy while translating, consider starring the repo!**
+*Join the hundreds of self-hosters using LLOT for private translation* 
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/llot&type=Date)](https://github.com/yourusername/llot/stargazers)
-
----
-
-**🚀 Ready to translate privately? [Get started now](#-quick-start)**
+</div>
