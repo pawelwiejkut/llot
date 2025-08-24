@@ -63,11 +63,15 @@ class SimpleWyomingTTSService:
                     break
                 
                 try:
-                    # Shorter timeout per event to avoid hanging
-                    event = await asyncio.wait_for(client.read_event(), timeout=5.0)
+                    # Adaptive timeout - shorter for quick detection of end
+                    timeout = 1.5 if chunk_count > 0 else 5.0
+                    event = await asyncio.wait_for(client.read_event(), timeout=timeout)
                 except asyncio.TimeoutError:
-                    print(f"DEBUG: Timeout waiting for next event, got {chunk_count} chunks so far", flush=True)
-                    break
+                    print(f"DEBUG: Timeout ({timeout}s) waiting for next event, got {chunk_count} chunks so far", flush=True)
+                    if chunk_count > 0:  # We got some audio, probably done
+                        break
+                    else:  # No audio yet, might be starting - wait longer
+                        continue
                 
                 if event is None:
                     print(f"DEBUG: Received None event, ending", flush=True)
@@ -77,7 +81,23 @@ class SimpleWyomingTTSService:
                     chunk = AudioChunk.from_event(event)
                     audio_chunks.append(chunk.audio)
                     chunk_count += 1
-                    print(f"DEBUG: Received audio chunk {chunk_count}, size: {len(chunk.audio)}", flush=True)
+                    chunk_size = len(chunk.audio)
+                    # Only log every 20th chunk or last chunk to reduce overhead
+                    if chunk_count % 20 == 0 or chunk_size < 2048:
+                        print(f"DEBUG: Received audio chunk {chunk_count}, size: {chunk_size}", flush=True)
+                    
+                    # If we get a partial chunk (< 2048), it's likely the last one
+                    if chunk_size < 2048 and chunk_count > 5:
+                        print(f"DEBUG: Got partial chunk ({chunk_size} < 2048), probably last chunk", flush=True)
+                        # Wait a bit more for potential tts-done, but with short timeout
+                        try:
+                            final_event = await asyncio.wait_for(client.read_event(), timeout=0.5)
+                            if final_event and final_event.type == "tts-done":
+                                print(f"DEBUG: Got tts-done after partial chunk", flush=True)
+                        except asyncio.TimeoutError:
+                            print(f"DEBUG: No tts-done after partial chunk, assuming complete", flush=True)
+                        break
+                        
                 elif event.type == "tts-done":
                     print(f"DEBUG: TTS done event received", flush=True)
                     break
