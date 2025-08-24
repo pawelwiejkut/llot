@@ -3,6 +3,7 @@ from app.routes import api_bp
 from app.services.translator import TranslationService
 from app.models.history import history_manager
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 translation_service = TranslationService()
