@@ -97,22 +97,11 @@ WYOMING_PIPER_PORT=10200
 TRANSLATION_LANGUAGES=en,de,pl,es,fr
 ```
 
-### Recommended Models for Translation
-
-#### 🏆 **Premium Quality** (High RAM)
-- **`qwen3:14b`** - Excellent multilingual (16GB RAM)
-- **`gemma3:27b`** - Top quality translation (32GB RAM)
-- **`mistral-nemo:12b`** - Advanced translation (14GB RAM)
-
-#### ⚡ **Balanced Performance** (Medium RAM)  
-- **`qwen2.5:7b`** - 29+ languages support (8GB RAM)
-- **`llama3.1:8b`** - Fast & accurate (8GB RAM)
-- **`aya:8b`** - 23 languages specialist (8GB RAM)
-
-#### 🚀 **Lightweight** (Low RAM)
-- **`qwen2.5:3b`** - Efficient multilingual (4GB RAM)
-- **`gemma2:2b`** - Quick translation (2GB RAM)
-- **`sailor2:1b`** - Ultra-light SEA languages (1GB RAM)
+### Recommended Models
+- **`gemma3:27b`** - Best quality
+- **`gemma3:12b`** - Balanced performance
+- **`gemma3:4b`** - Multimodal support
+- **`gemma3:1b`** - Lightweight
 
 ---
 
