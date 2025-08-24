@@ -17,7 +17,7 @@
 |:---:|:---:|:---:|
 | Multilingual interface + smart detection | High-quality speech for 20+ languages | Use existing servers or install locally |  
 
-![LLOT Interface](docs/images/llot-interface.svg)
+![LLOT Interface](docs/images/llot-interface.png)
 *Real-time translation with smart language detection and neural TTS*
 
 ---
