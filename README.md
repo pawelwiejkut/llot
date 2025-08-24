@@ -112,7 +112,7 @@ TRANSLATION_LANGUAGES=en,es,fr,de,pl,it,pt
 
 **Preferred configuration for best results:**
 
-- **Model**: `gemma3:27b` for optimal translation quality
+- **Model**: `gemma3:27b` for optimal translation quality (default)
 - **Hardware**: RTX 3090 or similar GPU recommended  
 - **Memory**: 32GB+ RAM for smooth performance
 

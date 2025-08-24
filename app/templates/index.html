@@ -119,7 +119,14 @@
       </div>
       <div class="col">
         <label class="small">{{ _('Result') }}</label>
-        <div class="result-box" id="result">{{ translated|default('') }}</div>
+        <div class="result-container">
+          <div class="result-box" id="result">{{ translated|default('') }}</div>
+          <button id="tts-btn" class="tts-button" title="{{ _('Listen to pronunciation') }}" style="display: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 

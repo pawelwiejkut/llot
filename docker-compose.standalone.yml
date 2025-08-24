@@ -10,12 +10,14 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - OLLAMA_HOST=http://ollama:11434
-      - OL_MODEL=gemma2:9b
-      - APP_HOST=0.0.0.0
-      - APP_PORT=8080
-      - FLASK_ENV=production
-      - FLASK_DEBUG=0
+      # All .env variables - customize as needed
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://ollama:11434}
+      - OL_MODEL=${OL_MODEL:-gemma3:27b}
+      - APP_HOST=${APP_HOST:-0.0.0.0}
+      - APP_PORT=${APP_PORT:-8080}
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - FLASK_DEBUG=${FLASK_DEBUG:-0}
+      - TRANSLATION_LANGUAGES=${TRANSLATION_LANGUAGES:-}
     depends_on:
       ollama:
         condition: service_healthy

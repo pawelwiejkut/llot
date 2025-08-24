@@ -7,16 +7,17 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # Connect to host Ollama (recommended for existing setups)
-      - OLLAMA_HOST=http://host.docker.internal:11434  # Docker Desktop (Mac/Windows)
+      # All .env variables - customize as needed
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}  # Docker Desktop (Mac/Windows)
       # - OLLAMA_HOST=http://172.17.0.1:11434           # Linux Docker
       # - OLLAMA_HOST=http://ollama:11434                # Use bundled Ollama service
       
-      - OL_MODEL=gemma2:9b                               # Recommended model
-      - APP_HOST=0.0.0.0
-      - APP_PORT=8080
-      - FLASK_ENV=production
-      - FLASK_DEBUG=0
+      - OL_MODEL=${OL_MODEL:-gemma3:27b}                 # Model from .env or default
+      - APP_HOST=${APP_HOST:-0.0.0.0}
+      - APP_PORT=${APP_PORT:-8080}
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - FLASK_DEBUG=${FLASK_DEBUG:-0}
+      - TRANSLATION_LANGUAGES=${TRANSLATION_LANGUAGES:-}
     # Uncomment if using bundled Ollama
     # depends_on:
     #   - ollama

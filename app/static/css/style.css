@@ -135,10 +135,68 @@ textarea:focus { outline: none; border-color:#93c5fd; box-shadow: 0 0 0 3px var(
 .small { font-size:var(--fs-small); color:#5b6b7a; }
 
 /* Wynik — min-height synchronizowany do textarea; rośnie z treścią */
+/* Result container with TTS button */
+.result-container {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
 .result-box {
+  flex: 1;
   white-space:pre-wrap; overflow:auto; padding:14px;
   border-radius:10px; border:1px dashed #e3e7ee; background:#fbfcff;
   line-height:1.6; font-size:var(--fs-result);
+}
+
+.tts-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: #6b7280;
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
+.tts-button:hover {
+  background: rgba(255, 255, 255, 1);
+  color: #2563eb;
+  border-color: #2563eb;
+  transform: scale(1.05);
+}
+
+.tts-button:active {
+  transform: scale(0.95);
+}
+
+.tts-button.playing {
+  color: #059669;
+  background: rgba(220, 252, 231, 0.9);
+  border-color: #059669;
+}
+
+.tts-button.loading {
+  color: #f59e0b;
+  background: rgba(254, 243, 199, 0.9);
+  border-color: #f59e0b;
+}
+
+.tts-button.loading svg {
+  animation: spin-tts 1s linear infinite;
+}
+
+@keyframes spin-tts {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Historia chipy */

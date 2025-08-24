@@ -233,7 +233,7 @@ function renderHistoryChips(){
   items.forEach((item, idx) => {
     const chip = document.createElement('div');
     chip.className = 'chip';
-    const short = (item.source || '').replace(/\n/g,' ').slice(0,40) + ((item.source||'').length>40?'...':'');
+    const short = (item.source || '').replace(/\n/g,' ').replace(/\s+/g, ' ').slice(0,40) + ((item.source||'').length>40?'...':'');
     chip.textContent = short;
     chip.dataset.historyIndex = idx;
     chip.addEventListener('click', ()=>loadHistory(idx));
@@ -270,6 +270,14 @@ function renderResultInteractive(text){
     }
   });
   box.appendChild(frag);
+  
+  // Show TTS button if there's translated text
+  const ttsBtn = document.getElementById('tts-btn');
+  if (text && text.trim()) {
+    ttsBtn.style.display = 'flex';
+  } else {
+    ttsBtn.style.display = 'none';
+  }
 }
 
 async function onTokenClick(ev, token, el){
@@ -378,7 +386,7 @@ let latestTargetSnapshot = '';
 
 function planIdleCommit(){
   if(idleCommitTimer) clearTimeout(idleCommitTimer);
-  idleCommitTimer = setTimeout(commitHistoryIfStable, 900);
+  idleCommitTimer = setTimeout(commitHistoryIfStable, 5000);
 }
 
 async function commitHistoryIfStable(){
@@ -549,4 +557,98 @@ document.addEventListener('DOMContentLoaded', function() {
   if(srcEl.value.trim().length > 0){
     triggerAutoTranslate();
   }
+  
+  // TTS functionality
+  const ttsBtn = document.getElementById('tts-btn');
+  let currentAudio = null;
+  
+  ttsBtn.addEventListener('click', async () => {
+    const resultText = getPlainResult().trim();
+    if (!resultText) return;
+    
+    // Stop current audio if playing
+    if (currentAudio && !currentAudio.ended) {
+      currentAudio.pause();
+      currentAudio = null;
+      ttsBtn.classList.remove('playing');
+      return;
+    }
+    
+    try {
+      ttsBtn.classList.add('loading');
+      
+      // Get target language for TTS
+      const targetLang = document.getElementById('target_lang').value;
+      
+      // Map language codes to TTS languages
+      const langMap = {
+        'de': 'de',
+        'en': 'en', 
+        'fr': 'fr',
+        'es': 'es',
+        'it': 'it',
+        'ru': 'ru',
+        'cs': 'cs',
+        'pl': 'pl'
+      };
+      
+      const ttsLang = langMap[targetLang] || 'pl';
+      
+      console.log('TTS: Requesting audio for:', resultText, 'in language:', ttsLang);
+      
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          text: resultText,
+          language: ttsLang
+        })
+      });
+      
+      console.log('TTS: Response status:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        throw new Error('TTS request failed');
+      }
+      
+      const audioBlob = await response.blob();
+      console.log('TTS: Received audio blob:', audioBlob.size, 'bytes, type:', audioBlob.type);
+      
+      const audioUrl = URL.createObjectURL(audioBlob);
+      console.log('TTS: Created audio URL:', audioUrl);
+      
+      currentAudio = new Audio(audioUrl);
+      console.log('TTS: Created Audio object');
+      
+      // Switch from loading to playing
+      ttsBtn.classList.remove('loading');
+      ttsBtn.classList.add('playing');
+      
+      currentAudio.addEventListener('ended', () => {
+        console.log('TTS: Audio playback ended');
+        ttsBtn.classList.remove('playing');
+        URL.revokeObjectURL(audioUrl);
+        currentAudio = null;
+      });
+      
+      currentAudio.addEventListener('error', (e) => {
+        console.error('TTS: Audio playback error:', e);
+        ttsBtn.classList.remove('playing');
+        ttsBtn.classList.remove('loading');
+        URL.revokeObjectURL(audioUrl);
+        currentAudio = null;
+      });
+      
+      console.log('TTS: Starting audio playback');
+      await currentAudio.play();
+      console.log('TTS: Audio playback started successfully');
+      
+    } catch (error) {
+      console.error('TTS error:', error);
+      ttsBtn.classList.remove('playing');
+      ttsBtn.classList.remove('loading');
+    }
+  });
 });
