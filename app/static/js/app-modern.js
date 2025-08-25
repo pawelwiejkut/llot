@@ -289,7 +289,17 @@ class LLOTApp {
     if (!text) return;
     
     try {
-      await navigator.clipboard.writeText(text);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback dla starszych przeglądarek
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
       
       // Visual feedback
       const originalIcon = this.elements.copyButton?.innerHTML;

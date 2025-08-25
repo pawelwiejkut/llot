@@ -93,11 +93,11 @@ html {
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-weight: 400;
   line-height: 1.6;
-  color: var(--text-primary);
-  background: var(--bg-primary);
+  color: var(--text-primary, #0f172a);
+  background: var(--bg-primary, #fafbfc);
   margin: 0;
   padding: 0;
   min-height: 100vh;
