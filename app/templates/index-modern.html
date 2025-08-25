@@ -42,13 +42,13 @@
         </a>
         
         <div class="header-info">
-          <div class="status-indicator">
-            <span class="status-dot"></span>
-            <span>{{ _('Ollama') }}: {{ ollama_host }}</span>
-          </div>
-          <div class="status-indicator">
-            <span class="status-dot"></span>
-            <span>{{ _('Model') }}: {{ model }}</span>
+          <div class="status-indicator" id="connection-status" title="{{ _('Click to check connection') }}">
+            <span class="status-dot" id="status-dot"></span>
+            <span class="status-text">{{ _('Connected') }}</span>
+            <div class="status-details">
+              <div>{{ _('Ollama') }}: {{ ollama_host }}</div>
+              <div>{{ _('Model') }}: {{ model }}</div>
+            </div>
           </div>
           
           <button class="theme-toggle" id="theme-toggle" aria-label="{{ _('Toggle theme') }}">

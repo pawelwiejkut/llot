@@ -18,6 +18,7 @@ class LLOTApp {
     this.bindEvents();
     this.initHistory();
     this.setupAutoTranslation();
+    this.checkConnectionStatus();
     
     // Initialize with any existing translation
     if (window.initialTranslated) {
@@ -159,7 +160,7 @@ class LLOTApp {
   }
   
   updateCharCount() {
-    const count = this.elements.sourceText?.value.length || 0;
+    const count = this.elements.sourceText ? this.elements.sourceText.value.length : 0;
     if (this.elements.charCount) {
       this.elements.charCount.textContent = `${count.toLocaleString()} characters`;
     }
@@ -170,7 +171,7 @@ class LLOTApp {
       clearTimeout(this.translationTimeout);
     }
     
-    const text = this.elements.sourceText?.value.trim();
+    const text = this.elements.sourceText ? this.elements.sourceText.value.trim() : '';
     if (!text) {
       this.clearResult();
       return;
@@ -182,7 +183,7 @@ class LLOTApp {
   }
   
   async translate() {
-    const text = this.elements.sourceText?.value.trim();
+    const text = this.elements.sourceText ? this.elements.sourceText.value.trim() : '';
     console.log('LLOT Modern: Translating text:', text);
     
     if (!text) {
@@ -195,9 +196,9 @@ class LLOTApp {
     try {
       const formData = new FormData();
       formData.append('source_text', text);
-      formData.append('source_lang', this.elements.sourceLang?.value || 'auto');
-      formData.append('target_lang', this.elements.targetLang?.value || 'en');
-      formData.append('tone', this.elements.tone?.value || 'neutral');
+      formData.append('source_lang', this.elements.sourceLang ? this.elements.sourceLang.value : 'auto');
+      formData.append('target_lang', this.elements.targetLang ? this.elements.targetLang.value : 'en');
+      formData.append('tone', this.elements.tone ? this.elements.tone.value : 'neutral');
       
       const response = await fetch('/api/translate', {
         method: 'POST',
@@ -276,31 +277,43 @@ class LLOTApp {
   }
   
   swapLanguages() {
-    if (this.elements.sourceLang?.value === 'auto') {
-      // Can't swap with auto-detect
+    if (!this.elements.sourceLang || !this.elements.targetLang || !this.elements.sourceText || !this.elements.result) {
+      console.error('LLOT Modern: Missing required elements for language swap');
       return;
     }
     
-    const sourceLang = this.elements.sourceLang?.value;
-    const targetLang = this.elements.targetLang?.value;
-    const sourceText = this.elements.sourceText?.value;
-    const resultText = this.elements.result?.textContent;
+    if (this.elements.sourceLang.value === 'auto') {
+      // Can't swap with auto-detect
+      console.log('LLOT Modern: Cannot swap from auto-detect language');
+      return;
+    }
+    
+    const sourceLang = this.elements.sourceLang.value;
+    const targetLang = this.elements.targetLang.value;
+    const sourceText = this.elements.sourceText.value;
+    const resultText = this.elements.result.textContent;
+    
+    console.log('LLOT Modern: Swapping languages', { sourceLang, targetLang, hasSourceText: !!sourceText, hasResult: !!resultText });
     
     if (sourceLang && targetLang) {
       this.elements.sourceLang.value = targetLang;
       this.elements.targetLang.value = sourceLang;
       
-      if (sourceText && resultText) {
-        this.elements.sourceText.value = resultText;
+      if (sourceText && resultText && resultText.trim()) {
+        this.elements.sourceText.value = resultText.trim();
         this.scheduleTranslation();
       }
     }
     
     // Add animation feedback
-    this.elements.swapButton?.style.setProperty('transform', 'rotate(180deg)');
-    setTimeout(() => {
-      this.elements.swapButton?.style.setProperty('transform', 'rotate(0deg)');
-    }, 200);
+    if (this.elements.swapButton) {
+      this.elements.swapButton.style.transform = 'rotate(180deg)';
+      setTimeout(() => {
+        if (this.elements.swapButton) {
+          this.elements.swapButton.style.transform = 'rotate(0deg)';
+        }
+      }, 200);
+    }
   }
   
   async copyTranslation() {
@@ -490,7 +503,40 @@ class LLOTApp {
     this.updateCharCount();
     
     // Auto-focus on text input
-    this.elements.sourceText?.focus();
+    if (this.elements.sourceText) {
+      this.elements.sourceText.focus();
+    }
+  }
+  
+  async checkConnectionStatus() {
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.querySelector('.status-text');
+    
+    if (!statusDot || !statusText) return;
+    
+    try {
+      // Test translation to check if everything works
+      const testResponse = await fetch('/api/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'source_text=test&source_lang=auto&target_lang=en&tone=neutral'
+      });
+      
+      if (testResponse.ok) {
+        statusDot.style.background = '#10b981'; // Green
+        statusText.textContent = 'Connected';
+        statusDot.classList.remove('pulse');
+      } else {
+        throw new Error('Connection failed');
+      }
+    } catch (error) {
+      statusDot.style.background = '#ef4444'; // Red
+      statusText.textContent = 'Disconnected';
+      statusDot.classList.add('pulse');
+      console.error('Connection check failed:', error);
+    }
   }
 }
 

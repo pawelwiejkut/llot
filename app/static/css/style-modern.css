@@ -131,7 +131,7 @@ body {
 }
 
 .main-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   position: relative;
   z-index: 1;
@@ -215,6 +215,50 @@ body {
   background: var(--bg-glass);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.status-indicator:hover {
+  background: var(--bg-card);
+  transform: translateY(-1px);
+}
+
+.status-details {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: var(--spacing-xs);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(var(--glass-blur));
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 100;
+}
+
+.status-indicator:hover .status-details {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.status-details div {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  margin-bottom: var(--spacing-xs);
+}
+
+.status-details div:last-child {
+  margin-bottom: 0;
 }
 
 .status-dot {
@@ -266,6 +310,14 @@ body {
   border-bottom: 1px solid var(--border);
   gap: var(--spacing-md);
   flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .control-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-lg);
+  }
 }
 
 .language-controls {
@@ -328,7 +380,7 @@ body {
 .translation-interface {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: 500px;
+  min-height: 600px;
 }
 
 .input-panel, .output-panel {
@@ -582,11 +634,22 @@ body {
   .language-controls {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+  
+  .language-select {
+    width: 100%;
   }
   
   .language-select select {
     min-width: auto;
     width: 100%;
+    text-align: center;
+  }
+  
+  .swap-button {
+    align-self: center;
+    margin: var(--spacing-xs) 0;
   }
   
   .brand-title {
