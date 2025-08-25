@@ -2,6 +2,7 @@ from flask import request, jsonify, current_app, Response
 from app.routes import api_bp
 from app.services.translator import TranslationService
 from app.models.history import history_manager
+from app.utils.debug import debug_print
 import logging
 import os
 
@@ -142,22 +143,22 @@ tts_cache = {}
 def text_to_speech():
     """Convert text to speech using Wyoming Piper TTS with streaming support."""
     from flask import request as flask_request
-    print("DEBUG: TTS endpoint called!", flush=True)
+    debug_print("TTS endpoint called!")
     try:
-        print("DEBUG: In try block", flush=True)
+        debug_print("In try block")
         data = flask_request.get_json(silent=True) or {}
         
-        print(f"DEBUG: Received TTS data: {data}", flush=True)
+        debug_print(f"Received TTS data: {data}")
         
         text = (data.get("text") or "").strip()
-        print(f"DEBUG: TTS request for text: {text}", flush=True)
+        debug_print(f"TTS request for text: {text}")
         if not text:
             return jsonify({"error": "No text provided"}), 400
         
         # Get language and streaming preference
         language = data.get("language", "pl")
         use_streaming = data.get("streaming", False)  # Use streaming when requested
-        print(f"DEBUG: TTS language: {language}, streaming param: {data.get('streaming')}, use_streaming: {use_streaming}", flush=True)
+        debug_print(f"TTS language: {language}, streaming param: {data.get('streaming')}, use_streaming: {use_streaming}")
         
         # Map languages to Wyoming Piper TTS voices (only supported languages)
         voice_map = {
@@ -198,7 +199,7 @@ def text_to_speech():
         # Check cache first (only for non-streaming requests)
         cache_key = f"{text}:{voice}"
         if not use_streaming and cache_key in tts_cache:
-            print("DEBUG: Found in cache, returning cached audio", flush=True)
+            debug_print("Found in cache, returning cached audio")
             return Response(
                 tts_cache[cache_key],
                 mimetype="audio/wav",
@@ -216,19 +217,19 @@ def text_to_speech():
         logger.info(f"TTS: Using Wyoming TTS for text: '{text}', voice: '{voice}', streaming: {use_streaming}")
         
         # Use simple Wyoming TTS compatible with wyoming 1.5.4
-        print(f"DEBUG: Using simple Wyoming TTS for text: '{text}', voice: '{voice}'", flush=True)
+        debug_print(f"Using simple Wyoming TTS for text: '{text}', voice: '{voice}'")
         try:
             from app.services.wyoming_tts_simple import SimpleWyomingTTSService
             
             simple_tts = SimpleWyomingTTSService()
             wav_content = simple_tts.synthesize(text, voice)
-            print(f"DEBUG: Generated WAV with {len(wav_content)} bytes using simple Wyoming", flush=True)
+            debug_print(f"Generated WAV with {len(wav_content)} bytes using simple Wyoming")
             
             # Cache the result
             if len(tts_cache) > 50:
                 tts_cache.clear()
             tts_cache[cache_key] = wav_content
-            print("DEBUG: Cached TTS result", flush=True)
+            debug_print("Cached TTS result")
             
             return Response(
                 wav_content,
@@ -240,7 +241,7 @@ def text_to_speech():
             )
             
         except Exception as e:
-            print(f"DEBUG: Simple TTS error: {e}", flush=True)
+            debug_print(f"Simple TTS error: {e}")
             return jsonify({"error": f"TTS service error: {str(e)}"}), 500
             
     except Exception as e:
