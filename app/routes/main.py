@@ -22,6 +22,25 @@ def index():
     )
 
 
+@main_bp.route("/modern", methods=["GET"])
+def modern():
+    """Modern UI version for 2025."""
+    # Check if Wyoming Piper TTS is configured
+    tts_enabled = bool(os.getenv("WYOMING_PIPER_HOST"))
+    
+    return render_template(
+        'index-modern.html',
+        ollama_host=current_app.config['OLLAMA_HOST'],
+        model=current_app.config['DEFAULT_MODEL'],
+        languages=LanguageService.get_languages_for_template(),
+        tones=LanguageService.get_tones_for_template(),
+        tts_enabled=tts_enabled,
+        last_input="",
+        translated="",
+        error=None
+    )
+
+
 @main_bp.route("/set_language/<language>")
 def set_language(language=None):
     """Set user's preferred language (debug mode only)."""

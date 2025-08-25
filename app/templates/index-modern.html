@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="{{ get_locale() }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <title>{{ _('LLOT — Local LLM Ollama Translator') }}</title>
+  <meta name="description" content="{{ _('Privacy-first translation service powered by local LLM. No API keys, no cloud services, 100% self-hosted.') }}">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- Theme -->
+  <meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#6366f1" media="(prefers-color-scheme: dark)">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style-modern.css') }}">
+</head>
+<body>
+  <div class="app-container">
+    <div class="main-container">
+      <!-- Header -->
+      <header class="header">
+        <a href="/" class="brand" aria-label="{{ _('LLOT Home') }}">
+          <div class="brand-logo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 3l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-.01L12 3z"/>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1 class="brand-title">LLOT</h1>
+            <p class="brand-subtitle">{{ _('Local LLM Translator') }}</p>
+          </div>
+        </a>
+        
+        <div class="header-info">
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>{{ _('Ollama') }}: {{ ollama_host }}</span>
+          </div>
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>{{ _('Model') }}: {{ model }}</span>
+          </div>
+          
+          <button class="theme-toggle" id="theme-toggle" aria-label="{{ _('Toggle theme') }}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+      
+      <!-- Main workspace -->
+      <main class="workspace">
+        <!-- Control bar -->
+        <div class="control-bar">
+          <div class="language-controls">
+            <div class="language-select">
+              <select id="source_lang" name="source_lang" aria-label="{{ _('Source language') }}">
+                {% for code, name in languages %}
+                  <option value="{{ code }}" {% if code=='auto' %}selected{% endif %}>
+                    {{ name }}{% if code!='auto' %} ({{ code }}){% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <button class="swap-button" id="swap_languages" type="button" 
+                    title="{{ _('Swap languages') }}" aria-label="{{ _('Swap languages') }}">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M7 7h13M17 3l3 4-3 4M17 17H4M7 13l-3 4 3 4"/>
+              </svg>
+            </button>
+            
+            <div class="language-select">
+              <select id="target_lang" name="target_lang" aria-label="{{ _('Target language') }}">
+                {% for code, name in languages %}
+                  {% if code != 'auto' %}
+                    <option value="{{ code }}" {% if code=='de' %}selected{% endif %}>
+                      {{ name }} ({{ code }})
+                    </option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          
+          <div class="language-select">
+            <select id="tone" name="tone" aria-label="{{ _('Translation tone') }}">
+              {% for val, label in tones %}
+                <option value="{{ val }}" {% if val=='neutral' %}selected{% endif %}>
+                  {{ label }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        
+        <!-- Translation interface -->
+        <div class="translation-interface">
+          <div class="input-panel">
+            <div class="panel-header">
+              <h2 class="panel-title">{{ _('Source Text') }}</h2>
+            </div>
+            <textarea class="text-input" id="source_text" name="source_text"
+                      placeholder="{{ _('Enter text to translate...') }}"
+                      aria-label="{{ _('Text to translate') }}"
+                      spellcheck="false">{{ last_input|default('') }}</textarea>
+          </div>
+          
+          <div class="output-panel">
+            <div class="panel-header">
+              <h2 class="panel-title">{{ _('Translation') }}</h2>
+            </div>
+            <div class="text-output" id="result" aria-live="polite" aria-label="{{ _('Translation result') }}">
+              {{ translated|default('') }}
+              <div class="output-actions">
+                <button class="action-btn" id="copy-btn" title="{{ _('Copy translation') }}" aria-label="{{ _('Copy translation') }}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                </button>
+                {% if tts_enabled %}
+                <button class="action-btn" id="tts-btn" title="{{ _('Listen to pronunciation') }}" aria-label="{{ _('Listen to pronunciation') }}" style="display: none;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                  </svg>
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Status bar -->
+        <div class="status-bar">
+          <div class="translation-status" id="status" aria-live="polite">
+            <div class="spinner" id="loading-spinner" style="display: none;"></div>
+            <span id="status-text">{{ _('Ready to translate') }}</span>
+          </div>
+          <div id="char-count" class="char-count">0 {{ _('characters') }}</div>
+        </div>
+      </main>
+      
+      <!-- History panel -->
+      <div class="history-panel" id="history-panel" style="display: none;">
+        <div class="history-header">
+          <h3 class="history-title">{{ _('Recent Translations') }}</h3>
+        </div>
+        <div class="history-list" id="history-list">
+          <!-- History items will be loaded by JavaScript -->
+        </div>
+      </div>
+      
+      {% if error %}
+      <div class="error-message" role="alert">
+        <strong>{{ _('Error:') }}</strong> {{ error }}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/app-modern.js') }}"></script>
+  <script>
+    // Initialize with template data
+    window.initialTranslated = {{ translated|tojson|safe if translated is defined else '""' }};
+    window.ttsEnabled = {{ 'true' if tts_enabled else 'false' }};
+    
+    // Language switching function
+    function changeLanguage(lang) {
+      window.location.href = '/set_language/' + lang;
+    }
+  </script>
+</body>
+</html>

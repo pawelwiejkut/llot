@@ -1,0 +1,87 @@
+{
+  "name": "LLOT - Local LLM Translator",
+  "short_name": "LLOT",
+  "description": "Privacy-first translation service powered by local LLM. No API keys, no cloud services, 100% self-hosted.",
+  "version": "2.0.0",
+  "start_url": "/modern",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#3b82f6",
+  "background_color": "#fafbfc",
+  "categories": ["productivity", "utilities", "developer tools"],
+  "lang": "en",
+  "dir": "auto",
+  "icons": [
+    {
+      "src": "/favicon-16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32.png", 
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon-57x57.png",
+      "sizes": "57x57",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon-120x120.png",
+      "sizes": "120x120",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon-180x180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1200x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "LLOT Desktop Interface"
+    },
+    {
+      "src": "/screenshot-mobile.png", 
+      "sizes": "400x800",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "LLOT Mobile Interface"
+    }
+  ],
+  "features": [
+    "Local LLM Translation",
+    "40+ Languages Support", 
+    "Text-to-Speech",
+    "Privacy-First",
+    "Self-Hosted",
+    "Dark Mode"
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Translate",
+      "short_name": "Translate",
+      "description": "Start translating immediately",
+      "url": "/modern",
+      "icons": [
+        {
+          "src": "/apple-touch-icon-120x120.png",
+          "sizes": "120x120"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
