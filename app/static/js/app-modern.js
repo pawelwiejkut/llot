@@ -86,6 +86,14 @@ class LLOTApp {
       historyPanel: document.getElementById('history-panel'),
       historyList: document.getElementById('history-list')
     };
+    
+    // Debug - check if elements exist
+    console.log('LLOT Modern: Elements found:', {
+      sourceText: !!this.elements.sourceText,
+      result: !!this.elements.result,
+      sourceLang: !!this.elements.sourceLang,
+      targetLang: !!this.elements.targetLang
+    });
   }
   
   bindEvents() {
@@ -96,10 +104,16 @@ class LLOTApp {
     });
     
     // Auto-translation
-    this.elements.sourceText?.addEventListener('input', () => {
-      this.updateCharCount();
-      this.scheduleTranslation();
-    });
+    if (this.elements.sourceText) {
+      console.log('LLOT Modern: Binding input event to source text');
+      this.elements.sourceText.addEventListener('input', () => {
+        console.log('LLOT Modern: Text input changed');
+        this.updateCharCount();
+        this.scheduleTranslation();
+      });
+    } else {
+      console.error('LLOT Modern: Source text element not found!');
+    }
     
     // Language and tone changes
     [this.elements.sourceLang, this.elements.targetLang, this.elements.tone].forEach(element => {
@@ -169,7 +183,12 @@ class LLOTApp {
   
   async translate() {
     const text = this.elements.sourceText?.value.trim();
-    if (!text) return;
+    console.log('LLOT Modern: Translating text:', text);
+    
+    if (!text) {
+      console.log('LLOT Modern: No text to translate');
+      return;
+    }
     
     this.showLoading();
     
