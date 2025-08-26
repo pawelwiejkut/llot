@@ -27,6 +27,8 @@ def modern():
     """Modern UI version for 2025."""
     # Check if Wyoming Piper TTS is configured
     tts_enabled = bool(os.getenv("WYOMING_PIPER_HOST"))
+    tts_host = os.getenv("WYOMING_PIPER_HOST", "")
+    tts_port = os.getenv("WYOMING_PIPER_PORT", "10200")
     
     return render_template(
         'index-modern.html',
@@ -35,6 +37,8 @@ def modern():
         languages=LanguageService.get_languages_for_template(),
         tones=LanguageService.get_tones_for_template(),
         tts_enabled=tts_enabled,
+        tts_host=tts_host,
+        tts_port=tts_port,
         last_input="",
         translated="",
         error=None

@@ -14,15 +14,10 @@
   
   <!-- Theme -->
   <meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#6366f1" media="(prefers-color-scheme: dark)">
-  
-  <!-- Local fonts fallback -->
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-  </style>
+  <meta name="theme-color" content="#60a5fa" media="(prefers-color-scheme: dark)">
   
   <!-- Styles -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style-modern.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style-modern.css') }}?v={{ range(1000, 9999) | random }}">
 </head>
 <body>
   <div class="app-container">
@@ -48,6 +43,11 @@
             <div class="status-details">
               <div>{{ _('Ollama') }}: {{ ollama_host }}</div>
               <div>{{ _('Model') }}: {{ model }}</div>
+              {% if tts_enabled %}
+              <div>{{ _('TTS') }}: {{ tts_host }}:{{ tts_port }}</div>
+              {% else %}
+              <div>{{ _('TTS') }}: {{ _('Disabled') }}</div>
+              {% endif %}
             </div>
           </div>
           
@@ -69,35 +69,45 @@
       
       <!-- Main workspace -->
       <main class="workspace">
-        <!-- Control bar -->
+        <!-- Control bar (hidden) -->
         <div class="control-bar">
           <div class="language-controls">
             <div class="language-select">
-              <select id="source_lang" name="source_lang" aria-label="{{ _('Source language') }}">
-                {% for code, name in languages %}
-                  <option value="{{ code }}" {% if code=='auto' %}selected{% endif %}>
-                    {{ name }}{% if code!='auto' %} ({{ code }}){% endif %}
-                  </option>
-                {% endfor %}
+              <select id="source_lang_old" name="source_lang_old" aria-label="{{ _('Source language') }}">
+                <option value="auto" selected>{{ _('Detect language') }}</option>
+                <option value="en">English</option>
+                <option value="de">Deutsch</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="it">Italiano</option>
+                <option value="pt">Português</option>
+                <option value="ru">Русский</option>
+                <option value="pl">Polski</option>
+                <option value="nl">Nederlands</option>
+                <option value="ja">日本語</option>
+                <option value="ko">한국어</option>
+                <option value="zh">中文</option>
+                <option value="ar">العربية</option>
+                <option value="hi">हिन्दी</option>
               </select>
             </div>
             
-            <button class="swap-button" id="swap_languages" type="button" 
-                    title="{{ _('Swap languages') }}" aria-label="{{ _('Swap languages') }}">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M7 7h13M17 3l3 4-3 4M17 17H4M7 13l-3 4 3 4"/>
-              </svg>
-            </button>
-            
             <div class="language-select">
-              <select id="target_lang" name="target_lang" aria-label="{{ _('Target language') }}">
-                {% for code, name in languages %}
-                  {% if code != 'auto' %}
-                    <option value="{{ code }}" {% if code=='de' %}selected{% endif %}>
-                      {{ name }} ({{ code }})
-                    </option>
-                  {% endif %}
-                {% endfor %}
+              <select id="target_lang_old" name="target_lang_old" aria-label="{{ _('Target language') }}">
+                <option value="en">English</option>
+                <option value="de" selected>Deutsch</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="it">Italiano</option>
+                <option value="pt">Português</option>
+                <option value="ru">Русский</option>
+                <option value="pl">Polski</option>
+                <option value="nl">Nederlands</option>
+                <option value="ja">日本語</option>
+                <option value="ko">한국어</option>
+                <option value="zh">中文</option>
+                <option value="ar">العربية</option>
+                <option value="hi">हिन्দी</option>
               </select>
             </div>
           </div>
@@ -115,9 +125,48 @@
         
         <!-- Translation interface -->
         <div class="translation-interface">
+          <!-- Swap button -->
+          <button class="swap-button-center" id="swap_languages" type="button" 
+                  title="{{ _('Swap languages') }}" aria-label="{{ _('Swap languages') }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M7 7h13M17 3l3 4-3 4M17 17H4M7 13l-3 4 3 4"/>
+            </svg>
+          </button>
+          
+          <!-- Input panel -->
           <div class="input-panel">
             <div class="panel-header">
-              <h2 class="panel-title">{{ _('Source Text') }}</h2>
+              <div class="language-dropdown" id="source-lang-dropdown">
+                <button class="language-dropdown-trigger" type="button" aria-label="{{ _('Source language') }}">
+                  <span class="selected-language">{{ _('Detect language') }}</span>
+                </button>
+                <div class="language-dropdown-panel">
+                  <div class="language-dropdown-search">
+                    <input type="text" placeholder="{{ _('Search languages...') }}" />
+                  </div>
+                  <div class="language-dropdown-content" id="source-lang-options">
+                    <!-- Languages will be populated by JavaScript -->
+                  </div>
+                </div>
+                <!-- Hidden select for form compatibility -->
+                <select id="source_lang" name="source_lang" style="display: none;">
+                  <option value="auto" selected>{{ _('Detect language') }}</option>
+                  <option value="en">English</option>
+                  <option value="de">Deutsch</option>
+                  <option value="es">Español</option>
+                  <option value="fr">Français</option>
+                  <option value="it">Italiano</option>
+                  <option value="pt">Português</option>
+                  <option value="ru">Русский</option>
+                  <option value="pl">Polski</option>
+                  <option value="nl">Nederlands</option>
+                  <option value="ja">日本語</option>
+                  <option value="ko">한국어</option>
+                  <option value="zh">中文</option>
+                  <option value="ar">العربية</option>
+                  <option value="hi">हিন্দী</option>
+                </select>
+              </div>
             </div>
             <textarea class="text-input" id="source_text" name="source_text"
                       placeholder="{{ _('Enter text to translate...') }}"
@@ -125,29 +174,49 @@
                       spellcheck="false">{{ last_input|default('') }}</textarea>
           </div>
           
+          <!-- Output panel -->
           <div class="output-panel">
             <div class="panel-header">
-              <h2 class="panel-title">{{ _('Translation') }}</h2>
+              <div class="language-dropdown" id="target-lang-dropdown">
+                <button class="language-dropdown-trigger" type="button" aria-label="{{ _('Target language') }}">
+                  <span class="selected-language">Deutsch</span>
+                </button>
+                <div class="language-dropdown-panel">
+                  <div class="language-dropdown-search">
+                    <input type="text" placeholder="{{ _('Search languages...') }}" />
+                  </div>
+                  <div class="language-dropdown-content" id="target-lang-options">
+                    <!-- Languages will be populated by JavaScript -->
+                  </div>
+                </div>
+                <!-- Hidden select for form compatibility -->
+                <select id="target_lang" name="target_lang" style="display: none;">
+                  <option value="en">English</option>
+                  <option value="de" selected>Deutsch</option>
+                  <option value="es">Español</option>
+                  <option value="fr">Français</option>
+                  <option value="it">Italiano</option>
+                  <option value="pt">Português</option>
+                  <option value="ru">Русский</option>
+                  <option value="pl">Polski</option>
+                  <option value="nl">Nederlands</option>
+                  <option value="ja">日本語</option>
+                  <option value="ko">한국어</option>
+                  <option value="zh">中文</option>
+                  <option value="ar">العربية</option>
+                  <option value="hi">हিন্দী</option>
+                </select>
+              </div>
             </div>
             <div class="text-output" id="result" aria-live="polite" aria-label="{{ _('Translation result') }}">
               {{ translated|default('') }}
-              <div class="output-actions">
-                <button class="action-btn" id="copy-btn" title="{{ _('Copy translation') }}" aria-label="{{ _('Copy translation') }}">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                  </svg>
-                </button>
-                {% if tts_enabled %}
-                <button class="action-btn" id="tts-btn" title="{{ _('Listen to pronunciation') }}" aria-label="{{ _('Listen to pronunciation') }}" style="display: none;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-                  </svg>
-                </button>
-                {% endif %}
-              </div>
+              {% if tts_enabled %}
+              <button id="tts-btn" class="tts-button" title="{{ _('Listen to pronunciation') }}" style="display: none;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -158,7 +227,7 @@
             <div class="spinner" id="loading-spinner" style="display: none;"></div>
             <span id="status-text">{{ _('Ready to translate') }}</span>
           </div>
-          <div id="char-count" class="char-count">0 {{ _('characters') }}</div>
+          <div class="char-count" id="char-count">0 {{ _('characters') }}</div>
         </div>
       </main>
       
@@ -172,6 +241,15 @@
         </div>
       </div>
       
+      <!-- Tone selector (hidden in header for now) -->
+      <select id="tone" name="tone" style="display: none;" aria-label="{{ _('Translation tone') }}">
+        {% for val, label in tones %}
+          <option value="{{ val }}" {% if val=='neutral' %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+      
       {% if error %}
       <div class="error-message" role="alert">
         <strong>{{ _('Error:') }}</strong> {{ error }}
@@ -181,7 +259,7 @@
   </div>
 
   <!-- Scripts -->
-  <script src="{{ url_for('static', filename='js/app-modern.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app-modern.js') }}?v={{ range(1000, 9999) | random }}"></script>
   <script>
     // Initialize with template data
     window.initialTranslated = {{ translated|tojson|safe if translated is defined else '""' }};

@@ -14,11 +14,17 @@ translation_service = TranslationService()
 def translate():
     """Main translation endpoint."""
     try:
-        data = request.get_json(silent=True) or {}
+        # Handle both JSON and form data
+        if request.is_json:
+            data = request.get_json() or {}
+        else:
+            data = request.form.to_dict()
+        
+        debug_print(f"Translation request data: {data}")
         
         source_text = (data.get("source_text") or "").strip()
         if not source_text:
-            return jsonify({"error": "EMPTY", "translated": ""})
+            return jsonify({"error": "EMPTY", "translated_text": ""})
         
         source_lang = (data.get("source_lang") or "auto").strip()
         target_lang = (data.get("target_lang") or "de").strip()
@@ -30,8 +36,9 @@ def translate():
         )
         
         return jsonify({
-            "translated": translated,
-            "detected": detected
+            "translated_text": translated,
+            "source_lang": detected or source_lang,
+            "target_lang": target_lang
         })
         
     except Exception as e:
@@ -247,3 +254,63 @@ def text_to_speech():
     except Exception as e:
         logger.error(f"TTS endpoint error: {e}")
         return jsonify({"error": f"TTS error: {str(e)}"}), 500
+
+
+@api_bp.route("/health", methods=["GET"])
+def health_check():
+    """Check health status of all services."""
+    try:
+        from app.services.ollama_client import get_ollama_client
+        import requests
+        
+        status = {
+            "ollama": {"status": "ok", "error": None},
+            "tts": {"status": "ok", "error": None},
+            "overall": "ok"
+        }
+        
+        # Check Ollama
+        try:
+            client = get_ollama_client()
+            # Try a simple API call to check if Ollama is responding
+            response = client.chat_completion("hi", temperature=0.0, max_tokens=5)
+            if not response or len(response.strip()) == 0:
+                raise Exception("Empty response from Ollama")
+        except Exception as e:
+            status["ollama"]["status"] = "error"
+            status["ollama"]["error"] = str(e)
+            status["overall"] = "error"
+        
+        # Check TTS service
+        wyoming_host = os.getenv("WYOMING_PIPER_HOST")
+        if wyoming_host:
+            try:
+                # Simple connection test to Wyoming Piper
+                wyoming_port = os.getenv("WYOMING_PIPER_PORT", "10200")
+                import socket
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(2)
+                result = sock.connect_ex((wyoming_host, int(wyoming_port)))
+                sock.close()
+                if result != 0:
+                    raise Exception(f"Cannot connect to {wyoming_host}:{wyoming_port}")
+            except Exception as e:
+                status["tts"]["status"] = "error" 
+                status["tts"]["error"] = str(e)
+                if status["overall"] == "ok":
+                    status["overall"] = "warning"  # TTS error is warning, not critical
+        else:
+            status["tts"]["status"] = "disabled"
+            status["tts"]["error"] = "TTS not configured"
+            if status["overall"] == "ok":
+                status["overall"] = "warning"
+        
+        return jsonify(status)
+        
+    except Exception as e:
+        logger.error(f"Health check error: {e}")
+        return jsonify({
+            "ollama": {"status": "error", "error": str(e)},
+            "tts": {"status": "unknown", "error": "Health check failed"},
+            "overall": "error"
+        }), 500
