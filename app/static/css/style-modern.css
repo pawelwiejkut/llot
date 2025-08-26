@@ -1,6 +1,5 @@
 /**
- * LLOT Modern Design 2025 - Clean Rewrite
- * Simple, functional design without overlapping elements
+ * LLOT Modern Design 2025 - Clean and Functional
  */
 
 /* CSS Variables */
@@ -188,21 +187,10 @@ body {
   transition: all 0.2s ease;
 }
 
-.status-dot.connected {
-  background: var(--success);
-}
-
-.status-dot.warning {
-  background: #f59e0b;
-}
-
-.status-dot.error {
-  background: var(--error);
-}
-
-.status-dot.pulse {
-  animation: pulse 1.5s infinite;
-}
+.status-dot.connected { background: var(--success); }
+.status-dot.warning { background: #f59e0b; }
+.status-dot.error { background: var(--error); }
+.status-dot.pulse { animation: pulse 1.5s infinite; }
 
 .theme-toggle {
   width: 40px;

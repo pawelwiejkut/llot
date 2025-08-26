@@ -164,13 +164,6 @@ class LLOTApp {
     const targetLang = this.elements.targetLang?.value || 'de';
     const tone = this.elements.tone?.value || 'neutral';
 
-    // Debug what's being sent
-    console.log('Translation request:', {
-      source_text: sourceText,
-      source_lang: sourceLang,
-      target_lang: targetLang,
-      tone: tone
-    });
 
     this.showLoading();
 
@@ -216,11 +209,13 @@ class LLOTApp {
 
   showResult(translation) {
     if (this.elements.result) {
-      // Remove translating state
       this.elements.result.classList.remove('translating');
+      this.elements.result.textContent = translation;
       
-      // Set content
-      this.makeWordsClickable(translation);
+      // Add TTS button if needed
+      if (window.ttsEnabled) {
+        this.ensureTTSButton();
+      }
     }
     this.hideLoading();
     this.updateCharCount();
@@ -228,32 +223,20 @@ class LLOTApp {
   }
 
   makeWordsClickable(translation) {
-    // Use a more precise approach that handles all Unicode characters properly
-    // Split by whitespace and punctuation, then wrap words
     const parts = translation.split(/(\s+|[^\p{L}\p{N}\p{M}]+)/u);
     
-    let clickableHtml = '';
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
-      // Check if this part contains letters or numbers (is a word)
-      if (/[\p{L}\p{N}]/u.test(part)) {
-        // This is a word - make it clickable
-        clickableHtml += `<span class="clickable-word" data-word="${part}">${part}</span>`;
-      } else {
-        // This is whitespace or punctuation - keep as is
-        clickableHtml += part;
-      }
-    }
+    const clickableHtml = parts.map(part => 
+      /[\p{L}\p{N}]/u.test(part) 
+        ? `<span class="clickable-word" data-word="${part}">${part}</span>`
+        : part
+    ).join('');
     
-    // Set the clickable text content
     this.elements.result.innerHTML = clickableHtml;
     
-    // Add TTS button if TTS is enabled
     if (window.ttsEnabled) {
       this.ensureTTSButton();
     }
     
-    // Add click event listeners to clickable words
     this.elements.result.querySelectorAll('.clickable-word').forEach(wordElement => {
       wordElement.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -263,22 +246,19 @@ class LLOTApp {
   }
 
   ensureTTSButton() {
-    // Check if TTS button already exists
     let ttsBtn = this.elements.result.querySelector('#tts-btn');
     
     if (!ttsBtn) {
-      // Create TTS button dynamically
       ttsBtn = document.createElement('button');
-      ttsBtn.id = 'tts-btn';
-      ttsBtn.className = 'tts-button';
-      ttsBtn.title = 'Listen to pronunciation';
-      ttsBtn.style.display = 'none';
-      ttsBtn.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      Object.assign(ttsBtn, {
+        id: 'tts-btn',
+        className: 'tts-button',
+        title: 'Listen to pronunciation',
+        innerHTML: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      `;
-      
+        </svg>`
+      });
+      ttsBtn.style.display = 'none';
       this.elements.result.appendChild(ttsBtn);
     }
     
@@ -294,23 +274,17 @@ class LLOTApp {
 
     if (!sourceText || !currentTranslation || !clickedWord) return;
 
-    // Remove any existing popups and validations
     this.closeWordAlternatives();
     this.closeValidationPopup();
 
-    // Mark word as selected
-    document.querySelectorAll('.clickable-word.selected').forEach(el => {
-      el.classList.remove('selected');
-    });
+    document.querySelectorAll('.clickable-word.selected').forEach(el => el.classList.remove('selected'));
     wordElement.classList.add('selected');
 
-    // Store original state for this session
     this.originalTranslationState = {
       html: this.elements.result.innerHTML,
       text: currentTranslation
     };
 
-    // Create and show alternatives popup
     this.showWordAlternatives(wordElement, clickedWord, sourceText, currentTranslation, targetLang, tone);
   }
 
@@ -906,16 +880,9 @@ class LLOTApp {
           e.preventDefault();
           e.stopPropagation();
           
-          // Debug what we're working with
-          console.log('Updating hidden select:', selectId, 'to:', lang.code);
-          console.log('Hidden select element:', hiddenSelect);
-          console.log('Hidden select value before:', hiddenSelect.value);
-          
           // Update values
           hiddenSelect.value = lang.code;
           selectedSpan.textContent = lang.name;
-          
-          console.log('Hidden select value after:', hiddenSelect.value);
           
           // Update selected state
           content.querySelectorAll('.language-dropdown-item').forEach(i => {
@@ -1260,5 +1227,4 @@ class StreamingTTSPlayer {
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   window.llotApp = new LLOTApp();
-  console.log('LLOT Modern app initialized');
 });
