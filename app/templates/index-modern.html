@@ -26,9 +26,7 @@
       <header class="header">
         <a href="/" class="brand" aria-label="{{ _('LLOT Home') }}">
           <div class="brand-logo">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 3l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-.01L12 3z"/>
-            </svg>
+            <img src="{{ url_for('static', filename='images/llot-logo.svg') }}" alt="LLOT Logo" width="20" height="20">
           </div>
           <div class="brand-text">
             <h1 class="brand-title">LLOT</h1>
@@ -210,13 +208,22 @@
             </div>
             <div class="text-output" id="result" aria-live="polite" aria-label="{{ _('Translation result') }}">
               {{ translated|default('') }}
-              {% if tts_enabled %}
-              <button id="tts-btn" class="tts-button" title="{{ _('Listen to pronunciation') }}" style="display: none;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-              {% endif %}
+              <!-- Action buttons container -->
+              <div class="output-actions">
+                <button id="copy-btn" class="action-button copy-button" title="{{ _('Copy to clipboard') }}" style="display: none;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="m5 15-2-2v-4.586a1 1 0 0 1 .293-.707l5.414-5.414a1 1 0 0 1 .707-.293h4.586l2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  </svg>
+                </button>
+                {% if tts_enabled %}
+                <button id="tts-btn" class="action-button tts-button" title="{{ _('Listen to pronunciation') }}" style="display: none;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+                {% endif %}
+              </div>
             </div>
           </div>
         </div>

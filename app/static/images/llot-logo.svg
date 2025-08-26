@@ -1,8 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background circle -->
-  <circle cx="24" cy="24" r="20" fill="#2563eb"/>
+  <!-- Modern gradient background -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="globe-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#e2e8f0" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
   
-  <!-- LT Monogram -->
-  <text x="24" y="32" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="700" fill="white" text-anchor="middle" letter-spacing="1px">LT</text>
+  <!-- Background with soft rounded corners -->
+  <rect x="4" y="4" width="40" height="40" rx="10" fill="url(#bg-gradient)"/>
+  
+  <!-- Globe circle -->
+  <circle cx="24" cy="24" r="14" fill="url(#globe-gradient)" stroke="none"/>
+  
+  <!-- Globe grid lines -->
+  <g stroke="#2563eb" stroke-width="1.5" fill="none" opacity="0.6">
+    <!-- Vertical lines -->
+    <ellipse cx="24" cy="24" rx="14" ry="14"/>
+    <ellipse cx="24" cy="24" rx="10" ry="14"/>
+    <ellipse cx="24" cy="24" rx="6" ry="14"/>
+    <!-- Horizontal lines -->
+    <line x1="10" y1="24" x2="38" y2="24"/>
+    <ellipse cx="24" cy="24" rx="14" ry="8"/>
+    <ellipse cx="24" cy="24" rx="14" ry="4"/>
+  </g>
+  
+  <!-- Continents (simplified) -->
+  <g fill="#1d4ed8" opacity="0.7">
+    <!-- North America -->
+    <path d="M16 18 C18 16, 20 16, 22 18 C22 20, 20 21, 18 20 Z"/>
+    <!-- Europe/Africa -->
+    <path d="M26 17 C28 15, 30 16, 31 18 C30 22, 28 23, 26 21 Z"/>
+    <!-- Asia -->
+    <path d="M32 20 C34 19, 35 21, 34 23 C32 24, 31 22, 32 20 Z"/>
+  </g>
+  
+  <!-- Subtle highlight for 3D effect -->
+  <ellipse cx="20" cy="18" rx="4" ry="2" fill="white" opacity="0.3"/>
 </svg>

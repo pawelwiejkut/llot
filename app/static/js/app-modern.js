@@ -102,6 +102,7 @@ class LLOTApp {
       this.elements.targetLang.addEventListener('change', () => {
         this.scheduleTranslation();
         this.updateTTSButton();
+        this.updateCopyButton();
       });
     }
 
@@ -118,12 +119,23 @@ class LLOTApp {
       });
     }
 
+    // Copy button
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('#copy-btn')) {
+        this.copyToClipboard();
+      }
+    });
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'Enter' && e.shiftKey) {
           e.preventDefault();
           this.scheduleTranslation();
+        }
+        if (e.key === 'c' && e.shiftKey) {
+          e.preventDefault();
+          this.copyToClipboard();
         }
       }
     });
@@ -210,16 +222,12 @@ class LLOTApp {
   showResult(translation) {
     if (this.elements.result) {
       this.elements.result.classList.remove('translating');
-      this.elements.result.textContent = translation;
-      
-      // Add TTS button if needed
-      if (window.ttsEnabled) {
-        this.ensureTTSButton();
-      }
+      this.makeWordsClickable(translation);
     }
     this.hideLoading();
     this.updateCharCount();
     this.updateTTSButton();
+    this.updateCopyButton();
   }
 
   makeWordsClickable(translation) {
@@ -233,9 +241,13 @@ class LLOTApp {
     
     this.elements.result.innerHTML = clickableHtml;
     
+    // Always ensure TTS button after changing innerHTML
     if (window.ttsEnabled) {
       this.ensureTTSButton();
+      this.updateTTSButton();
     }
+    this.ensureCopyButton();
+    this.updateCopyButton();
     
     this.elements.result.querySelectorAll('.clickable-word').forEach(wordElement => {
       wordElement.addEventListener('click', (e) => {
@@ -249,20 +261,66 @@ class LLOTApp {
     let ttsBtn = this.elements.result.querySelector('#tts-btn');
     
     if (!ttsBtn) {
+      // Check if output-actions container exists
+      let actionsContainer = this.elements.result.querySelector('.output-actions');
+      
+      if (!actionsContainer) {
+        actionsContainer = document.createElement('div');
+        actionsContainer.className = 'output-actions';
+        this.elements.result.appendChild(actionsContainer);
+      }
+      
       ttsBtn = document.createElement('button');
       Object.assign(ttsBtn, {
         id: 'tts-btn',
-        className: 'tts-button',
+        className: 'action-button tts-button',
         title: 'Listen to pronunciation',
-        innerHTML: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        innerHTML: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>`
       });
       ttsBtn.style.display = 'none';
-      this.elements.result.appendChild(ttsBtn);
+      actionsContainer.appendChild(ttsBtn);
     }
     
     return ttsBtn;
+  }
+
+  ensureCopyButton() {
+    let copyBtn = this.elements.result.querySelector('#copy-btn');
+    
+    if (!copyBtn) {
+      // Check if output-actions container exists
+      let actionsContainer = this.elements.result.querySelector('.output-actions');
+      
+      if (!actionsContainer) {
+        actionsContainer = document.createElement('div');
+        actionsContainer.className = 'output-actions';
+        this.elements.result.appendChild(actionsContainer);
+      }
+      
+      copyBtn = document.createElement('button');
+      Object.assign(copyBtn, {
+        id: 'copy-btn',
+        className: 'action-button copy-button',
+        title: 'Copy to clipboard',
+        innerHTML: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="m5 15-2-2v-4.586a1 1 0 0 1 .293-.707l5.414-5.414a1 1 0 0 1 .707-.293h4.586l2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>`
+      });
+      copyBtn.style.display = 'none';
+      
+      // Add copy button first, then TTS button if it exists
+      const ttsBtn = actionsContainer.querySelector('#tts-btn');
+      if (ttsBtn) {
+        actionsContainer.insertBefore(copyBtn, ttsBtn);
+      } else {
+        actionsContainer.appendChild(copyBtn);
+      }
+    }
+    
+    return copyBtn;
   }
 
   async handleWordClick(wordElement) {
@@ -438,13 +496,21 @@ class LLOTApp {
     if (this.originalTranslationState) {
       this.elements.result.innerHTML = this.originalTranslationState.html;
       
-      // Re-attach event listeners
+      // Re-attach event listeners to clickable words
       this.elements.result.querySelectorAll('.clickable-word').forEach(wordElement => {
         wordElement.addEventListener('click', (e) => {
           e.stopPropagation();
           this.handleWordClick(wordElement);
         });
       });
+      
+      // Ensure TTS button is restored if needed
+      if (window.ttsEnabled) {
+        this.ensureTTSButton();
+        this.updateTTSButton();
+      }
+      this.ensureCopyButton();
+      this.updateCopyButton();
     }
     this.clearValidatingStates();
     this.hideValidationStatus();
@@ -1143,6 +1209,69 @@ class LLOTApp {
       ttsBtn.classList.remove('disabled');
     } else {
       ttsBtn.style.display = 'none';
+    }
+  }
+
+  async copyToClipboard() {
+    const copyBtn = document.getElementById('copy-btn');
+    if (!copyBtn) return;
+
+    const resultText = this.getPlainTextFromResult().trim();
+    if (!resultText) return;
+
+    try {
+      await navigator.clipboard.writeText(resultText);
+      
+      // Visual feedback
+      copyBtn.classList.add('copied');
+      const originalSVG = copyBtn.innerHTML;
+      
+      // Show checkmark
+      copyBtn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      `;
+      
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = originalSVG;
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+      
+      // Fallback for older browsers
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = resultText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        // Visual feedback for fallback
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+        }, 2000);
+        
+      } catch (fallbackError) {
+        console.error('Fallback copy failed:', fallbackError);
+      }
+    }
+  }
+
+  updateCopyButton() {
+    const copyBtn = document.getElementById('copy-btn');
+    if (!copyBtn) return;
+    
+    const resultText = this.getPlainTextFromResult().trim();
+    
+    if (resultText) {
+      copyBtn.style.display = 'flex';
+    } else {
+      copyBtn.style.display = 'none';
     }
   }
 }

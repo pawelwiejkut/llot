@@ -101,12 +101,17 @@ body {
 .brand-logo {
   width: 40px;
   height: 40px;
-  background: var(--accent);
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  overflow: hidden;
+}
+
+.brand-logo img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
 }
 
 .brand-text {
@@ -443,6 +448,25 @@ body {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+}
+
+/* Ensure text doesn't overlap with TTS button */
+.text-output {
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  white-space: pre-wrap;
+  hyphens: auto;
+  word-spacing: -0.1em;
+}
+
+/* Create space only in the top-right area where action buttons are positioned */
+.text-output::before {
+  content: '';
+  float: right;
+  width: 5rem; /* Width for two buttons + gap */
+  height: 2.5rem; /* Height to cover button area */
+  shape-outside: rectangle();
 }
 
 /* Clickable words in output */
@@ -858,11 +882,18 @@ input:focus-visible {
   50% { opacity: 0.6; }
 }
 
-/* TTS Button */
-.tts-button {
+/* Output Actions Container */
+.output-actions {
   position: absolute;
   top: var(--space-sm);
   right: var(--space-sm);
+  display: flex;
+  gap: var(--space-xs);
+  z-index: 10;
+}
+
+/* Action Buttons (TTS and Copy) */
+.action-button {
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(8px);
   border: 1px solid var(--border);
@@ -874,13 +905,12 @@ input:focus-visible {
   justify-content: center;
   transition: all 0.2s ease;
   color: var(--text-secondary);
-  z-index: 10;
   box-shadow: var(--shadow-sm);
   width: 32px;
   height: 32px;
 }
 
-.tts-button:hover {
+.action-button:hover {
   background: rgba(255, 255, 255, 1);
   color: var(--accent);
   border-color: var(--accent);
@@ -888,26 +918,35 @@ input:focus-visible {
   box-shadow: var(--shadow-md);
 }
 
-.tts-button:active {
+.action-button:active {
   transform: scale(0.95);
 }
 
+/* TTS Button specific styles */
 .tts-button.playing {
   color: var(--success);
   background: rgba(16, 185, 129, 0.1);
   border-color: var(--success);
 }
 
-.tts-button:disabled,
-.tts-button.disabled {
+/* Copy Button specific styles */
+.copy-button.copied {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--success);
+}
+
+/* Disabled state for both buttons */
+.action-button:disabled,
+.action-button.disabled {
   opacity: 0.4;
   cursor: not-allowed;
   color: var(--text-muted);
   border-color: var(--border);
 }
 
-.tts-button:disabled:hover,
-.tts-button.disabled:hover {
+.action-button:disabled:hover,
+.action-button.disabled:hover {
   transform: none;
   background: rgba(255, 255, 255, 0.9);
   color: var(--text-muted);
@@ -915,7 +954,7 @@ input:focus-visible {
   box-shadow: var(--shadow-sm);
 }
 
-.tts-button.loading {
+.action-button.loading {
   color: var(--text-muted);
   background: rgba(248, 250, 252, 0.9);
   border-color: var(--border);
@@ -923,16 +962,17 @@ input:focus-visible {
   cursor: not-allowed;
 }
 
-/* Dark theme TTS button */
-[data-theme="dark"] .tts-button {
+
+/* Dark theme action buttons */
+[data-theme="dark"] .action-button {
   background: rgba(51, 65, 85, 0.9);
   border-color: var(--border);
 }
 
-[data-theme="dark"] .tts-button:hover {
+[data-theme="dark"] .action-button:hover {
   background: rgba(51, 65, 85, 1);
 }
 
-[data-theme="dark"] .tts-button.disabled:hover {
+[data-theme="dark"] .action-button.disabled:hover {
   background: rgba(51, 65, 85, 0.9);
 }
