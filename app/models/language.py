@@ -6,23 +6,32 @@ from flask import current_app
 
 @dataclass
 class Language:
+    """Represents a language with code and name."""
     code: str
     name: str
     
-    def __str__(self):
+    def __str__(self) -> str:
+        """String representation of the language."""
         return f"{self.name} ({self.code})" if self.code != 'auto' else self.name
 
 
-@dataclass 
+@dataclass
 class Tone:
+    """Represents a translation tone with value and label."""
     value: str
     label: str
 
 
 class LanguageService:
+    """Service for managing languages and tones."""
+    
     @classmethod
     def get_languages(cls) -> List[Language]:
-        """Get all languages available for translation (configurable via TRANSLATION_LANGUAGES env var)"""
+        """Get all languages available for translation.
+        
+        Returns:
+            List of Language objects, configurable via TRANSLATION_LANGUAGES env var
+        """
         languages = [Language("auto", _l("Auto (detect)"))]
         
         # Get available translation languages from config
@@ -37,6 +46,11 @@ class LanguageService:
     
     @classmethod
     def get_tones(cls) -> List[Tone]:
+        """Get all available translation tones.
+        
+        Returns:
+            List of Tone objects
+        """
         return [
             Tone("neutral", _l("Neutral")),
             Tone("formal", _l("Formal")),
@@ -48,14 +62,32 @@ class LanguageService:
     
     @classmethod
     def get_languages_for_template(cls) -> List[Tuple[str, str]]:
+        """Get languages formatted for templates.
+        
+        Returns:
+            List of (code, name) tuples
+        """
         return [(lang.code, str(lang.name)) for lang in cls.get_languages()]
     
     @classmethod
     def get_tones_for_template(cls) -> List[Tuple[str, str]]:
+        """Get tones formatted for templates.
+        
+        Returns:
+            List of (value, label) tuples
+        """
         return [(tone.value, str(tone.label)) for tone in cls.get_tones()]
     
     @classmethod
     def get_language_name(cls, code: str) -> str:
+        """Get language name by code.
+        
+        Args:
+            code: Language code
+            
+        Returns:
+            Language name or code if not found
+        """
         for lang in cls.get_languages():
             if lang.code == code:
                 return str(lang.name)

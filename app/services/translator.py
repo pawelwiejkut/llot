@@ -14,8 +14,7 @@ class TranslationService:
         self.language_detector = LanguageDetector()
     
     def translate(self, source_text: str, source_lang: str, target_lang: str, tone: str = "neutral") -> Tuple[str, Optional[str]]:
-        """
-        Translate text from source language to target language.
+        """Translate text from source language to target language.
         
         Args:
             source_text: Text to translate
@@ -25,24 +24,20 @@ class TranslationService:
             
         Returns:
             Tuple of (translated_text, detected_language)
+        
+        Raises:
+            Exception: If translation fails
         """
         if not source_text.strip():
             return "", None
         
-        # Detect language if needed
-        detected = None
-        if source_lang == "auto":
-            detected = self.language_detector.detect_language(source_text)
-            source_lang_for_prompt = detected if detected else "auto"
-        else:
-            source_lang_for_prompt = source_lang
+        detected = self._detect_language_if_needed(source_text, source_lang)
+        source_lang_for_prompt = detected if detected and source_lang == "auto" else source_lang
         
-        # Build prompt
         prompt = self._build_translation_prompt(
             source_text, source_lang_for_prompt, target_lang, tone
         )
         
-        # Call Ollama
         try:
             client = get_ollama_client()
             logger.info(f"Translation prompt: {prompt[:500]}...")
@@ -52,7 +47,6 @@ class TranslationService:
                 raise Exception("Empty response from Ollama")
             
             logger.info(f"Translation completed: {len(source_text)} chars -> {len(translated)} chars")
-            logger.info(f"Input: '{source_text}' -> Output: '{translated}'")
             return translated, detected
             
         except Exception as e:
@@ -61,8 +55,7 @@ class TranslationService:
     
     def get_alternatives(self, source_text: str, current_translation: str, clicked_word: str, 
                         target_lang: str, tone: str) -> List[str]:
-        """
-        Get alternative translations for a specific word/phrase.
+        """Get alternative translations for a specific word/phrase.
         
         Args:
             source_text: Original source text
@@ -72,7 +65,7 @@ class TranslationService:
             tone: Translation tone
             
         Returns:
-            List of alternative translations
+            List of alternative translations (max 6)
         """
         if not all([source_text, current_translation, clicked_word]):
             return []
@@ -88,24 +81,8 @@ class TranslationService:
             if not response:
                 return []
             
-            # Extract JSON from response
-            json_match = re.search(r'\{.*\}', response, flags=re.S)
-            if json_match:
-                data = json.loads(json_match.group(0))
-            else:
-                data = json.loads(response)
-            
-            alternatives = data.get("alternatives", [])
-            
-            # Filter and validate alternatives
-            filtered = []
-            for alt in alternatives:
-                if isinstance(alt, str):
-                    alt = alt.strip()
-                    if 0 < len(alt) <= 60 and alt not in filtered:
-                        filtered.append(alt)
-            
-            return filtered[:6]
+            alternatives = self._extract_alternatives_from_response(response)
+            return self._filter_alternatives(alternatives)
             
         except Exception as e:
             logger.warning(f"Failed to get alternatives: {e}")
@@ -259,7 +236,7 @@ class TranslationService:
             success = client.change_model(new_model)
             
             if success:
-                # Update the Flask config so future requests use the new model
+                # Update Flask config for future requests
                 from flask import current_app
                 current_app.config['DEFAULT_MODEL'] = new_model
                 logger.info(f"Model changed to: {new_model}")
@@ -268,3 +245,34 @@ class TranslationService:
         except Exception as e:
             logger.error(f"Failed to change model to {new_model}: {e}")
             return False
+    
+    def _detect_language_if_needed(self, source_text: str, source_lang: str) -> Optional[str]:
+        """Detect language if source_lang is 'auto'."""
+        if source_lang == "auto":
+            return self.language_detector.detect_language(source_text)
+        return None
+    
+    def _extract_alternatives_from_response(self, response: str) -> List[str]:
+        """Extract alternatives from Ollama response."""
+        try:
+            # Try to find JSON in response
+            json_match = re.search(r'\{.*\}', response, flags=re.S)
+            if json_match:
+                data = json.loads(json_match.group(0))
+            else:
+                data = json.loads(response)
+            
+            return data.get("alternatives", [])
+        except json.JSONDecodeError:
+            return []
+    
+    def _filter_alternatives(self, alternatives: List[str]) -> List[str]:
+        """Filter and validate alternatives."""
+        filtered = []
+        for alt in alternatives:
+            if isinstance(alt, str):
+                alt = alt.strip()
+                if 0 < len(alt) <= 60 and alt not in filtered:
+                    filtered.append(alt)
+        
+        return filtered[:6]

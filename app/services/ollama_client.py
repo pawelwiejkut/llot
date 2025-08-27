@@ -1,20 +1,23 @@
 import requests
 import json
 import logging
-from typing import Optional
+from typing import Optional, List
 from flask import current_app
 
 logger = logging.getLogger(__name__)
 
 
 class OllamaClient:
+    """Client for interacting with Ollama API."""
+    
     def __init__(self, host: str, model: str):
         self.host = host.rstrip("/")
         self.model = model
+        self.timeout_v1 = 60
+        self.timeout_legacy = 90
     
     def chat_completion(self, prompt: str, max_tokens: int = 2048, temperature: float = 0.0) -> Optional[str]:
-        """
-        Call Ollama chat completion API.
+        """Call Ollama chat completion API with fallback support.
         
         Args:
             prompt: The prompt to send
@@ -24,7 +27,7 @@ class OllamaClient:
         Returns:
             Generated text or None if failed
         """
-        # Try v1 API first
+        # Try v1 API first (preferred)
         result = self._try_v1_api(prompt, max_tokens, temperature)
         if result:
             return result
@@ -44,7 +47,7 @@ class OllamaClient:
         
         try:
             logger.info(f"Calling Ollama v1 API: {url}")
-            response = requests.post(url, json=payload, timeout=60)
+            response = requests.post(url, json=payload, timeout=self.timeout_v1)
             
             if not response.ok:
                 logger.warning(f"V1 API failed with status {response.status_code}")
@@ -94,7 +97,7 @@ class OllamaClient:
         
         try:
             logger.info(f"Calling Ollama legacy API: {url}")
-            response = requests.post(url, json=payload, timeout=90)
+            response = requests.post(url, json=payload, timeout=self.timeout_legacy)
             
             if not response.ok:
                 logger.error(f"Legacy API failed with status {response.status_code}: {response.text}")
@@ -122,25 +125,18 @@ class OllamaClient:
                 
             except json.JSONDecodeError:
                 # Handle streaming response format
-                text = response.text
-                try:
-                    lines = [line for line in text.splitlines() if line.strip().startswith('{')]
-                    parts = [json.loads(line) for line in lines]
-                    if parts:
-                        output = ''.join(part.get('response', '') for part in parts)
-                        if output:
-                            return output.strip()
-                except Exception as e:
-                    logger.warning(f"Failed to parse streaming response: {e}")
-                
-                return text.strip()
+                return self._handle_streaming_response(response.text)
             
         except requests.RequestException as e:
             logger.error(f"Legacy API request failed: {e}")
             raise Exception(f"Ollama connection error: {e}")
     
-    def get_available_models(self):
-        """Get list of available models from Ollama."""
+    def get_available_models(self) -> List[str]:
+        """Get list of available models from Ollama.
+        
+        Returns:
+            List of available model names
+        """
         url = f"{self.host}/api/tags"
         try:
             response = requests.get(url, timeout=10)
@@ -148,35 +144,60 @@ class OllamaClient:
             
             data = response.json()
             if 'models' in data and isinstance(data['models'], list):
-                # Extract model names
-                return [model.get('name', '') for model in data['models'] if model.get('name')]
+                return [model.get('name', '') for model in data['models'] 
+                       if model.get('name')]
             
             return []
         except Exception as e:
             logger.error(f"Failed to get models from Ollama: {e}")
             return []
     
-    def change_model(self, new_model: str):
-        """Change the active model."""
-        # Test if model exists by trying to pull it
+    def change_model(self, new_model: str) -> bool:
+        """Change the active model.
+        
+        Args:
+            new_model: Name of the new model to use
+            
+        Returns:
+            True if model was changed successfully, False otherwise
+        """
         try:
-            # First check if model is in available models
             available_models = self.get_available_models()
             if new_model not in available_models:
                 logger.warning(f"Model {new_model} not found in available models: {available_models}")
-                # Try to pull the model
-                pull_url = f"{self.host}/api/pull"
-                pull_payload = {"name": new_model}
-                pull_response = requests.post(pull_url, json=pull_payload, timeout=300)
-                if not pull_response.ok:
+                if not self._pull_model(new_model):
                     return False
             
-            # Change the model
             self.model = new_model
             return True
             
         except Exception as e:
             logger.error(f"Failed to change model to {new_model}: {e}")
+            return False
+    
+    def _handle_streaming_response(self, text: str) -> str:
+        """Handle streaming response format."""
+        try:
+            lines = [line for line in text.splitlines() if line.strip().startswith('{')]
+            parts = [json.loads(line) for line in lines]
+            if parts:
+                output = ''.join(part.get('response', '') for part in parts)
+                if output:
+                    return output.strip()
+        except Exception as e:
+            logger.warning(f"Failed to parse streaming response: {e}")
+        
+        return text.strip()
+    
+    def _pull_model(self, model_name: str) -> bool:
+        """Try to pull a model from Ollama."""
+        try:
+            pull_url = f"{self.host}/api/pull"
+            pull_payload = {"name": model_name}
+            pull_response = requests.post(pull_url, json=pull_payload, timeout=300)
+            return pull_response.ok
+        except Exception as e:
+            logger.error(f"Failed to pull model {model_name}: {e}")
             return False
 
 

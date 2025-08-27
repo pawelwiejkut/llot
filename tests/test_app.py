@@ -59,7 +59,7 @@ def test_api_translate_empty_text(client):
     
     data = json.loads(response.data)
     assert data['error'] == 'EMPTY'
-    assert data['translated'] == ''
+    assert data['translated_text'] == ''
 
 
 def test_api_history_save_empty(client):

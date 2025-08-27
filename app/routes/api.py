@@ -6,6 +6,13 @@ from app.utils.debug import debug_print
 import logging
 import os
 
+
+def _get_request_data():
+    """Extract data from request (JSON or form)."""
+    if request.is_json:
+        return request.get_json() or {}
+    return request.form.to_dict()
+
 logger = logging.getLogger(__name__)
 translation_service = TranslationService()
 
@@ -14,14 +21,10 @@ translation_service = TranslationService()
 def translate():
     """Main translation endpoint."""
     try:
-        # Handle both JSON and form data
-        if request.is_json:
-            data = request.get_json() or {}
-        else:
-            data = request.form.to_dict()
-        
+        data = _get_request_data()
         debug_print(f"Translation request data: {data}")
         
+        # Validate and extract parameters
         source_text = (data.get("source_text") or "").strip()
         if not source_text:
             return jsonify({"error": "EMPTY", "translated_text": ""})
@@ -60,7 +63,6 @@ def save_history():
             return jsonify({"ok": False, "error": "EMPTY"})
         
         success = history_manager.add_item(source_text, translated, target_lang)
-        
         return jsonify({"ok": success})
         
     except Exception as e:
@@ -143,8 +145,24 @@ def refine_translation():
         })
 
 
-# Simple in-memory cache for TTS
-tts_cache = {}
+# TTS cache for performance
+class TTSCache:
+    def __init__(self, max_size=50):
+        self._cache = {}
+        self.max_size = max_size
+    
+    def get(self, key):
+        return self._cache.get(key)
+    
+    def set(self, key, value):
+        if len(self._cache) >= self.max_size:
+            self._cache.clear()
+        self._cache[key] = value
+    
+    def clear(self):
+        self._cache.clear()
+
+tts_cache = TTSCache()
 
 @api_bp.route("/tts", methods=["POST"])
 def text_to_speech():
@@ -205,16 +223,18 @@ def text_to_speech():
         
         # Check cache first (only for non-streaming requests)
         cache_key = f"{text}:{voice}"
-        if not use_streaming and cache_key in tts_cache:
-            debug_print("Found in cache, returning cached audio")
-            return Response(
-                tts_cache[cache_key],
-                mimetype="audio/wav",
-                headers={
-                    "Content-Disposition": "attachment; filename=tts.wav",
-                    "Content-Length": str(len(tts_cache[cache_key]))
-                }
-            )
+        if not use_streaming:
+            cached_audio = tts_cache.get(cache_key)
+            if cached_audio:
+                debug_print("Found in cache, returning cached audio")
+                return Response(
+                    cached_audio,
+                    mimetype="audio/wav",
+                    headers={
+                        "Content-Disposition": "attachment; filename=tts.wav",
+                        "Content-Length": str(len(cached_audio))
+                    }
+                )
         
         # Check if Wyoming Piper is configured
         wyoming_host = os.getenv("WYOMING_PIPER_HOST")
@@ -233,9 +253,7 @@ def text_to_speech():
             debug_print(f"Generated WAV with {len(wav_content)} bytes using simple Wyoming")
             
             # Cache the result
-            if len(tts_cache) > 50:
-                tts_cache.clear()
-            tts_cache[cache_key] = wav_content
+            tts_cache.set(cache_key, wav_content)
             debug_print("Cached TTS result")
             
             return Response(

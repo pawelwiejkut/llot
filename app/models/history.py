@@ -5,21 +5,39 @@ import json
 
 @dataclass
 class HistoryItem:
+    """Represents a translation history item."""
     source: str
     translated: str
     target: str
     
     @property
     def short(self) -> str:
-        return self.source[:40].replace("\n", " ") + ("..." if len(self.source) > 40 else "")
+        """Get shortened version of source text for display."""
+        max_length = 40
+        cleaned_source = self.source.replace("\n", " ")
+        if len(cleaned_source) > max_length:
+            return cleaned_source[:max_length] + "..."
+        return cleaned_source
 
 
 class HistoryManager:
+    """Manages translation history with configurable limits."""
+    
     def __init__(self, limit: int = 5):
         self.limit = limit
         self._history: List[HistoryItem] = []
     
     def add_item(self, source_text: str, translated: str, target_lang: str) -> bool:
+        """Add new translation to history.
+        
+        Args:
+            source_text: Source text
+            translated: Translated text
+            target_lang: Target language code
+            
+        Returns:
+            True if item was added successfully
+        """
         if not source_text or not translated:
             return False
         
@@ -31,16 +49,21 @@ class HistoryManager:
         self._history.insert(0, item)
         
         # Maintain limit
-        while len(self._history) > self.limit:
-            self._history.pop()
+        self._enforce_limit()
         
         return True
     
     def _remove_duplicate(self, source_text: str, target_lang: str):
+        """Remove duplicate entry if it exists."""
         for i, item in enumerate(self._history):
             if item.source == source_text and item.target == target_lang:
                 self._history.pop(i)
                 break
+    
+    def _enforce_limit(self):
+        """Ensure history doesn't exceed the configured limit."""
+        while len(self._history) > self.limit:
+            self._history.pop()
     
     def get_history(self) -> List[HistoryItem]:
         return self._history.copy()
