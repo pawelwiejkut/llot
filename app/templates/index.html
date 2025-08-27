@@ -38,7 +38,7 @@
     {% if config.DEBUG %}
     <div class="language-selector">
       <select onchange="changeLanguage(this.value)">
-        {% for code, name in ALL_LANGUAGES.items() %}
+        {% for code, name in languages %}
           <option value="{{ code }}" {% if get_locale() == code %}selected{% endif %}>{{ name }}</option>
         {% endfor %}
       </select>

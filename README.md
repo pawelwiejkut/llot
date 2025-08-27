@@ -11,7 +11,7 @@
 
 ## 🎬 Live Demo
 
-![LLOT Demo](docs/images/llot-demo-ultra-smooth.gif)
+![LLOT Demo](docs/images/llot-demo-morphed.gif)
 *Live demonstration: Real-time translation, language switching, tone selection, and dark mode*
 
 ---

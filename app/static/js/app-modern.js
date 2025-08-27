@@ -588,45 +588,42 @@ class DropdownManager {
   }
   
   getLanguages() {
-    return [
-      { code: 'auto', name: 'Detect language', flag: '🔍', sourceOnly: true },
-      { code: 'en', name: 'English', flag: '🇺🇸' },
-      { code: 'zh', name: '中文', flag: '🇨🇳' },
-      { code: 'es', name: 'Español', flag: '🇪🇸' },
-      { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
-      { code: 'ar', name: 'العربية', flag: '🇦🇪' },
-      { code: 'pt', name: 'Português', flag: '🇵🇹' },
-      { code: 'bn', name: 'বাংলা', flag: '🇧🇩' },
-      { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-      { code: 'ja', name: '日本語', flag: '🇯🇵' },
-      { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-      { code: 'ko', name: '한국어', flag: '🇰🇷' },
-      { code: 'fr', name: 'Français', flag: '🇫🇷' },
-      { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
-      { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-      { code: 'th', name: 'ไทย', flag: '🇹🇭' },
-      { code: 'pl', name: 'Polski', flag: '🇵🇱' },
-      { code: 'uk', name: 'Українська', flag: '🇺🇦' },
-      { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
-      { code: 'ro', name: 'Română', flag: '🇷🇴' },
-      { code: 'cs', name: 'Čeština', flag: '🇨🇿' },
-      { code: 'sk', name: 'Slovenčina', flag: '🇸🇰' },
-      { code: 'hu', name: 'Magyar', flag: '🇭🇺' },
-      { code: 'bg', name: 'Български', flag: '🇧🇬' },
-      { code: 'hr', name: 'Hrvatski', flag: '🇭🇷' },
-      { code: 'sl', name: 'Slovenščina', flag: '🇸🇮' },
-      { code: 'lv', name: 'Latviešu', flag: '🇱🇻' },
-      { code: 'lt', name: 'Lietuvių', flag: '🇱🇹' },
-      { code: 'et', name: 'Eesti', flag: '🇪🇪' },
-      { code: 'fi', name: 'Suomi', flag: '🇫🇮' },
-      { code: 'da', name: 'Dansk', flag: '🇩🇰' },
-      { code: 'no', name: 'Norsk', flag: '🇳🇴' },
-      { code: 'sv', name: 'Svenska', flag: '🇸🇪' },
-      { code: 'el', name: 'Ελληνικά', flag: '🇬🇷' },
-      { code: 'ca', name: 'Català', flag: '🏴󠁥󠁳󠁣󠁴󠁿' },
-      { code: 'ga', name: 'Gaeilge', flag: '🇮🇪' },
-      { code: 'mt', name: 'Malti', flag: '🇲🇹' }
-    ];
+    // Get languages from server-rendered HTML selects (already filtered by TRANSLATION_LANGUAGES)
+    const sourceSelect = document.getElementById('source_lang');
+    if (!sourceSelect) {
+      // Fallback to minimal set if no select found
+      return [
+        { code: 'auto', name: 'Detect language', flag: '🔍', sourceOnly: true },
+        { code: 'en', name: 'English', flag: '🇺🇸' },
+        { code: 'de', name: 'Deutsch', flag: '🇩🇪' }
+      ];
+    }
+
+    // Build languages array from HTML options
+    const languages = [];
+    
+    // Get flag mapping for known languages
+    const flagMap = {
+      'en': '🇺🇸', 'zh': '🇨🇳', 'es': '🇪🇸', 'hi': '🇮🇳', 'ar': '🇦🇪', 'pt': '🇵🇹',
+      'bn': '🇧🇩', 'ru': '🇷🇺', 'ja': '🇯🇵', 'de': '🇩🇪', 'ko': '🇰🇷', 'fr': '🇫🇷',
+      'tr': '🇹🇷', 'it': '🇮🇹', 'th': '🇹🇭', 'pl': '🇵🇱', 'uk': '🇺🇦', 'nl': '🇳🇱',
+      'ro': '🇷🇴', 'cs': '🇨🇿', 'sk': '🇸🇰', 'hu': '🇭🇺', 'bg': '🇧🇬', 'hr': '🇭🇷',
+      'sl': '🇸🇮', 'lv': '🇱🇻', 'lt': '🇱🇹', 'et': '🇪🇪', 'fi': '🇫🇮', 'da': '🇩🇰',
+      'no': '🇳🇴', 'sv': '🇸🇪', 'el': '🇬🇷', 'ca': '🏴󠁥󠁳󠁣󠁴󠁿', 'ga': '🇮🇪', 'mt': '🇲🇹',
+      'auto': '🔍'
+    };
+
+    // Extract languages from source select options
+    Array.from(sourceSelect.options).forEach(option => {
+      languages.push({
+        code: option.value,
+        name: option.textContent,
+        flag: flagMap[option.value] || '🌍',
+        sourceOnly: option.value === 'auto'
+      });
+    });
+
+    return languages;
   }
 }
 

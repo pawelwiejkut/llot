@@ -81,40 +81,19 @@
           <div class="language-controls">
             <div class="language-select">
               <select id="source_lang_old" name="source_lang_old" aria-label="{{ _('Source language') }}">
-                <option value="auto" selected>{{ _('Detect language') }}</option>
-                <option value="en">English</option>
-                <option value="de">Deutsch</option>
-                <option value="es">Español</option>
-                <option value="fr">Français</option>
-                <option value="it">Italiano</option>
-                <option value="pt">Português</option>
-                <option value="ru">Русский</option>
-                <option value="pl">Polski</option>
-                <option value="nl">Nederlands</option>
-                <option value="ja">日本語</option>
-                <option value="ko">한국어</option>
-                <option value="zh">中文</option>
-                <option value="ar">العربية</option>
-                <option value="hi">हिन्दी</option>
+                {% for code, name in languages %}
+                  <option value="{{ code }}" {% if code=='auto' %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
               </select>
             </div>
             
             <div class="language-select">
               <select id="target_lang_old" name="target_lang_old" aria-label="{{ _('Target language') }}">
-                <option value="en">English</option>
-                <option value="de" selected>Deutsch</option>
-                <option value="es">Español</option>
-                <option value="fr">Français</option>
-                <option value="it">Italiano</option>
-                <option value="pt">Português</option>
-                <option value="ru">Русский</option>
-                <option value="pl">Polski</option>
-                <option value="nl">Nederlands</option>
-                <option value="ja">日本語</option>
-                <option value="ko">한국어</option>
-                <option value="zh">中文</option>
-                <option value="ar">العربية</option>
-                <option value="hi">हिन्দी</option>
+                {% for code, name in languages %}
+                  {% if code != 'auto' %}
+                    <option value="{{ code }}" {% if code=='de' %}selected{% endif %}>{{ name }}</option>
+                  {% endif %}
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -189,22 +168,10 @@
                 </div>
                 <!-- Hidden select for form compatibility -->
                 <select id="source_lang" name="source_lang" style="display: none;">
-                  <option value="auto" selected>{{ _('Detect language') }}</option>
-                  <option value="en">English</option>
-                  <option value="de">Deutsch</option>
-                  <option value="es">Español</option>
-                  <option value="fr">Français</option>
-                  <option value="it">Italiano</option>
-                  <option value="pt">Português</option>
-                  <option value="ru">Русский</option>
-                  <option value="pl">Polski</option>
-                  <option value="nl">Nederlands</option>
-                  <option value="ja">日本語</option>
-                  <option value="ko">한국어</option>
-                  <option value="zh">中文</option>
-                  <option value="ar">العربية</option>
-                  <option value="hi">हিন্দী</option>
-                </select>
+                  {% for code, name in languages %}
+                  <option value="{{ code }}" {% if code=='auto' %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+              </select>
               </div>
             </div>
 
@@ -232,21 +199,12 @@
                 </div>
                 <!-- Hidden select for form compatibility -->
                 <select id="target_lang" name="target_lang" style="display: none;">
-                  <option value="en">English</option>
-                  <option value="de" selected>Deutsch</option>
-                  <option value="es">Español</option>
-                  <option value="fr">Français</option>
-                  <option value="it">Italiano</option>
-                  <option value="pt">Português</option>
-                  <option value="ru">Русский</option>
-                  <option value="pl">Polski</option>
-                  <option value="nl">Nederlands</option>
-                  <option value="ja">日本語</option>
-                  <option value="ko">한국어</option>
-                  <option value="zh">中文</option>
-                  <option value="ar">العربية</option>
-                  <option value="hi">हিন্দী</option>
-                </select>
+                  {% for code, name in languages %}
+                  {% if code != 'auto' %}
+                    <option value="{{ code }}" {% if code=='de' %}selected{% endif %}>{{ name }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
               </div>
               
               <!-- Simple options menu -->
