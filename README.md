@@ -11,7 +11,7 @@
 
 ## 🎬 Live Demo
 
-![LLOT Demo](docs/images/llot-demo-clean.gif)
+![LLOT Demo](docs/images/llot-demo-ultra-smooth.gif)
 *Live demonstration: Real-time translation, language switching, tone selection, and dark mode*
 
 ---
@@ -41,7 +41,7 @@ cd llot
 
 # Configure your Ollama server
 echo "OLLAMA_HOST=http://your-ollama-server:11434" > .env
-echo "OL_MODEL=qwen2.5:3b" >> .env
+echo "OL_MODEL=gemma2:27b" >> .env
 
 # Start LLOT
 docker-compose up -d
@@ -81,12 +81,13 @@ That's it! 🎉 **Your private translation service is running.**
 ## 🔧 Requirements
 
 ### Minimum System Requirements
-- **RAM**: 4GB+ (8GB+ recommended for larger models)
-- **Storage**: 5GB+ free space for models
+- **RAM**: 16GB+ (32GB+ recommended for gemma2:27b)
+- **Storage**: 20GB+ free space for models
 - **CPU**: Any modern CPU (ARM64/AMD64 supported)
 - **Docker**: Docker and Docker Compose
 
 ### Recommended Setup
+- **GPU**: NVIDIA RTX 3090 or better for optimal performance
 - **Existing Ollama server** with translation-capable models
 - **Optional**: Wyoming Piper for text-to-speech
 - **Optional**: Reverse proxy (Nginx, Traefik) for HTTPS
@@ -124,7 +125,7 @@ services:
       - "8080:8080"
     environment:
       - OLLAMA_HOST=http://your-ollama:11434
-      - OL_MODEL=qwen2.5:3b
+      - OL_MODEL=gemma2:27b
     restart: unless-stopped
 ```
 
@@ -132,7 +133,7 @@ services:
 ```bash
 # Required
 OLLAMA_HOST=http://localhost:11434  # Your Ollama server
-OL_MODEL=qwen2.5:3b                # Translation model
+OL_MODEL=gemma2:27b                # Translation model
 
 # Optional  
 APP_PORT=8080                      # LLOT port
@@ -140,21 +141,6 @@ WYOMING_PIPER_HOST=localhost       # TTS server
 WYOMING_PIPER_PORT=10200          # TTS port
 DEBUG_LOGGING=false               # Debug mode
 ```
-
----
-
-## 🚨 Troubleshooting
-
-**Translation not working?**
-- Verify Ollama is running: `curl http://your-ollama:11434/api/tags`
-- Check if your model supports translation
-- Look at LLOT logs: `docker-compose logs -f llot`
-
-**TTS not working?**
-- TTS is optional - translation works without it
-- Check Wyoming Piper is running if configured
-
-**Need help?** Check our [complete documentation](DOCUMENTATION.md) or [open an issue](https://github.com/pawelwiejkut/llot/issues).
 
 ---
 
