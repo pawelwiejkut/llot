@@ -1,92 +1,205 @@
 # Português translation for LLOT
 msgid ""
 msgstr ""
-"Project-Id-Version: LLOT 1.0
-"
-"Report-Msgid-Bugs-To: EMAIL@ADDRESS
-"
-"POT-Creation-Date: 2025-01-01 12:00+0000
-"
-"PO-Revision-Date: 2025-01-01 12:00+0000
-"
-"Last-Translator: LLOT Team
-"
-"Language: pt
-"
-"Language-Team: Portuguese
-"
-"Plural-Forms: nplurals=2; plural=(n != 1);
-"
-"MIME-Version: 1.0
-"
-"Content-Type: text/plain; charset=utf-8
-"
-"Content-Transfer-Encoding: 8bit
-"
+"Project-Id-Version: LLOT 1.Report-Msgid-Bugs-To: EMAIL@ADDRESPOT-"
+"Creation-Date: 2025-01-01 12:00+000PO-Revision-Date: 2025-01-01 12:00"
+"+000Last-Translator: LLOT TeaLanguage: pLanguage-Team: PortuguesPlural-"
+"Forms: nplurals=2; plural=(n != 1)MIME-Version: 1.Content-Type: "
+"text/plain; charset=utf-Content-Transfer-Encoding: 8bi\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-08-26 11:02+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: pt\n"
+"Language-Team: pt <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
 
-msgid "LLOT — Local LLM Ollama Translator"
-msgstr "LLOT — Tradutor LLM Ollama Local"
-
-msgid "— local llm ollama translator"
-msgstr "— tradutor llm ollama local"
-
-msgid "Model"
-msgstr "Modelo"
-
-msgid "Source"
-msgstr "Origem"
-
-msgid "Target"
-msgstr "Destino"
-
-msgid "Tone"
-msgstr "Tom"
-
-msgid "Swap direction"
-msgstr "Trocar direção"
-
-msgid "Recent translations history:"
-msgstr "Histórico de traduções recentes:"
-
-msgid "none"
-msgstr "nenhuma"
-
-msgid "Text to translate"
-msgstr "Texto para traduzir"
-
-msgid "Paste or type text..."
-msgstr "Cole ou digite texto..."
-
-msgid "Translation starts automatically"
-msgstr "A tradução inicia automaticamente"
-
-msgid "Translating..."
-msgstr "Traduzindo..."
-
-msgid "Result"
-msgstr "Resultado"
-
-msgid "Error:"
-msgstr "Erro:"
-
+#: app/models/language.py:26
 msgid "Auto (detect)"
 msgstr "Auto (detectar)"
 
+#: app/models/language.py:41
 msgid "Neutral"
 msgstr "Neutro"
 
+#: app/models/language.py:42
 msgid "Formal"
 msgstr "Formal"
 
+#: app/models/language.py:43
 msgid "Informal"
 msgstr "Informal"
 
+#: app/models/language.py:44
 msgid "Friendly"
 msgstr "Amigável"
 
+#: app/models/language.py:45
 msgid "Technical"
 msgstr "Técnico"
 
+#: app/models/language.py:46
 msgid "Poetic"
 msgstr "Poético"
+
+#: app/templates/index-modern.html:7 app/templates/index.html:7
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Tradutor LLM Ollama Local"
+
+#: app/templates/index-modern.html:8
+#, python-format
+msgid ""
+"Privacy-first translation service powered by local LLM. No API keys, no "
+"cloud services, 100% self-hosted."
+msgstr ""
+
+#: app/templates/index-modern.html:27
+msgid "LLOT Home"
+msgstr ""
+
+#: app/templates/index-modern.html:33
+#, fuzzy
+msgid "Local LLM Translator"
+msgstr "— tradutor llm ollama local"
+
+#: app/templates/index-modern.html:38
+msgid "Click to check connection"
+msgstr ""
+
+#: app/templates/index-modern.html:40
+msgid "Connected"
+msgstr ""
+
+#: app/templates/index-modern.html:42 app/templates/index.html:51
+msgid "Ollama"
+msgstr ""
+
+#: app/templates/index-modern.html:43 app/templates/index.html:51
+msgid "Model"
+msgstr "Modelo"
+
+#: app/templates/index-modern.html:45 app/templates/index-modern.html:47
+msgid "TTS"
+msgstr ""
+
+#: app/templates/index-modern.html:47
+msgid "Disabled"
+msgstr ""
+
+#: app/templates/index-modern.html:52
+msgid "Toggle theme"
+msgstr ""
+
+#: app/templates/index-modern.html:74 app/templates/index-modern.html:138
+msgid "Source language"
+msgstr ""
+
+#: app/templates/index-modern.html:75 app/templates/index-modern.html:139
+#: app/templates/index-modern.html:151
+msgid "Detect language"
+msgstr ""
+
+#: app/templates/index-modern.html:94 app/templates/index-modern.html:179
+msgid "Target language"
+msgstr ""
+
+#: app/templates/index-modern.html:114 app/templates/index-modern.html:252
+#, fuzzy
+msgid "Translation tone"
+msgstr "Traduzindo..."
+
+#: app/templates/index-modern.html:128
+msgid "Swap languages"
+msgstr ""
+
+#: app/templates/index-modern.html:143 app/templates/index-modern.html:184
+msgid "Search languages..."
+msgstr ""
+
+#: app/templates/index-modern.html:170
+#, fuzzy
+msgid "Enter text to translate..."
+msgstr "Texto para traduzir"
+
+#: app/templates/index-modern.html:171 app/templates/index.html:112
+msgid "Text to translate"
+msgstr "Texto para traduzir"
+
+#: app/templates/index-modern.html:209
+#, fuzzy
+msgid "Translation result"
+msgstr "Traduzindo..."
+
+#: app/templates/index-modern.html:213
+msgid "Copy to clipboard"
+msgstr ""
+
+#: app/templates/index-modern.html:220 app/templates/index.html:125
+msgid "Listen to pronunciation"
+msgstr ""
+
+#: app/templates/index-modern.html:235
+#, fuzzy
+msgid "Ready to translate"
+msgstr "Texto para traduzir"
+
+#: app/templates/index-modern.html:237
+msgid "characters"
+msgstr ""
+
+#: app/templates/index-modern.html:244
+#, fuzzy
+msgid "Recent Translations"
+msgstr "Histórico de traduções recentes:"
+
+#: app/templates/index-modern.html:262 app/templates/index.html:136
+msgid "Error:"
+msgstr "Erro:"
+
+#: app/templates/index.html:38
+msgid "— local llm ollama translator"
+msgstr "— tradutor llm ollama local"
+
+#: app/templates/index.html:58
+msgid "Source"
+msgstr "Origem"
+
+#: app/templates/index.html:69
+msgid "Swap direction"
+msgstr "Trocar direção"
+
+#: app/templates/index.html:77
+msgid "Target"
+msgstr "Destino"
+
+#: app/templates/index.html:90
+msgid "Tone"
+msgstr "Tom"
+
+#: app/templates/index.html:104
+msgid "Recent translations history:"
+msgstr "Histórico de traduções recentes:"
+
+#: app/templates/index.html:113
+msgid "Paste or type text..."
+msgstr "Cole ou digite texto..."
+
+#: app/templates/index.html:115
+msgid "Translation starts automatically"
+msgstr "A tradução inicia automaticamente"
+
+#: app/templates/index.html:116
+msgid "Translating..."
+msgstr "Traduzindo..."
+
+#: app/templates/index.html:121
+msgid "Result"
+msgstr "Resultado"
+
+#~ msgid "none"
+#~ msgstr "nenhuma"
 

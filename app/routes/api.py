@@ -276,9 +276,19 @@ def health_check():
             response = client.chat_completion("hi", temperature=0.0, max_tokens=5)
             if not response or len(response.strip()) == 0:
                 raise Exception("Empty response from Ollama")
+            
+            # Get available models
+            try:
+                models = client.get_available_models()
+                status["ollama"]["models"] = models
+            except Exception as model_error:
+                logger.warning(f"Could not get models: {model_error}")
+                status["ollama"]["models"] = []
+                
         except Exception as e:
             status["ollama"]["status"] = "error"
             status["ollama"]["error"] = str(e)
+            status["ollama"]["models"] = []
             status["overall"] = "error"
         
         # Check TTS service
@@ -314,3 +324,37 @@ def health_check():
             "tts": {"status": "unknown", "error": "Health check failed"},
             "overall": "error"
         }), 500
+
+
+@api_bp.route("/models", methods=["GET"])
+def get_models():
+    """Get available Ollama models."""
+    try:
+        models = translation_service.get_available_models()
+        return jsonify({"models": models})
+    except Exception as e:
+        logger.error(f"Error getting models: {e}")
+        return jsonify({"error": str(e), "models": []}), 500
+
+
+@api_bp.route("/change_model", methods=["POST"])
+def change_model():
+    """Change the active Ollama model."""
+    try:
+        data = request.get_json() or {}
+        new_model = data.get("model")
+        
+        if not new_model:
+            return jsonify({"error": "Model name required"}), 400
+            
+        # Change model in translation service
+        success = translation_service.change_model(new_model)
+        
+        if success:
+            return jsonify({"success": True, "model": new_model})
+        else:
+            return jsonify({"error": "Failed to change model"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error changing model: {e}")
+        return jsonify({"error": str(e)}), 500

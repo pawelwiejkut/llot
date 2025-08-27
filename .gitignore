@@ -63,3 +63,20 @@ opencode.json
 
 # Audio test files
 *.wav
+
+# Debug and testing files
+debug_files/
+*.png
+*debug*.py
+*test*.py
+screenshot*.py
+force_history_test.py
+simple_corner_test.py
+quick_debug.py
+
+# Test directories
+tests/screenshots/
+screenshots_before_refactor/
+
+# Temporary files
+temp_cleanup/

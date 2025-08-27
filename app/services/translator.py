@@ -45,12 +45,14 @@ class TranslationService:
         # Call Ollama
         try:
             client = get_ollama_client()
+            logger.info(f"Translation prompt: {prompt[:500]}...")
             translated = client.chat_completion(prompt, temperature=0.0)
             
             if not translated:
                 raise Exception("Empty response from Ollama")
             
             logger.info(f"Translation completed: {len(source_text)} chars -> {len(translated)} chars")
+            logger.info(f"Input: '{source_text}' -> Output: '{translated}'")
             return translated, detected
             
         except Exception as e:
@@ -240,3 +242,29 @@ class TranslationService:
             f"Source text:\n{source_text}\n"
             f"\nCurrent translation (user-edited draft):\n{current_translation}\n"
         )
+    
+    def get_available_models(self) -> List[str]:
+        """Get list of available Ollama models."""
+        try:
+            client = get_ollama_client()
+            return client.get_available_models()
+        except Exception as e:
+            logger.error(f"Failed to get available models: {e}")
+            return []
+    
+    def change_model(self, new_model: str) -> bool:
+        """Change the active Ollama model."""
+        try:
+            client = get_ollama_client()
+            success = client.change_model(new_model)
+            
+            if success:
+                # Update the Flask config so future requests use the new model
+                from flask import current_app
+                current_app.config['DEFAULT_MODEL'] = new_model
+                logger.info(f"Model changed to: {new_model}")
+                
+            return success
+        except Exception as e:
+            logger.error(f"Failed to change model to {new_model}: {e}")
+            return False

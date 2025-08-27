@@ -3,81 +3,200 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LLOT 1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-01 12:00+0000\n"
+"POT-Creation-Date: 2025-08-26 11:02+0200\n"
 "PO-Revision-Date: 2025-01-01 12:00+0000\n"
 "Last-Translator: LLOT Team\n"
 "Language: ru\n"
 "Language-Team: Russian\n"
-"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
 
-msgid "LLOT — Local LLM Ollama Translator"
-msgstr "LLOT — Локальный переводчик LLM Ollama"
-
-msgid "— local llm ollama translator"
-msgstr "— локальный переводчик llm ollama"
-
-msgid "Ollama"
-msgstr "Ollama"
-
-msgid "Model"
-msgstr "Модель"
-
-msgid "Source"
-msgstr "Исходный"
-
-msgid "Target"
-msgstr "Целевой"
-
-msgid "Tone"
-msgstr "Тон"
-
-msgid "Swap direction"
-msgstr "Поменять направление"
-
-msgid "Recent translations history:"
-msgstr "История последних переводов:"
-
-msgid "none"
-msgstr "нет"
-
-msgid "Text to translate"
-msgstr "Текст для перевода"
-
-msgid "Paste or type text..."
-msgstr "Вставьте или введите текст..."
-
-msgid "Translation starts automatically"
-msgstr "Перевод начинается автоматически"
-
-msgid "Translating..."
-msgstr "Переводим..."
-
-msgid "Result"
-msgstr "Результат"
-
-msgid "Error:"
-msgstr "Ошибка:"
-
+#: app/models/language.py:26
 msgid "Auto (detect)"
 msgstr "Авто (определить)"
 
+#: app/models/language.py:41
 msgid "Neutral"
 msgstr "Нейтральный"
 
+#: app/models/language.py:42
 msgid "Formal"
 msgstr "Официальный"
 
+#: app/models/language.py:43
 msgid "Informal"
 msgstr "Неофициальный"
 
+#: app/models/language.py:44
 msgid "Friendly"
 msgstr "Дружелюбный"
 
+#: app/models/language.py:45
 msgid "Technical"
 msgstr "Технический"
 
+#: app/models/language.py:46
 msgid "Poetic"
 msgstr "Поэтический"
+
+#: app/templates/index-modern.html:7 app/templates/index.html:7
+msgid "LLOT — Local LLM Ollama Translator"
+msgstr "LLOT — Локальный переводчик LLM Ollama"
+
+#: app/templates/index-modern.html:8
+#, python-format
+msgid ""
+"Privacy-first translation service powered by local LLM. No API keys, no "
+"cloud services, 100% self-hosted."
+msgstr ""
+
+#: app/templates/index-modern.html:27
+msgid "LLOT Home"
+msgstr ""
+
+#: app/templates/index-modern.html:33
+#, fuzzy
+msgid "Local LLM Translator"
+msgstr "— локальный переводчик llm ollama"
+
+#: app/templates/index-modern.html:38
+msgid "Click to check connection"
+msgstr ""
+
+#: app/templates/index-modern.html:40
+msgid "Connected"
+msgstr ""
+
+#: app/templates/index-modern.html:42 app/templates/index.html:51
+msgid "Ollama"
+msgstr "Ollama"
+
+#: app/templates/index-modern.html:43 app/templates/index.html:51
+msgid "Model"
+msgstr "Модель"
+
+#: app/templates/index-modern.html:45 app/templates/index-modern.html:47
+msgid "TTS"
+msgstr ""
+
+#: app/templates/index-modern.html:47
+msgid "Disabled"
+msgstr ""
+
+#: app/templates/index-modern.html:52
+msgid "Toggle theme"
+msgstr ""
+
+#: app/templates/index-modern.html:74 app/templates/index-modern.html:138
+msgid "Source language"
+msgstr ""
+
+#: app/templates/index-modern.html:75 app/templates/index-modern.html:139
+#: app/templates/index-modern.html:151
+msgid "Detect language"
+msgstr ""
+
+#: app/templates/index-modern.html:94 app/templates/index-modern.html:179
+msgid "Target language"
+msgstr ""
+
+#: app/templates/index-modern.html:114 app/templates/index-modern.html:252
+#, fuzzy
+msgid "Translation tone"
+msgstr "Переводим..."
+
+#: app/templates/index-modern.html:128
+msgid "Swap languages"
+msgstr ""
+
+#: app/templates/index-modern.html:143 app/templates/index-modern.html:184
+msgid "Search languages..."
+msgstr ""
+
+#: app/templates/index-modern.html:170
+#, fuzzy
+msgid "Enter text to translate..."
+msgstr "Текст для перевода"
+
+#: app/templates/index-modern.html:171 app/templates/index.html:112
+msgid "Text to translate"
+msgstr "Текст для перевода"
+
+#: app/templates/index-modern.html:209
+#, fuzzy
+msgid "Translation result"
+msgstr "Переводим..."
+
+#: app/templates/index-modern.html:213
+msgid "Copy to clipboard"
+msgstr ""
+
+#: app/templates/index-modern.html:220 app/templates/index.html:125
+msgid "Listen to pronunciation"
+msgstr ""
+
+#: app/templates/index-modern.html:235
+#, fuzzy
+msgid "Ready to translate"
+msgstr "Текст для перевода"
+
+#: app/templates/index-modern.html:237
+msgid "characters"
+msgstr ""
+
+#: app/templates/index-modern.html:244
+#, fuzzy
+msgid "Recent Translations"
+msgstr "История последних переводов:"
+
+#: app/templates/index-modern.html:262 app/templates/index.html:136
+msgid "Error:"
+msgstr "Ошибка:"
+
+#: app/templates/index.html:38
+msgid "— local llm ollama translator"
+msgstr "— локальный переводчик llm ollama"
+
+#: app/templates/index.html:58
+msgid "Source"
+msgstr "Исходный"
+
+#: app/templates/index.html:69
+msgid "Swap direction"
+msgstr "Поменять направление"
+
+#: app/templates/index.html:77
+msgid "Target"
+msgstr "Целевой"
+
+#: app/templates/index.html:90
+msgid "Tone"
+msgstr "Тон"
+
+#: app/templates/index.html:104
+msgid "Recent translations history:"
+msgstr "История последних переводов:"
+
+#: app/templates/index.html:113
+msgid "Paste or type text..."
+msgstr "Вставьте или введите текст..."
+
+#: app/templates/index.html:115
+msgid "Translation starts automatically"
+msgstr "Перевод начинается автоматически"
+
+#: app/templates/index.html:116
+msgid "Translating..."
+msgstr "Переводим..."
+
+#: app/templates/index.html:121
+msgid "Result"
+msgstr "Результат"
+
+#~ msgid "none"
+#~ msgstr "нет"
+

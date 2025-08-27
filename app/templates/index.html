@@ -5,20 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 
 <title>{{ _('LLOT — Local LLM Ollama Translator') }}</title>
-<!-- Modern favicon with LLOT branding -->
-<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}?v=6" />
-<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.svg') }}?v=6" />
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=5" />
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=5" />
-<!-- Apple Touch Icons for various iOS/Safari devices -->
-<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png?v=5" />
-<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png?v=5" />
-<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png?v=5" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png?v=5" />
-<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5" />
-<!-- Safari-specific and Web App Manifest -->
-<link rel="mask-icon" href="/safari-pinned-tab.svg?v=5" color="#2563eb" />
-<link rel="manifest" href="/manifest.json?v=5" />
+<!-- Favicon for all browsers -->
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}" />
+<link rel="icon" type="image/svg+xml" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.svg') }}" />
+<link rel="icon" type="image/svg+xml" sizes="96x96" href="{{ url_for('static', filename='favicon-96x96.svg') }}" />
+
+<!-- Apple Touch Icon -->
+<link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.svg') }}" />
+
+<!-- Web App Manifest -->
+<link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}" />
 <meta name="theme-color" content="#2563eb" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />

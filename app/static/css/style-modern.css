@@ -66,15 +66,16 @@ body {
   background-color: var(--bg-secondary);
 }
 
-/* Layout */
+/* Layout - wider like DeepL */
 .app-container {
   min-height: 100vh;
-  padding: var(--space-lg);
+  padding: var(--space-sm);
 }
 
 .main-container {
-  max-width: 1200px;
+  max-width: 1600px; /* Wider like DeepL */
   margin: 0 auto;
+  width: 100%;
 }
 
 /* Header */
@@ -82,13 +83,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-xl);
-  padding: var(--space-lg);
+  margin-bottom: var(--space-md);
+  padding: var(--space-md);
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
 }
+
+/* Options dropdown styles */
 
 .brand {
   display: flex;
@@ -109,8 +112,8 @@ body {
 }
 
 .brand-logo img {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
 }
 
@@ -230,35 +233,99 @@ body {
   display: none;
 }
 
-/* Translation interface */
-.translation-interface {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 500px;
+/* Language controls bar like DeepL - hidden on desktop, visible on mobile */
+.language-controls-bar {
+  display: none;
+}
+
+
+/* Panel headers container with swap button */
+.panels-header {
+  display: flex;
+  position: relative;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Panel headers - consolidated with reduced height */
+.panel-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: var(--space-md);
+  background: var(--bg-secondary);
+  height: 60px; /* Reduced height */
+  box-sizing: border-box;
+  flex: 1;
   position: relative;
 }
 
-.input-panel {
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+
+
+/* Ensure consistent width for language dropdowns */
+.panel-header .language-dropdown:first-child {
+  width: 180px; /* Fixed width based on longest language name "Detect language" */
 }
 
-.output-panel {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+/* Source language dropdown - align to right (towards swap button) */
+.panel-header:first-child .language-dropdown:first-child {
+  margin-left: auto;
+  margin-right: 20px; /* Fixed distance from swap button */
 }
 
-/* Swap button */
-.swap-button-center {
+/* Source language dropdown text - align right */
+.panel-header:first-child .language-dropdown-trigger {
+  text-align: right;
+  justify-content: flex-end;
+  padding-right: var(--space-sm); /* Reduce right padding to align text to edge */
+}
+
+.panel-header:first-child .selected-language {
+  text-align: right;
+}
+
+/* Source dropdown arrow - keep default position (right side) */
+.panel-header:first-child .language-dropdown-trigger::after {
+  /* Arrow pointing down (normal dropdown arrow) */
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  border-bottom: none;
+  margin-left: var(--space-sm);
+  margin-right: 0;
+}
+
+/* Target dropdown arrow - keep default position (right side) */
+.panel-header:last-child .language-dropdown-trigger::after {
+  /* Arrow pointing down (normal dropdown arrow) */
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  border-bottom: none;
+  margin-left: var(--space-sm);
+  margin-right: 0;
+}
+
+/* Target language dropdown - align to left (towards swap button) */  
+.panel-header:last-child .language-dropdown:first-child {
   position: absolute;
-  top: var(--space-md);
+  left: 36px; /* Adjusted distance to match source symmetry */
+  transform: none;
+}
+
+.panel-header .language-dropdown-trigger {
+  width: 100%;
+  min-width: 180px; /* Ensure minimum width */
+}
+
+/* Swap button in header center */
+.swap-button-header {
+  position: absolute;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  width: 32px;
-  height: 32px;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -272,18 +339,207 @@ body {
   transition: all 0.2s;
 }
 
+.swap-button-header:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.panel-header .options-menu {
+  position: absolute;
+  right: var(--space-md);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+}
+
+.options-menu .options-trigger {
+  background: transparent;
+  border: none;
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  min-width: 40px;
+  min-height: 40px;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Remove arrow from options trigger */
+.options-menu .options-trigger::after {
+  display: none;
+}
+
+.options-menu .options-trigger:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+
+.options-content {
+  padding: 0;
+  background: var(--bg-card);
+}
+
+.option-section {
+  padding: var(--space-md);
+}
+
+.option-header {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border);
+}
+
+.option-item {
+  margin-bottom: var(--space-lg);
+  position: relative;
+}
+
+.option-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Better layout for options with custom selects */
+.option-section {
+  padding: var(--space-lg) !important; /* Minimal padding - dropdowns escape completely */
+}
+
+.option-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .option-controls {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  
+}
+
+.option-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.option-select {
+  width: 100%;
+  height: 44px;
+  padding: 0 var(--space-md);
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 44px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2001;
+}
+
+.option-select:hover {
+  border-color: var(--accent);
+  background-color: var(--bg-secondary);
+}
+
+.option-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  background-color: var(--bg-primary);
+}
+
+
+.swap-button-top {
+  width: 36px;
+  height: 36px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.swap-button-top:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+/* Translation interface */
+.translation-interface {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 500px;
+  position: relative;
+}
+
+/* Continuous separator line through entire interface */
+.translation-interface::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.input-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.output-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Swap button */
+.swap-button-center {
+  display: none;
+}
+
 .swap-button-center:hover {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
 }
 
-/* Panel headers */
-.panel-header {
-  padding: var(--space-lg);
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-secondary);
-}
 
 /* Language dropdowns */
 .language-dropdown {
@@ -331,10 +587,16 @@ body {
   min-width: 450px;
   max-width: 600px;
   display: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: none;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
 }
 
 .language-dropdown.open .language-dropdown-panel {
   display: block;
+  opacity: 1;
+  visibility: visible;
 }
 
 .language-dropdown-search {
@@ -364,6 +626,7 @@ body {
   padding: var(--space-md);
   max-height: 400px;
   overflow-y: auto;
+  overflow-x: hidden;
   justify-content: start;
 }
 
@@ -385,6 +648,7 @@ body {
 .language-dropdown-content::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
 }
+
 
 /* Clean translation states */
 .text-output {
@@ -439,8 +703,9 @@ body {
   border: none;
   background: transparent;
   font-family: inherit;
-  font-size: 1.125rem;
-  line-height: 1.6;
+  font-size: 2rem; /* Start with large font like DeepL */
+  line-height: 1.4;
+  transition: font-size 0.2s ease, line-height 0.2s ease;
   color: var(--text-primary);
   resize: none;
   outline: none;
@@ -457,7 +722,7 @@ body {
   word-break: break-all;
   white-space: pre-wrap;
   hyphens: auto;
-  word-spacing: -0.1em;
+  word-spacing: -0.15em;
 }
 
 /* Create space only in the top-right area where action buttons are positioned */
@@ -506,6 +771,27 @@ body {
   color: var(--text-muted);
 }
 
+/* Dynamic font scaling like DeepL for both input and output */
+.text-input.font-large, .text-output.font-large {
+  font-size: 2rem;
+  line-height: 1.4;
+}
+
+.text-input.font-medium, .text-output.font-medium {
+  font-size: 1.5rem;
+  line-height: 1.5;
+}
+
+.text-input.font-normal, .text-output.font-normal {
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.text-input.font-small, .text-output.font-small {
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
 /* Status bar */
 .status-bar {
   display: flex;
@@ -543,19 +829,28 @@ body {
   color: var(--text-muted);
 }
 
-/* History panel */
+/* History panel - improved contrast */
 .history-panel {
   margin-top: var(--space-xl);
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  border: 1px solid #d1d5db; /* Visible gray border */
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Stronger shadow for better definition */
+  padding: var(--space-lg); /* Add padding to panel instead of individual elements */
+}
+
+/* Dark theme history panel */
+[data-theme="dark"] .history-panel {
+  border: 1px solid #4b5563; /* Visible border in dark theme */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .history-header {
-  padding: var(--space-lg);
   border-bottom: 1px solid var(--border);
   background: var(--bg-secondary);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0; /* Round top corners to match panel */
+  margin: calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg)) var(--space-md) calc(-1 * var(--space-lg)); /* Extend to panel edges */
+  padding: var(--space-lg); /* Add padding back to header content */
 }
 
 .history-title {
@@ -568,6 +863,8 @@ body {
 .history-list {
   max-height: 200px;
   overflow-y: auto;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Round bottom corners to match panel */
+  margin: 0 calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg)); /* Extend to panel edges */
 }
 
 .history-item {
@@ -583,6 +880,7 @@ body {
 
 .history-item:last-child {
   border-bottom: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Round bottom corners for last item */
 }
 
 .history-item:hover {
@@ -640,32 +938,125 @@ body {
   }
   
   .header {
-    flex-direction: column;
-    gap: var(--space-md);
-    text-align: center;
+    /* Keep header in one line on mobile like DeepL */
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-sm);
+    /* Reduce padding on mobile for space efficiency */
+    padding: var(--space-md);
   }
   
   .header-info {
-    flex-direction: column;
+    /* Keep connection status compact on mobile */
+    flex-direction: row;
     gap: var(--space-sm);
+    align-items: center;
   }
   
+  /* Show language controls bar on mobile like DeepL */
+  .language-controls-bar {
+    min-height: 48px; /* Ensure minimum height for touch targets */
+    z-index: 10; /* Ensure it appears above other elements */
+    position: relative; /* Ensure proper stacking context */
+  }
+  
+  /* Language dropdowns in mobile bar */
+  .language-controls-bar .language-dropdown {
+    flex: 1;
+  }
+  
+  .language-controls-bar .language-dropdown-trigger {
+    padding: var(--space-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    width: 100%;
+    justify-content: space-between;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    min-height: 36px;
+  }
+  
+  .language-controls-bar .swap-button-top {
+    flex-shrink: 0;
+    margin: 0 var(--space-xs);
+  }
+  
+  /* Workspace adjustments for mobile */
+  .workspace {
+    border-radius: var(--radius-lg);
+    overflow: visible; /* Allow language-controls-bar to show outside workspace bounds */
+  }
+
+  /* Keep panel headers visible - we need them for options button */
+
   .translation-interface {
     grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+    position: relative;
+    margin-top: 0; /* Ensure no gap between language-controls-bar and interface */
+  }
+  
+  /* Change separator line to horizontal on mobile */
+  .translation-interface::before {
+    left: 0;
+    right: 0;
+    top: 50%;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+    transform: translateY(-50%);
   }
   
   .input-panel {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-radius: 0; /* Remove top border radius to connect with language-controls-bar */
   }
   
+  .output-panel {
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Only round bottom corners */
+  }
+  
+  /* Hide desktop swap button on mobile */
   .swap-button-center {
-    top: auto;
-    bottom: var(--space-md);
+    display: none;
   }
   
   .text-input, .text-output {
     min-height: 200px;
+  }
+  
+  /* Adjust font scaling for mobile - slightly smaller base sizes for both input and output */
+  .text-input.font-large, .text-output.font-large {
+    font-size: 1.75rem;
+  }
+  
+  .text-input.font-medium, .text-output.font-medium {
+    font-size: 1.25rem;
+  }
+  
+  .text-input.font-normal, .text-output.font-normal {
+    font-size: 1rem;
+  }
+  
+  .text-input.font-small, .text-output.font-small {
+    font-size: 0.875rem;
+  }
+  
+  /* Mobile adjustments for action buttons */
+  .output-actions {
+    gap: var(--space-sm);
+  }
+  
+  .action-button {
+    width: 36px;
+    height: 36px;
+    padding: var(--space-md);
+  }
+  
+  .text-output::before {
+    width: 6rem; /* Extra space for larger mobile buttons */
   }
   
   .language-dropdown-panel {
@@ -674,7 +1065,7 @@ body {
   }
   
   .language-dropdown-content {
-    grid-template-columns: repeat(2, max-content);
+    grid-template-columns: 1fr; /* Single column on mobile */
   }
 }
 
@@ -685,6 +1076,21 @@ body {
   
   .brand-subtitle {
     font-size: 0.8125rem;
+  }
+  
+  /* Extra small screens: make header even more compact */
+  .header {
+    padding: var(--space-sm);
+    gap: var(--space-xs);
+  }
+  
+  .header-info {
+    gap: var(--space-xs);
+  }
+  
+  /* Hide status details text on very small screens, keep only dot */
+  .status-indicator .status-text {
+    display: none;
   }
   
   .language-dropdown-panel {
@@ -975,4 +1381,70 @@ input:focus-visible {
 
 [data-theme="dark"] .action-button.disabled:hover {
   background: rgba(51, 65, 85, 0.9);
+}
+
+/* Simple Options Menu */
+.options-panel {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+  min-width: 200px;
+  z-index: 1000;
+  display: none;
+}
+
+.options-menu.open .options-panel {
+  display: block;
+}
+
+.option-item {
+  margin-bottom: 12px;
+}
+
+.option-item:last-child {
+  margin-bottom: 0;
+}
+
+.option-item label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.simple-select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: white;
+  font-size: 13px;
+  color: #333;
+}
+
+.simple-select:focus {
+  outline: none;
+  border-color: #0066cc;
+}
+
+/* Dark theme */
+[data-theme="dark"] .options-panel {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+
+[data-theme="dark"] .option-item label {
+  color: #a0aec0;
+}
+
+[data-theme="dark"] .simple-select {
+  background: #2d3748;
+  border-color: #4a5568;
+  color: #e2e8f0;
 }

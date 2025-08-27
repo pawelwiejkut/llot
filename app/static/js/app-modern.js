@@ -1,67 +1,182 @@
 /**
- * LLOT Modern JavaScript 2025 - Clean Rewrite
- * Simple, functional JavaScript without unnecessary complexity
+ * LLOT Modern JavaScript - Clean Refactored Version 2025
+ * Modular, clean, and maintainable code structure
  */
+
+// ============================================================================
+// GLOBAL CLICK AND POPUP MANAGEMENT
+// ============================================================================
+
+class GlobalClickManager {
+  constructor() {
+    this.activePopups = new Set();
+    this.clickHandlers = new Map();
+    this.init();
+  }
+  
+  init() {
+    // Single document click handler to rule them all
+    document.addEventListener('click', (e) => {
+      this.handleGlobalClick(e);
+    }, true); // Use capturing phase for priority
+    
+    // Global escape handler
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.closeAllPopups();
+      }
+    });
+  }
+  
+  handleGlobalClick(e) {
+    // Priority order for click handling:
+    // 1. Word alternatives popup
+    // 2. Options menu and custom selects
+    // 3. Language dropdowns
+    // 4. Other elements
+    
+    // Check if click is in any active popup
+    let handledByPopup = false;
+    
+    // Handle word alternatives (highest priority)
+    if (this.hasActivePopup('word-alternatives')) {
+      const popup = document.querySelector('.word-alternatives');
+      if (popup && !popup.contains(e.target)) {
+        // Click outside word alternatives - close it
+        this.closePopup('word-alternatives');
+        handledByPopup = true;
+      }
+    }
+    
+    // Custom selects have been replaced with classic HTML select elements
+    
+    // Handle dropdowns
+    const dropdown = e.target.closest('.language-dropdown, .options-menu');
+    if (dropdown) {
+      // Click inside ANY dropdown (open or closed) - let it handle
+      // Don't interfere with dropdown clicks
+      return;
+    } else {
+      // Close dropdowns if clicking outside
+      if (!e.target.closest('.language-dropdown') && 
+          !e.target.closest('.options-menu') &&
+          !e.target.closest('#output-options-dropdown') &&
+          !e.target.closest('select')) {
+        window.llotApp?.modules.dropdown.closeAllDropdowns();
+      }
+    }
+  }
+  
+  registerPopup(type, element) {
+    this.activePopups.add(type);
+  }
+  
+  hasActivePopup(type) {
+    return this.activePopups.has(type);
+  }
+  
+  closePopup(type) {
+    this.activePopups.delete(type);
+    
+    switch(type) {
+      case 'word-alternatives':
+        document.querySelectorAll('.word-alternatives').forEach(p => p.remove());
+        document.querySelectorAll('.clickable-word.selected').forEach(w => {
+          w.classList.remove('selected');
+        });
+        break;
+      case 'validation':
+        const validationPopup = document.getElementById('validation-popup');
+        if (validationPopup) validationPopup.remove();
+        break;
+    }
+  }
+  
+  closeAllPopups() {
+    // Close all active popups
+    this.activePopups.forEach(type => this.closePopup(type));
+    this.activePopups.clear();
+    
+    // Close dropdowns
+    window.llotApp?.modules.dropdown.closeAllDropdowns();
+  }
+}
+
+class PopupManager {
+  constructor(globalClickManager) {
+    this.globalClickManager = globalClickManager;
+    this.zIndexCounter = 2000;
+  }
+  
+  createPopup(type, content, position, options = {}) {
+    // Close any existing popup of this type
+    this.globalClickManager.closePopup(type);
+    
+    const popup = document.createElement('div');
+    popup.className = `${type} show`;
+    popup.innerHTML = content;
+    
+    // Set z-index
+    popup.style.zIndex = this.zIndexCounter++;
+    
+    // Position popup
+    if (position) {
+      popup.style.left = `${position.left}px`;
+      popup.style.top = `${position.top}px`;
+    }
+    
+    // Add to document
+    document.body.appendChild(popup);
+    
+    // Register with global manager
+    this.globalClickManager.registerPopup(type, popup);
+    
+    return popup;
+  }
+  
+  closePopup(type) {
+    this.globalClickManager.closePopup(type);
+  }
+}
+
+// ============================================================================
+// CORE APPLICATION CLASS
+// ============================================================================
 
 class LLOTApp {
   constructor() {
-    this.translationTimeout = null;
-    this.currentAudio = null;
-    this.history = this.loadHistory();
-    this.lastDetectedLanguage = 'en';
+    this.state = {
+      translationTimeout: null,
+      historyTimeout: null,
+      currentAudio: null,
+      history: this.loadHistory(),
+      lastDetectedLanguage: 'en'
+    };
     
     this.init();
   }
   
   init() {
-    this.initTheme();
     this.initElements();
+    
+    // Initialize global managers first
+    this.globalClickManager = new GlobalClickManager();
+    this.popupManager = new PopupManager(this.globalClickManager);
+    
+    this.modules = {
+      theme: new ThemeManager(),
+      dropdown: new DropdownManager(this.elements, this.globalClickManager),
+      translator: new TranslationManager(this.elements, this.state),
+      ui: new UIManager(this.elements, this.popupManager),
+      history: new HistoryManager(this.elements, this.state),
+      tts: new TTSManager(this.elements),
+      keyboard: new KeyboardManager(this.elements)
+    };
+    
     this.bindEvents();
-    this.initHistory();
-    this.setupAutoTranslation();
+    this.modules.ui.updateCharCount();
+    this.modules.ui.updateFontSize();
     this.startHealthMonitoring();
-    this.initLanguageDropdowns();
-    this.updateCharCount();
-    this.initializeTTS();
-  }
-  
-  initTheme() {
-    const savedTheme = localStorage.getItem('llot-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
-    
-    this.setTheme(theme);
-    
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (!localStorage.getItem('llot-theme')) {
-        this.setTheme(e.matches ? 'dark' : 'light');
-      }
-    });
-  }
-  
-  setTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('llot-theme', theme);
-    
-    const toggle = document.getElementById('theme-toggle');
-    if (toggle) {
-      const icon = toggle.querySelector('svg');
-      if (theme === 'dark') {
-        icon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
-      } else {
-        icon.innerHTML = `
-          <circle cx="12" cy="12" r="5"/>
-          <line x1="12" y1="1" x2="12" y2="3"/>
-          <line x1="12" y1="21" x2="12" y2="23"/>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-          <line x1="1" y1="12" x2="3" y2="12"/>
-          <line x1="21" y1="12" x2="23" y2="12"/>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-        `;
-      }
-    }
   }
   
   initElements() {
@@ -78,7 +193,10 @@ class LLOTApp {
       themeToggle: document.getElementById('theme-toggle'),
       swapButton: document.getElementById('swap_languages'),
       historyPanel: document.getElementById('history-panel'),
-      historyList: document.getElementById('history-list')
+      historyList: document.getElementById('history-list'),
+      outputOptionsDropdown: document.getElementById('output-options-dropdown'),
+      toneOutput: document.getElementById('tone-output'),
+      modelSelectOutput: document.getElementById('model-select-output')
     };
   }
   
@@ -86,81 +204,461 @@ class LLOTApp {
     // Theme toggle
     if (this.elements.themeToggle) {
       this.elements.themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        this.setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        this.modules.theme.toggle();
       });
     }
 
-    // Language change handlers
-    if (this.elements.sourceLang) {
-      this.elements.sourceLang.addEventListener('change', () => {
-        this.scheduleTranslation();
-      });
-    }
-
-    if (this.elements.targetLang) {
-      this.elements.targetLang.addEventListener('change', () => {
-        this.scheduleTranslation();
-        this.updateTTSButton();
-        this.updateCopyButton();
-      });
-    }
-
-    if (this.elements.tone) {
-      this.elements.tone.addEventListener('change', () => {
-        this.scheduleTranslation();
-      });
-    }
+    // Language changes
+    ['sourceLang', 'targetLang', 'tone'].forEach(key => {
+      if (this.elements[key]) {
+        this.elements[key].addEventListener('change', () => {
+          this.modules.translator.scheduleTranslation();
+          if (key === 'targetLang') {
+            this.modules.ui.updateActionButtons();
+          }
+        });
+      }
+    });
 
     // Language swap
     if (this.elements.swapButton) {
       this.elements.swapButton.addEventListener('click', () => {
-        this.swapLanguages();
+        this.modules.translator.swapLanguages();
+      });
+    }
+    
+    const swapButtonTop = document.getElementById('swap_languages_top');
+    if (swapButtonTop) {
+      swapButtonTop.addEventListener('click', () => {
+        this.modules.translator.swapLanguages();
       });
     }
 
-    // Copy button
+    // Text input
+    if (this.elements.sourceText) {
+      this.elements.sourceText.addEventListener('input', () => {
+        this.modules.ui.updateCharCount();
+        this.modules.ui.updateFontSize();
+        this.modules.translator.scheduleTranslation();
+        this.modules.ui.autoResizeTextarea();
+      });
+      
+      this.elements.sourceText.addEventListener('blur', () => {
+        if (this.state.translationTimeout) {
+          clearTimeout(this.state.translationTimeout);
+        }
+        this.modules.translator.performTranslation();
+      });
+
+      this.elements.sourceText.addEventListener('paste', () => {
+        setTimeout(() => {
+          this.modules.ui.updateCharCount();
+          this.modules.ui.updateFontSize();
+          this.modules.translator.scheduleTranslation();
+          this.modules.ui.autoResizeTextarea();
+        }, 100);
+      });
+    }
+
+    // Copy button (event delegation)
     document.addEventListener('click', (e) => {
       if (e.target.closest('#copy-btn')) {
-        this.copyToClipboard();
-      }
-    });
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'Enter' && e.shiftKey) {
-          e.preventDefault();
-          this.scheduleTranslation();
-        }
-        if (e.key === 'c' && e.shiftKey) {
-          e.preventDefault();
-          this.copyToClipboard();
-        }
+        this.modules.ui.copyToClipboard();
       }
     });
   }
 
+  async startHealthMonitoring() {
+    const checkHealth = async () => {
+      try {
+        const response = await fetch('/api/health');
+        const data = await response.json();
+        this.modules.ui.updateConnectionStatus(data);
+      } catch (error) {
+        console.error('Health check failed:', error);
+        this.modules.ui.updateConnectionStatus({ overall: 'error' });
+      }
+    };
+    
+    checkHealth();
+    setInterval(checkHealth, 30000);
+  }
+
+  loadHistory() {
+    try {
+      return JSON.parse(localStorage.getItem('llot-history') || '[]').slice(0, 10);
+    } catch {
+      return [];
+    }
+  }
+}
+
+// ============================================================================
+// THEME MANAGEMENT MODULE
+// ============================================================================
+
+class ThemeManager {
+  constructor() {
+    this.init();
+  }
+  
+  init() {
+    const savedTheme = localStorage.getItem('llot-theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    
+    this.setTheme(theme);
+    
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('llot-theme')) {
+        this.setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+  }
+  
+  setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('llot-theme', theme);
+    this.updateThemeIcon(theme);
+  }
+  
+  toggle() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    this.setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+  }
+  
+  updateThemeIcon(theme) {
+    const toggle = document.getElementById('theme-toggle');
+    if (!toggle) return;
+    
+    const icon = toggle.querySelector('svg');
+    if (theme === 'dark') {
+      icon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+    } else {
+      icon.innerHTML = `
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      `;
+    }
+  }
+}
+
+// ============================================================================
+// DROPDOWN MANAGEMENT MODULE
+// ============================================================================
+
+class DropdownManager {
+  constructor(elements, globalClickManager) {
+    this.elements = elements;
+    this.globalClickManager = globalClickManager;
+    this.languages = this.getLanguages();
+    this.init();
+  }
+  
+  init() {
+    // Initialize language dropdowns
+    this.initDropdown('source-lang-dropdown', 'source_lang', this.languages, 'auto');
+    this.initDropdown('source-lang-dropdown-top', 'source_lang', this.languages, 'auto');
+    
+    const targetLanguages = this.languages.filter(lang => !lang.sourceOnly);
+    this.initDropdown('target-lang-dropdown', 'target_lang', targetLanguages, 'de');
+    this.initDropdown('target-lang-dropdown-top', 'target_lang', targetLanguages, 'de');
+    
+    // Initialize options dropdown - SIMPLIFIED VERSION
+    this.initOptionsDropdown();
+    
+    // Global click handler to close dropdowns
+    this.initGlobalHandlers();
+  }
+  
+  initDropdown(dropdownId, selectId, languages, defaultValue) {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) return;
+
+    const trigger = dropdown.querySelector('.language-dropdown-trigger');
+    const content = dropdown.querySelector('.language-dropdown-content');
+    const searchInput = dropdown.querySelector('.language-dropdown-search input');
+    const hiddenSelect = document.getElementById(selectId);
+    const selectedSpan = trigger?.querySelector('.selected-language');
+
+    if (!trigger || !content || !hiddenSelect || !selectedSpan) return;
+
+    // Populate dropdown
+    const populateDropdown = (langs = languages) => {
+      content.innerHTML = '';
+      
+      langs.forEach(lang => {
+        const item = document.createElement('div');
+        item.className = `language-dropdown-item${hiddenSelect.value === lang.code ? ' selected' : ''}`;
+        item.setAttribute('data-code', lang.code);
+        item.innerHTML = `<span class="flag">${lang.flag}</span><span class="name">${lang.name}</span>`;
+        
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          hiddenSelect.value = lang.code;
+          selectedSpan.textContent = lang.name;
+          
+          this.synchronizeDropdowns(selectId, lang.code, lang.name);
+          this.closeDropdown(dropdown);
+          
+          hiddenSelect.dispatchEvent(new Event('change'));
+        });
+        
+        content.appendChild(item);
+      });
+    };
+
+    // Toggle dropdown
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeAllDropdowns();
+      dropdown.classList.toggle('open');
+      
+      if (dropdown.classList.contains('open')) {
+        populateDropdown();
+        setTimeout(() => searchInput?.focus(), 100);
+      }
+    });
+
+    // Search functionality
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const filtered = languages.filter(lang => 
+          lang.name.toLowerCase().includes(query) || 
+          lang.code.toLowerCase().includes(query)
+        );
+        populateDropdown(filtered);
+      });
+    }
+
+    // Setup hidden select
+    this.populateHiddenSelect(hiddenSelect, languages, defaultValue);
+    
+    // Set initial display
+    const defaultLang = languages.find(lang => lang.code === defaultValue);
+    if (defaultLang) {
+      selectedSpan.textContent = defaultLang.name;
+    }
+  }
+  
+  initOptionsDropdown() {
+    const dropdown = this.elements.outputOptionsDropdown;
+    if (!dropdown) return;
+
+    const trigger = dropdown.querySelector('.options-trigger');
+    if (!trigger) return;
+
+    // SIMPLE click handler - no complex event management
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.closeAllDropdowns();
+      dropdown.classList.toggle('open');
+    });
+
+    // Initialize classic selects - no special handling needed
+    // Model select will be populated by loadAvailableModels()
+
+    // Handle tone select changes
+    if (this.elements.toneOutput) {
+      this.elements.toneOutput.addEventListener('change', () => {
+        if (this.elements.tone) {
+          this.elements.tone.value = this.elements.toneOutput.value;
+          this.elements.tone.dispatchEvent(new Event('change'));
+        }
+      });
+    }
+
+    // Handle model select changes
+    if (this.elements.modelSelectOutput) {
+      this.elements.modelSelectOutput.addEventListener('change', (e) => {
+        this.changeModel(e.target.value);
+      });
+    }
+
+    // Load available models
+    this.loadAvailableModels();
+  }
+  
+  
+  initGlobalHandlers() {
+    // Global click handling is now managed by GlobalClickManager
+    // No need for separate document listeners here
+  }
+  
+  closeAllDropdowns() {
+    document.querySelectorAll('.language-dropdown.open, .options-menu.open').forEach(d => {
+      this.closeDropdown(d);
+    });
+  }
+  
+  closeDropdown(dropdown) {
+    dropdown.classList.remove('open');
+    const searchInput = dropdown.querySelector('.language-dropdown-search input');
+    if (searchInput) {
+      searchInput.value = '';
+    }
+  }
+  
+  synchronizeDropdowns(selectId, languageCode, languageName) {
+    const dropdownIds = [];
+    if (selectId === 'source_lang') {
+      dropdownIds.push('source-lang-dropdown', 'source-lang-dropdown-top');
+    } else if (selectId === 'target_lang') {
+      dropdownIds.push('target-lang-dropdown', 'target-lang-dropdown-top');
+    }
+    
+    dropdownIds.forEach(dropdownId => {
+      const dropdown = document.getElementById(dropdownId);
+      if (!dropdown) return;
+      
+      const selectedSpan = dropdown.querySelector('.selected-language');
+      if (selectedSpan) {
+        selectedSpan.textContent = languageName;
+      }
+      
+      const content = dropdown.querySelector('.language-dropdown-content');
+      if (content) {
+        content.querySelectorAll('.language-dropdown-item').forEach(item => {
+          item.classList.toggle('selected', item.getAttribute('data-code') === languageCode);
+        });
+      }
+    });
+  }
+  
+  populateHiddenSelect(select, languages, defaultValue) {
+    select.innerHTML = '';
+    languages.forEach(lang => {
+      const option = document.createElement('option');
+      option.value = lang.code;
+      option.textContent = lang.name;
+      option.selected = lang.code === defaultValue;
+      select.appendChild(option);
+    });
+  }
+
+  async loadAvailableModels() {
+    const modelSelect = this.elements.modelSelectOutput;
+    if (!modelSelect) return;
+    
+    try {
+      const response = await fetch('/api/health');
+      const data = await response.json();
+      
+      if (data.ollama?.models && Array.isArray(data.ollama.models)) {
+        const currentModel = modelSelect.value;
+        modelSelect.innerHTML = '';
+        
+        data.ollama.models.forEach(model => {
+          const option = document.createElement('option');
+          option.value = model;
+          option.textContent = model;
+          option.selected = model === currentModel;
+          modelSelect.appendChild(option);
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load models:', error);
+    }
+  }
+
+  async changeModel(newModel) {
+    try {
+      const response = await fetch('/api/change_model', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: newModel })
+      });
+      
+      if (response.ok) {
+        console.log('Model changed to:', newModel);
+      }
+    } catch (error) {
+      console.error('Error changing model:', error);
+    }
+  }
+  
+  getLanguages() {
+    return [
+      { code: 'auto', name: 'Detect language', flag: '🔍', sourceOnly: true },
+      { code: 'en', name: 'English', flag: '🇺🇸' },
+      { code: 'zh', name: '中文', flag: '🇨🇳' },
+      { code: 'es', name: 'Español', flag: '🇪🇸' },
+      { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
+      { code: 'ar', name: 'العربية', flag: '🇦🇪' },
+      { code: 'pt', name: 'Português', flag: '🇵🇹' },
+      { code: 'bn', name: 'বাংলা', flag: '🇧🇩' },
+      { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+      { code: 'ja', name: '日本語', flag: '🇯🇵' },
+      { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+      { code: 'ko', name: '한국어', flag: '🇰🇷' },
+      { code: 'fr', name: 'Français', flag: '🇫🇷' },
+      { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
+      { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+      { code: 'th', name: 'ไทย', flag: '🇹🇭' },
+      { code: 'pl', name: 'Polski', flag: '🇵🇱' },
+      { code: 'uk', name: 'Українська', flag: '🇺🇦' },
+      { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
+      { code: 'ro', name: 'Română', flag: '🇷🇴' },
+      { code: 'cs', name: 'Čeština', flag: '🇨🇿' },
+      { code: 'sk', name: 'Slovenčina', flag: '🇸🇰' },
+      { code: 'hu', name: 'Magyar', flag: '🇭🇺' },
+      { code: 'bg', name: 'Български', flag: '🇧🇬' },
+      { code: 'hr', name: 'Hrvatski', flag: '🇭🇷' },
+      { code: 'sl', name: 'Slovenščina', flag: '🇸🇮' },
+      { code: 'lv', name: 'Latviešu', flag: '🇱🇻' },
+      { code: 'lt', name: 'Lietuvių', flag: '🇱🇹' },
+      { code: 'et', name: 'Eesti', flag: '🇪🇪' },
+      { code: 'fi', name: 'Suomi', flag: '🇫🇮' },
+      { code: 'da', name: 'Dansk', flag: '🇩🇰' },
+      { code: 'no', name: 'Norsk', flag: '🇳🇴' },
+      { code: 'sv', name: 'Svenska', flag: '🇸🇪' },
+      { code: 'el', name: 'Ελληνικά', flag: '🇬🇷' },
+      { code: 'ca', name: 'Català', flag: '🏴󠁥󠁳󠁣󠁴󠁿' },
+      { code: 'ga', name: 'Gaeilge', flag: '🇮🇪' },
+      { code: 'mt', name: 'Malti', flag: '🇲🇹' }
+    ];
+  }
+}
+
+// ============================================================================
+// TRANSLATION MANAGEMENT MODULE  
+// ============================================================================
+
+class TranslationManager {
+  constructor(elements, state) {
+    this.elements = elements;
+    this.state = state;
+  }
+  
   scheduleTranslation() {
-    if (this.translationTimeout) {
-      clearTimeout(this.translationTimeout);
+    if (this.state.translationTimeout) {
+      clearTimeout(this.state.translationTimeout);
     }
     
     const sourceText = this.elements.sourceText?.value?.trim();
     
-    // Different delays based on content length and completion
     let delay;
     if (!sourceText) {
-      delay = 0; // Clear immediately when empty
+      delay = 0;
     } else if (sourceText.length < 10) {
-      delay = 500; // Wait longer for short text (might still be typing)
-    } else if (sourceText.endsWith(' ') || sourceText.endsWith('.') || sourceText.endsWith('!') || sourceText.endsWith('?')) {
-      delay = 150; // Quick translation after space or punctuation (word/sentence complete)
+      delay = 500;
+    } else if (sourceText.endsWith(' ') || /[.!?]$/.test(sourceText)) {
+      delay = 150;
     } else {
-      delay = 400; // Medium delay for ongoing typing
+      delay = 400;
     }
     
-    this.translationTimeout = setTimeout(() => {
+    this.state.translationTimeout = setTimeout(() => {
       this.performTranslation();
     }, delay);
   }
@@ -176,15 +674,12 @@ class LLOTApp {
     const targetLang = this.elements.targetLang?.value || 'de';
     const tone = this.elements.tone?.value || 'neutral';
 
-
     this.showLoading();
 
     try {
       const response = await fetch('/api/translate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           source_text: sourceText,
           source_lang: sourceLang,
@@ -207,11 +702,13 @@ class LLOTApp {
       this.showResult(data.translated_text);
       
       if (data.source_lang && data.source_lang !== 'auto') {
-        this.lastDetectedLanguage = data.source_lang;
+        this.state.lastDetectedLanguage = data.source_lang;
       }
 
       // Add to history
-      this.addToHistory(sourceText, data.translated_text, sourceLang, targetLang);
+      window.llotApp.modules.history.scheduleHistoryAdd(
+        sourceText, data.translated_text, sourceLang, targetLang
+      );
 
     } catch (error) {
       console.error('Translation error:', error);
@@ -222,12 +719,172 @@ class LLOTApp {
   showResult(translation) {
     if (this.elements.result) {
       this.elements.result.classList.remove('translating');
-      this.makeWordsClickable(translation);
+      window.llotApp.modules.ui.makeWordsClickable(translation);
     }
     this.hideLoading();
-    this.updateCharCount();
-    this.updateTTSButton();
-    this.updateCopyButton();
+    window.llotApp.modules.ui.updateCharCount();
+    window.llotApp.modules.ui.updateFontSize();
+    window.llotApp.modules.ui.updateActionButtons();
+  }
+
+  clearResult() {
+    if (this.elements.result) {
+      this.elements.result.textContent = '';
+    }
+    window.llotApp.modules.ui.updateFontSize();
+    this.hideLoading();
+  }
+
+  showLoading() {
+    if (this.elements.spinner) {
+      this.elements.spinner.style.display = 'block';
+    }
+    if (this.elements.statusText) {
+      this.elements.statusText.textContent = 'Translating...';
+    }
+    if (this.elements.result) {
+      this.elements.result.classList.add('translating');
+    }
+  }
+
+  hideLoading() {
+    if (this.elements.spinner) {
+      this.elements.spinner.style.display = 'none';
+    }
+    if (this.elements.statusText) {
+      this.elements.statusText.textContent = 'Ready to translate';
+    }
+    if (this.elements.result) {
+      this.elements.result.classList.remove('translating');
+    }
+  }
+
+  showError(message) {
+    if (this.elements.result) {
+      this.elements.result.textContent = `Error: ${message}`;
+      this.elements.result.style.color = 'var(--error)';
+    }
+    this.hideLoading();
+  }
+
+  swapLanguages() {
+    const sourceLang = this.elements.sourceLang?.value;
+    const targetLang = this.elements.targetLang?.value;
+    const sourceText = this.elements.sourceText?.value;
+    const resultText = this.elements.result?.textContent;
+
+    if (!sourceLang || !targetLang) return;
+
+    let actualSourceLang = sourceLang;
+    if (sourceLang === 'auto') {
+      actualSourceLang = this.state.lastDetectedLanguage || 'en';
+    }
+
+    if (targetLang === 'auto') return;
+
+    // Swap languages
+    this.elements.sourceLang.value = targetLang;
+    this.elements.targetLang.value = actualSourceLang;
+
+    // Update dropdown displays
+    window.llotApp.modules.dropdown.synchronizeDropdowns('source_lang', targetLang, 
+      window.llotApp.modules.dropdown.languages.find(l => l.code === targetLang)?.name);
+    window.llotApp.modules.dropdown.synchronizeDropdowns('target_lang', actualSourceLang,
+      window.llotApp.modules.dropdown.languages.find(l => l.code === actualSourceLang)?.name);
+
+    // Swap text if valid translation exists
+    if (resultText && resultText.trim() && !resultText.startsWith('Error:')) {
+      this.elements.sourceText.value = resultText;
+      this.elements.result.textContent = '';
+      this.elements.result.style.color = '';
+      window.llotApp.modules.ui.updateFontSize();
+      this.scheduleTranslation();
+    } else if (sourceText && sourceText.trim()) {
+      this.scheduleTranslation();
+    }
+  }
+}
+
+// ============================================================================
+// UI MANAGEMENT MODULE
+// ============================================================================
+
+class UIManager {
+  constructor(elements, popupManager) {
+    this.elements = elements;
+    this.popupManager = popupManager;
+    this.init();
+  }
+  
+  init() {
+    if (this.elements.sourceText) {
+      this.autoResizeTextarea();
+    }
+    this.updateFontSize();
+    
+    // Show initial translated text if present
+    if (window.initialTranslated) {
+      this.makeWordsClickable(window.initialTranslated);
+    }
+  }
+
+  updateCharCount() {
+    const text = this.elements.sourceText?.value || '';
+    if (this.elements.charCount) {
+      this.elements.charCount.textContent = `${text.length} characters`;
+    }
+  }
+
+  updateFontSize() {
+    if (!this.elements.sourceText || !this.elements.result) return;
+    
+    const text = this.elements.sourceText.value || '';
+    const charCount = text.length;
+    
+    // Remove existing font classes
+    const fontClasses = ['font-large', 'font-medium', 'font-normal', 'font-small'];
+    fontClasses.forEach(cls => {
+      this.elements.sourceText.classList.remove(cls);
+      this.elements.result.classList.remove(cls);
+    });
+    
+    // Determine font size
+    let fontSizeClass;
+    if (charCount === 0) {
+      fontSizeClass = 'font-large';
+    } else if (charCount < 50) {
+      fontSizeClass = 'font-large';
+    } else if (charCount < 150) {
+      fontSizeClass = 'font-medium';
+    } else if (charCount < 300) {
+      fontSizeClass = 'font-normal';
+    } else {
+      fontSizeClass = 'font-small';
+    }
+    
+    this.elements.sourceText.classList.add(fontSizeClass);
+    this.elements.result.classList.add(fontSizeClass);
+  }
+
+  autoResizeTextarea() {
+    if (!this.elements.sourceText) return;
+    
+    const textarea = this.elements.sourceText;
+    const minHeight = 400;
+    
+    const currentHeight = textarea.style.height;
+    textarea.style.height = 'auto';
+    
+    const scrollHeight = textarea.scrollHeight;
+    const newHeight = Math.max(minHeight, scrollHeight);
+    
+    textarea.style.height = `${newHeight}px`;
+    textarea.style.minHeight = `${newHeight}px`;
+    
+    if (this.elements.result) {
+      const outputPadding = 24;
+      this.elements.result.style.minHeight = `${newHeight - outputPadding}px`;
+    }
   }
 
   makeWordsClickable(translation) {
@@ -241,13 +898,9 @@ class LLOTApp {
     
     this.elements.result.innerHTML = clickableHtml;
     
-    // Always ensure TTS button after changing innerHTML
-    if (window.ttsEnabled) {
-      this.ensureTTSButton();
-      this.updateTTSButton();
-    }
-    this.ensureCopyButton();
-    this.updateCopyButton();
+    this.ensureActionButtons();
+    this.updateActionButtons();
+    this.updateFontSize();
     
     this.elements.result.querySelectorAll('.clickable-word').forEach(wordElement => {
       wordElement.addEventListener('click', (e) => {
@@ -257,20 +910,34 @@ class LLOTApp {
     });
   }
 
-  ensureTTSButton() {
-    let ttsBtn = this.elements.result.querySelector('#tts-btn');
+  ensureActionButtons() {
+    let actionsContainer = this.elements.result.querySelector('.output-actions');
     
-    if (!ttsBtn) {
-      // Check if output-actions container exists
-      let actionsContainer = this.elements.result.querySelector('.output-actions');
-      
-      if (!actionsContainer) {
-        actionsContainer = document.createElement('div');
-        actionsContainer.className = 'output-actions';
-        this.elements.result.appendChild(actionsContainer);
-      }
-      
-      ttsBtn = document.createElement('button');
+    if (!actionsContainer) {
+      actionsContainer = document.createElement('div');
+      actionsContainer.className = 'output-actions';
+      this.elements.result.appendChild(actionsContainer);
+    }
+    
+    // Ensure copy button
+    if (!actionsContainer.querySelector('#copy-btn')) {
+      const copyBtn = document.createElement('button');
+      Object.assign(copyBtn, {
+        id: 'copy-btn',
+        className: 'action-button copy-button',
+        title: 'Copy to clipboard',
+        innerHTML: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="m5 15-2-2v-4.586a1 1 0 0 1 .293-.707l5.414-5.414a1 1 0 0 1 .707-.293h4.586l2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>`
+      });
+      copyBtn.style.display = 'none';
+      actionsContainer.appendChild(copyBtn);
+    }
+    
+    // Ensure TTS button if enabled
+    if (window.ttsEnabled && !actionsContainer.querySelector('#tts-btn')) {
+      const ttsBtn = document.createElement('button');
       Object.assign(ttsBtn, {
         id: 'tts-btn',
         className: 'action-button tts-button',
@@ -282,45 +949,102 @@ class LLOTApp {
       ttsBtn.style.display = 'none';
       actionsContainer.appendChild(ttsBtn);
     }
-    
-    return ttsBtn;
   }
 
-  ensureCopyButton() {
-    let copyBtn = this.elements.result.querySelector('#copy-btn');
+  updateActionButtons() {
+    const copyBtn = document.getElementById('copy-btn');
+    const ttsBtn = document.getElementById('tts-btn');
+    const resultText = this.getPlainTextFromResult().trim();
+    const targetLang = this.elements.targetLang?.value || 'de';
     
-    if (!copyBtn) {
-      // Check if output-actions container exists
-      let actionsContainer = this.elements.result.querySelector('.output-actions');
-      
-      if (!actionsContainer) {
-        actionsContainer = document.createElement('div');
-        actionsContainer.className = 'output-actions';
-        this.elements.result.appendChild(actionsContainer);
-      }
-      
-      copyBtn = document.createElement('button');
-      Object.assign(copyBtn, {
-        id: 'copy-btn',
-        className: 'action-button copy-button',
-        title: 'Copy to clipboard',
-        innerHTML: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
-          <path d="m5 15-2-2v-4.586a1 1 0 0 1 .293-.707l5.414-5.414a1 1 0 0 1 .707-.293h4.586l2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </svg>`
-      });
-      copyBtn.style.display = 'none';
-      
-      // Add copy button first, then TTS button if it exists
-      const ttsBtn = actionsContainer.querySelector('#tts-btn');
-      if (ttsBtn) {
-        actionsContainer.insertBefore(copyBtn, ttsBtn);
-      } else {
-        actionsContainer.appendChild(copyBtn);
-      }
+    if (copyBtn) {
+      copyBtn.style.display = resultText ? 'flex' : 'none';
     }
     
-    return copyBtn;
+    if (ttsBtn && window.ttsEnabled) {
+      const supportedTtsLanguages = {
+        'en': true, 'de': true, 'fr': true, 'es': true, 'pt': true, 'nl': true,
+        'da': true, 'fi': true, 'no': true, 'pl': true, 'cs': true, 'sk': true,
+        'hu': true, 'ro': true, 'ru': true, 'ar': true, 'hi': true, 'tr': true,
+        'vi': true, 'zh': true, 'id': true
+      };
+      
+      const languageSupported = supportedTtsLanguages[targetLang];
+      ttsBtn.style.display = (resultText && languageSupported) ? 'flex' : 'none';
+    }
+  }
+
+  getPlainTextFromResult() {
+    return this.elements.result?.textContent || '';
+  }
+
+  async copyToClipboard() {
+    const copyBtn = document.getElementById('copy-btn');
+    const resultText = this.getPlainTextFromResult().trim();
+    if (!copyBtn || !resultText) return;
+
+    try {
+      await navigator.clipboard.writeText(resultText);
+      this.showCopyFeedback(copyBtn);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      this.fallbackCopy(resultText, copyBtn);
+    }
+  }
+
+  showCopyFeedback(copyBtn) {
+    copyBtn.classList.add('copied');
+    const originalSVG = copyBtn.innerHTML;
+    
+    copyBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+    
+    setTimeout(() => {
+      copyBtn.classList.remove('copied');
+      copyBtn.innerHTML = originalSVG;
+    }, 2000);
+  }
+
+  fallbackCopy(text, copyBtn) {
+    try {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      this.showCopyFeedback(copyBtn);
+    } catch (error) {
+      console.error('Fallback copy failed:', error);
+    }
+  }
+
+  updateConnectionStatus(data) {
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.querySelector('.status-indicator .status-text');
+    
+    if (!statusDot || !statusText) return;
+    
+    statusDot.classList.remove('pulse', 'error', 'warning', 'connected');
+    
+    switch (data.overall) {
+      case 'ok':
+        statusDot.classList.add('connected');
+        statusText.textContent = 'Connected';
+        break;
+      case 'warning':
+        statusDot.classList.add('warning');
+        statusText.textContent = 'No TTS';
+        break;
+      case 'error':
+        statusDot.classList.add('error');
+        statusText.textContent = 'Error';
+        break;
+      default:
+        statusDot.classList.add('error');
+        statusText.textContent = 'Unknown';
+    }
   }
 
   async handleWordClick(wordElement) {
@@ -346,30 +1070,25 @@ class LLOTApp {
     this.showWordAlternatives(wordElement, clickedWord, sourceText, currentTranslation, targetLang, tone);
   }
 
-  getPlainTextFromResult() {
-    if (!this.elements.result) return '';
-    // Get text content while preserving spaces properly
-    return this.elements.result.textContent || '';
-  }
-
   async showWordAlternatives(wordElement, clickedWord, sourceText, currentTranslation, targetLang, tone) {
-    // Create popup element
-    const popup = document.createElement('div');
-    popup.className = 'word-alternatives show';
-    popup.innerHTML = `
+    // Position near the clicked word
+    const rect = wordElement.getBoundingClientRect();
+    const position = {
+      left: rect.left,
+      top: rect.bottom + 8
+    };
+    
+    // Create popup content
+    const content = `
       <div class="alternatives-header">Alternatives for "${clickedWord}"</div>
       <div class="alternatives-loading">
         <div class="spinner"></div>
         Loading alternatives...
       </div>
     `;
-
-    // Position popup near the clicked word
-    const rect = wordElement.getBoundingClientRect();
-    popup.style.left = `${rect.left}px`;
-    popup.style.top = `${rect.bottom + 8}px`;
-
-    document.body.appendChild(popup);
+    
+    // Create popup using PopupManager
+    const popup = this.popupManager.createPopup('word-alternatives', content, position);
 
     try {
       // Fetch alternatives
@@ -423,14 +1142,7 @@ class LLOTApp {
       `;
     }
 
-    // Close popup when clicking outside
-    const closeHandler = (e) => {
-      if (!popup.contains(e.target) && !wordElement.contains(e.target)) {
-        this.closeWordAlternatives();
-        document.removeEventListener('click', closeHandler);
-      }
-    };
-    setTimeout(() => document.addEventListener('click', closeHandler), 100);
+    // Click handling is managed by GlobalClickManager
   }
 
   async replaceWord(wordElement, newWord) {
@@ -461,7 +1173,7 @@ class LLOTApp {
           current_translation: newTranslation,
           target_lang: targetLang,
           tone: tone,
-          enforced_phrases: [], // No enforced phrases for validation
+          enforced_phrases: [],
           replacements: [{
             from: originalWord,
             to: newWord
@@ -473,7 +1185,7 @@ class LLOTApp {
       
       if (data.translated && data.translated.trim() !== newTranslation.trim()) {
         // Model refined the translation - auto-accept it
-        this.makeWordsClickable(data.translated);
+        window.llotApp.modules.ui.makeWordsClickable(data.translated);
         this.hideValidationStatus();
       } else if (data.faithful === false) {
         // Translation is unfaithful - revert to original
@@ -504,101 +1216,34 @@ class LLOTApp {
         });
       });
       
-      // Ensure TTS button is restored if needed
-      if (window.ttsEnabled) {
-        this.ensureTTSButton();
-        this.updateTTSButton();
-      }
-      this.ensureCopyButton();
-      this.updateCopyButton();
+      // Ensure action buttons are restored
+      this.ensureActionButtons();
+      this.updateActionButtons();
+      this.updateFontSize();
     }
     this.clearValidatingStates();
     this.hideValidationStatus();
   }
   
   showValidationStatus(message) {
-    if (this.elements.statusText) {
-      this.elements.statusText.textContent = message;
+    const statusText = document.getElementById('status-text');
+    const spinner = document.getElementById('loading-spinner');
+    if (statusText) {
+      statusText.textContent = message;
     }
-    if (this.elements.spinner) {
-      this.elements.spinner.style.display = 'block';
+    if (spinner) {
+      spinner.style.display = 'block';
     }
-  }
-  
-  showValidationResult(message, acceptCallback, rejectCallback, keepCallback) {
-    this.closeValidationPopup(); // Close any existing popup
-    this.hideValidationStatus();
-    
-    // Create validation popup
-    const popup = document.createElement('div');
-    popup.className = 'validation-popup show';
-    popup.id = 'validation-popup';
-    
-    const buttons = [];
-    if (acceptCallback) {
-      buttons.push('<button class="validation-btn accept">Accept Suggestion</button>');
-    }
-    buttons.push('<button class="validation-btn reject">Revert to Original</button>');
-    if (keepCallback) {
-      buttons.push('<button class="validation-btn dismiss">Keep My Change</button>');
-    }
-    
-    popup.innerHTML = `
-      <div class="validation-message">${message}</div>
-      <div class="validation-actions">
-        ${buttons.join('')}
-      </div>
-    `;
-    
-    // Position popup
-    popup.style.left = '50%';
-    popup.style.top = '50%';
-    popup.style.transform = 'translate(-50%, -50%)';
-    
-    document.body.appendChild(popup);
-    
-    // Add event listeners
-    if (acceptCallback && popup.querySelector('.accept')) {
-      popup.querySelector('.accept').addEventListener('click', () => {
-        acceptCallback();
-        this.closeValidationPopup();
-      });
-    }
-    
-    if (popup.querySelector('.reject')) {
-      popup.querySelector('.reject').addEventListener('click', () => {
-        if (rejectCallback) rejectCallback();
-        this.closeValidationPopup();
-      });
-    }
-    
-    if (keepCallback && popup.querySelector('.dismiss')) {
-      popup.querySelector('.dismiss').addEventListener('click', () => {
-        keepCallback();
-        this.closeValidationPopup();
-      });
-    }
-    
-    // Auto-dismiss after 15 seconds
-    setTimeout(() => {
-      this.closeValidationPopup();
-    }, 15000);
-  }
-
-  closeValidationPopup() {
-    const popup = document.getElementById('validation-popup');
-    if (popup) {
-      popup.remove();
-    }
-    this.clearValidatingStates();
   }
   
   hideValidationStatus() {
-    if (this.elements.statusText) {
-      this.elements.statusText.textContent = 'Ready to translate';
+    const statusText = document.getElementById('status-text');
+    const spinner = document.getElementById('loading-spinner');
+    if (statusText) {
+      statusText.textContent = 'Ready to translate';
     }
-    if (this.elements.spinner) {
-      this.elements.spinner.style.display = 'none';
+    if (spinner) {
+      spinner.style.display = 'none';
     }
   }
   
@@ -609,442 +1254,40 @@ class LLOTApp {
   }
 
   closeWordAlternatives() {
-    document.querySelectorAll('.word-alternatives').forEach(popup => {
-      popup.remove();
-    });
-    document.querySelectorAll('.clickable-word.selected').forEach(word => {
-      word.classList.remove('selected');
-    });
+    this.popupManager.closePopup('word-alternatives');
   }
 
-  clearResult() {
-    if (this.elements.result) {
-      this.elements.result.textContent = '';
-    }
-    this.hideLoading();
+  closeValidationPopup() {
+    this.popupManager.closePopup('validation');
+    this.clearValidatingStates();
   }
+}
 
-  showLoading() {
-    if (this.elements.spinner) {
-      this.elements.spinner.style.display = 'block';
-    }
-    if (this.elements.statusText) {
-      this.elements.statusText.textContent = 'Translating...';
-    }
-    
-    // Add translating state to result area
-    if (this.elements.result) {
-      this.elements.result.classList.add('translating');
+// ============================================================================
+// HISTORY MANAGEMENT MODULE
+// ============================================================================
+
+class HistoryManager {
+  constructor(elements, state) {
+    this.elements = elements;
+    this.state = state;
+    this.init();
+  }
+  
+  init() {
+    if (this.state.history.length > 0) {
+      this.renderHistory();
     }
   }
 
-  hideLoading() {
-    if (this.elements.spinner) {
-      this.elements.spinner.style.display = 'none';
-    }
-    if (this.elements.statusText) {
-      this.elements.statusText.textContent = 'Ready to translate';
+  scheduleHistoryAdd(sourceText, translatedText, sourceLang, targetLang) {
+    if (this.state.historyTimeout) {
+      clearTimeout(this.state.historyTimeout);
     }
     
-    // Remove translating state
-    if (this.elements.result) {
-      this.elements.result.classList.remove('translating');
-    }
-  }
-
-  showError(message) {
-    if (this.elements.result) {
-      this.elements.result.textContent = `Error: ${message}`;
-      this.elements.result.style.color = 'var(--error)';
-    }
-    this.hideLoading();
-  }
-
-  updateCharCount() {
-    const text = this.elements.sourceText?.value || '';
-    if (this.elements.charCount) {
-      this.elements.charCount.textContent = `${text.length} characters`;
-    }
-  }
-
-  swapLanguages() {
-    const sourceLang = this.elements.sourceLang?.value;
-    const targetLang = this.elements.targetLang?.value;
-    const sourceText = this.elements.sourceText?.value;
-    const resultText = this.elements.result?.textContent;
-
-    if (!sourceLang || !targetLang) return;
-
-    // Handle auto-detect language
-    let actualSourceLang = sourceLang;
-    if (sourceLang === 'auto') {
-      actualSourceLang = this.lastDetectedLanguage || 'en';
-    }
-
-    // Don't allow swapping to auto
-    if (targetLang === 'auto') return;
-
-    // Swap languages
-    this.elements.sourceLang.value = targetLang;
-    this.elements.targetLang.value = actualSourceLang;
-
-    // Update dropdown displays
-    this.updateDropdownDisplay('source-lang-dropdown', targetLang);
-    this.updateDropdownDisplay('target-lang-dropdown', actualSourceLang);
-
-    // Swap text if there's a valid translation
-    if (resultText && resultText.trim() && !resultText.startsWith('Error:')) {
-      this.elements.sourceText.value = resultText;
-      this.elements.result.textContent = '';
-      this.elements.result.style.color = '';
-      this.scheduleTranslation();
-    } else if (sourceText && sourceText.trim()) {
-      this.scheduleTranslation();
-    }
-  }
-
-  updateDropdownDisplay(dropdownId, languageCode) {
-    const dropdown = document.getElementById(dropdownId);
-    if (!dropdown) return;
-    
-    const selectedSpan = dropdown.querySelector('.selected-language');
-    if (!selectedSpan) return;
-    
-    const languages = this.getLanguages();
-    const language = languages.find(lang => lang.code === languageCode);
-    if (language) {
-      selectedSpan.textContent = language.name;
-    }
-  }
-
-  setupAutoTranslation() {
-    if (!this.elements.sourceText) return;
-    
-    this.elements.sourceText.addEventListener('input', () => {
-      this.updateCharCount();
-      this.scheduleTranslation();
-      this.autoResizeTextarea();
-    });
-    
-    // Also translate on blur (when user clicks away)
-    this.elements.sourceText.addEventListener('blur', () => {
-      if (this.translationTimeout) {
-        clearTimeout(this.translationTimeout);
-      }
-      this.performTranslation();
-    });
-
-    this.elements.sourceText.addEventListener('paste', () => {
-      setTimeout(() => {
-        this.updateCharCount();
-        this.scheduleTranslation();
-        this.autoResizeTextarea();
-      }, 100);
-    });
-    
-    // Initial resize
-    this.autoResizeTextarea();
-  }
-
-  autoResizeTextarea() {
-    if (!this.elements.sourceText) return;
-    
-    const textarea = this.elements.sourceText;
-    const minHeight = 400; // Match CSS min-height
-    
-    // Temporarily remove height to get accurate scrollHeight
-    const currentHeight = textarea.style.height;
-    textarea.style.height = 'auto';
-    
-    // Calculate new height based on content
-    const scrollHeight = textarea.scrollHeight;
-    const newHeight = Math.max(minHeight, scrollHeight);
-    
-    // Set new height with proper box-sizing consideration
-    textarea.style.height = `${newHeight}px`;
-    textarea.style.minHeight = `${newHeight}px`;
-    
-    // Also update output panel to match height - account for padding
-    if (this.elements.result) {
-      const outputPadding = 24; // 1.5rem * 16px = 24px padding
-      this.elements.result.style.minHeight = `${newHeight - outputPadding}px`;
-    }
-  }
-
-  async checkConnectionStatus() {
-    const statusDot = document.getElementById('status-dot');
-    const statusText = document.querySelector('.status-indicator .status-text');
-    
-    if (!statusDot || !statusText) return;
-    
-    try {
-      const response = await fetch('/api/health');
-      const data = await response.json();
-      
-      // Update status based on overall status
-      statusDot.classList.remove('pulse', 'error', 'warning', 'connected');
-      
-      switch (data.overall) {
-        case 'ok':
-          statusDot.classList.add('connected');
-          statusText.textContent = 'Connected';
-          break;
-        case 'warning':
-          statusDot.classList.add('warning');
-          statusText.textContent = 'No TTS';
-          break;
-        case 'error':
-          statusDot.classList.add('error');
-          statusText.textContent = 'Error';
-          break;
-        default:
-          statusDot.classList.add('error');
-          statusText.textContent = 'Unknown';
-      }
-      
-      // Update tooltip with detailed status
-      const statusIndicator = document.getElementById('connection-status');
-      if (statusIndicator) {
-        let tooltip = 'Service Status:\n';
-        tooltip += `Ollama: ${data.ollama.status}`;
-        if (data.ollama.error) tooltip += ` (${data.ollama.error})`;
-        tooltip += `\nTTS: ${data.tts.status}`;
-        if (data.tts.error) tooltip += ` (${data.tts.error})`;
-        statusIndicator.title = tooltip;
-      }
-      
-    } catch (error) {
-      console.error('Health check failed:', error);
-      statusDot.classList.remove('pulse', 'connected', 'warning');
-      statusDot.classList.add('error');
-      statusText.textContent = 'Error';
-    }
-  }
-
-  startHealthMonitoring() {
-    // Initial check
-    this.checkConnectionStatus();
-    
-    // Check every 30 seconds
-    setInterval(() => {
-      this.checkConnectionStatus();
-    }, 30000);
-  }
-
-  getLanguages() {
-    return [
-      { code: 'auto', name: 'Detect language', flag: '🔍', sourceOnly: true },
-      
-      // Major world languages (well-supported by most LLMs)
-      { code: 'en', name: 'English', flag: '🇺🇸' },
-      { code: 'zh', name: '中文', flag: '🇨🇳' },
-      { code: 'es', name: 'Español', flag: '🇪🇸' },
-      { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
-      { code: 'ar', name: 'العربية', flag: '🇦🇪' },
-      { code: 'pt', name: 'Português', flag: '🇵🇹' },
-      { code: 'bn', name: 'বাংলা', flag: '🇧🇩' },
-      { code: 'ru', name: 'Русский', flag: '🇷🇺' },
-      { code: 'ja', name: '日本語', flag: '🇯🇵' },
-      { code: 'pa', name: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
-      { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-      { code: 'jv', name: 'Basa Jawa', flag: '🇮🇩' },
-      { code: 'ko', name: '한국어', flag: '🇰🇷' },
-      { code: 'fr', name: 'Français', flag: '🇫🇷' },
-      { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
-      { code: 'ur', name: 'اردو', flag: '🇵🇰' },
-      { code: 'ta', name: 'தமிழ்', flag: '🇮🇳' },
-      { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-      { code: 'th', name: 'ไทย', flag: '🇹🇭' },
-      { code: 'gu', name: 'ગુજરાતી', flag: '🇮🇳' },
-      { code: 'fa', name: 'فارسی', flag: '🇮🇷' },
-      { code: 'pl', name: 'Polski', flag: '🇵🇱' },
-      { code: 'uk', name: 'Українська', flag: '🇺🇦' },
-      { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
-      { code: 'ml', name: 'മലയാളം', flag: '🇮🇳' },
-      { code: 'kn', name: 'ಕನ್ನಡ', flag: '🇮🇳' },
-      { code: 'or', name: 'ଓଡିଆ', flag: '🇮🇳' },
-      { code: 'te', name: 'తెలుగు', flag: '🇮🇳' },
-      { code: 'as', name: 'অসমীয়া', flag: '🇮🇳' },
-      { code: 'bh', name: 'भोजपुरी', flag: '🇮🇳' },
-      { code: 'ne', name: 'नेपाली', flag: '🇳🇵' },
-      { code: 'si', name: 'සිංහල', flag: '🇱🇰' },
-      { code: 'ka', name: 'ქართული', flag: '🇬🇪' },
-      { code: 'am', name: 'አማርኛ', flag: '🇪🇹' },
-      { code: 'he', name: 'עברית', flag: '🇮🇱' },
-      { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
-      { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
-      { code: 'ms', name: 'Bahasa Melayu', flag: '🇲🇾' },
-      { code: 'tl', name: 'Filipino', flag: '🇵🇭' },
-      { code: 'sw', name: 'Kiswahili', flag: '🇰🇪' },
-      { code: 'ro', name: 'Română', flag: '🇷🇴' },
-      { code: 'cs', name: 'Čeština', flag: '🇨🇿' },
-      { code: 'sk', name: 'Slovenčina', flag: '🇸🇰' },
-      { code: 'hu', name: 'Magyar', flag: '🇭🇺' },
-      { code: 'bg', name: 'Български', flag: '🇧🇬' },
-      { code: 'hr', name: 'Hrvatski', flag: '🇭🇷' },
-      { code: 'sr', name: 'Српски', flag: '🇷🇸' },
-      { code: 'sl', name: 'Slovenščina', flag: '🇸🇮' },
-      { code: 'lv', name: 'Latviešu', flag: '🇱🇻' },
-      { code: 'lt', name: 'Lietuvių', flag: '🇱🇹' },
-      { code: 'et', name: 'Eesti', flag: '🇪🇪' },
-      { code: 'fi', name: 'Suomi', flag: '🇫🇮' },
-      { code: 'da', name: 'Dansk', flag: '🇩🇰' },
-      { code: 'no', name: 'Norsk', flag: '🇳🇴' },
-      { code: 'sv', name: 'Svenska', flag: '🇸🇪' },
-      { code: 'is', name: 'Íslenska', flag: '🇮🇸' },
-      { code: 'el', name: 'Ελληνικά', flag: '🇬🇷' },
-      { code: 'mk', name: 'Македонски', flag: '🇲🇰' },
-      { code: 'sq', name: 'Shqip', flag: '🇦🇱' },
-      { code: 'ca', name: 'Català', flag: '🏴󠁥󠁳󠁣󠁴󠁿' },
-      { code: 'eu', name: 'Euskera', flag: '🏴󠁥󠁳󠁰󠁶󠁿' },
-      { code: 'gl', name: 'Galego', flag: '🏴󠁥󠁳󠁧󠁡󠁿' },
-      { code: 'cy', name: 'Cymraeg', flag: '🏴󠁧󠁢󠁷󠁬󠁳󠁿' },
-      { code: 'ga', name: 'Gaeilge', flag: '🇮🇪' },
-      { code: 'mt', name: 'Malti', flag: '🇲🇹' },
-      { code: 'lb', name: 'Lëtzebuergesch', flag: '🇱🇺' }
-    ];
-  }
-
-  initLanguageDropdowns() {
-    const languages = this.getLanguages();
-
-    // Initialize source language dropdown (with auto-detect)
-    this.initDropdown('source-lang-dropdown', 'source_lang', languages, 'auto');
-    
-    // Initialize target language dropdown (without auto-detect)
-    const targetLanguages = languages.filter(lang => !lang.sourceOnly);
-    this.initDropdown('target-lang-dropdown', 'target_lang', targetLanguages, 'de');
-  }
-
-  initDropdown(dropdownId, selectId, languages, defaultValue) {
-    const dropdown = document.getElementById(dropdownId);
-    if (!dropdown) return;
-
-    const trigger = dropdown.querySelector('.language-dropdown-trigger');
-    const panel = dropdown.querySelector('.language-dropdown-panel');
-    const content = dropdown.querySelector('.language-dropdown-content');
-    const searchInput = dropdown.querySelector('.language-dropdown-search input');
-    const hiddenSelect = document.getElementById(selectId);
-    const selectedSpan = trigger.querySelector('.selected-language');
-
-    if (!trigger || !panel || !content || !hiddenSelect || !selectedSpan) return;
-
-    // Populate dropdown
-    const populateDropdown = (langs = languages) => {
-      content.innerHTML = '';
-      
-      langs.forEach(lang => {
-        const item = document.createElement('div');
-        item.className = `language-dropdown-item${hiddenSelect.value === lang.code ? ' selected' : ''}`;
-        item.setAttribute('data-code', lang.code);
-        item.innerHTML = `
-          <span class="flag">${lang.flag}</span>
-          <span class="name">${lang.name}</span>
-        `;
-        
-        item.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          
-          // Update values
-          hiddenSelect.value = lang.code;
-          selectedSpan.textContent = lang.name;
-          
-          // Update selected state
-          content.querySelectorAll('.language-dropdown-item').forEach(i => {
-            i.classList.remove('selected');
-          });
-          item.classList.add('selected');
-          
-          // Close dropdown
-          dropdown.classList.remove('open');
-          if (searchInput) {
-            searchInput.value = '';
-          }
-          populateDropdown();
-          
-          // Trigger change event
-          hiddenSelect.dispatchEvent(new Event('change'));
-        });
-        
-        content.appendChild(item);
-      });
-    };
-
-    // Open/close dropdown
-    trigger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      
-      // Close other dropdowns
-      document.querySelectorAll('.language-dropdown.open').forEach(d => {
-        if (d !== dropdown) d.classList.remove('open');
-      });
-      
-      // Toggle current dropdown
-      dropdown.classList.toggle('open');
-      
-      if (dropdown.classList.contains('open')) {
-        populateDropdown();
-        setTimeout(() => {
-          if (searchInput) searchInput.focus();
-        }, 100);
-      }
-    });
-
-    // Search functionality
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
-        const filtered = languages.filter(lang => 
-          lang.name.toLowerCase().includes(query) || 
-          lang.code.toLowerCase().includes(query)
-        );
-        populateDropdown(filtered);
-      });
-    }
-
-    // Close on outside click
-    document.addEventListener('click', (e) => {
-      if (!dropdown.contains(e.target)) {
-        dropdown.classList.remove('open');
-        if (searchInput) {
-          searchInput.value = '';
-        }
-      }
-    });
-
-    // Populate hidden select with all available languages
-    hiddenSelect.innerHTML = '';
-    languages.forEach(lang => {
-      const option = document.createElement('option');
-      option.value = lang.code;
-      option.textContent = lang.name;
-      if (lang.code === defaultValue) {
-        option.selected = true;
-      }
-      hiddenSelect.appendChild(option);
-    });
-
-    // Set initial value
-    populateDropdown();
-    const defaultLang = languages.find(lang => lang.code === defaultValue);
-    if (defaultLang) {
-      hiddenSelect.value = defaultValue;
-      selectedSpan.textContent = defaultLang.name;
-    }
-  }
-
-  // History functionality
-  loadHistory() {
-    try {
-      return JSON.parse(localStorage.getItem('llot-history') || '[]').slice(0, 10);
-    } catch {
-      return [];
-    }
-  }
-
-  saveHistory() {
-    localStorage.setItem('llot-history', JSON.stringify(this.history));
+    this.state.historyTimeout = setTimeout(() => {
+      this.addToHistory(sourceText, translatedText, sourceLang, targetLang);
+    }, 4000);
   }
 
   addToHistory(sourceText, translatedText, sourceLang, targetLang) {
@@ -1058,24 +1301,28 @@ class LLOTApp {
     };
 
     // Remove duplicate if exists
-    this.history = this.history.filter(h => h.sourceText !== entry.sourceText);
+    this.state.history = this.state.history.filter(h => h.sourceText !== entry.sourceText);
     
     // Add to beginning and limit to 10
-    this.history.unshift(entry);
-    this.history = this.history.slice(0, 10);
+    this.state.history.unshift(entry);
+    this.state.history = this.state.history.slice(0, 10);
     
     this.saveHistory();
     this.renderHistory();
   }
 
+  saveHistory() {
+    localStorage.setItem('llot-history', JSON.stringify(this.state.history));
+  }
+
   renderHistory() {
-    if (!this.elements.historyList || this.history.length === 0) return;
+    if (!this.elements.historyList || this.state.history.length === 0) return;
 
     if (this.elements.historyPanel) {
       this.elements.historyPanel.style.display = 'block';
     }
 
-    this.elements.historyList.innerHTML = this.history.map(item => `
+    this.elements.historyList.innerHTML = this.state.history.map(item => `
       <div class="history-item" data-id="${item.id}">
         <div class="history-text">
           <div class="history-source">${this.escapeHtml(item.sourceText)}</div>
@@ -1092,21 +1339,30 @@ class LLOTApp {
     this.elements.historyList.querySelectorAll('.history-item').forEach(item => {
       item.addEventListener('click', () => {
         const id = parseInt(item.dataset.id);
-        const historyItem = this.history.find(h => h.id === id);
-        if (historyItem && this.elements.sourceText) {
-          this.elements.sourceText.value = historyItem.sourceText;
-          this.elements.sourceLang.value = historyItem.sourceLang;
-          this.elements.targetLang.value = historyItem.targetLang;
-          
-          // Update dropdown displays
-          this.updateDropdownDisplay('source-lang-dropdown', historyItem.sourceLang);
-          this.updateDropdownDisplay('target-lang-dropdown', historyItem.targetLang);
-          
-          this.updateCharCount();
-          this.scheduleTranslation();
+        const historyItem = this.state.history.find(h => h.id === id);
+        if (historyItem) {
+          this.loadHistoryItem(historyItem);
         }
       });
     });
+  }
+
+  loadHistoryItem(item) {
+    if (!this.elements.sourceText) return;
+    
+    this.elements.sourceText.value = item.sourceText;
+    this.elements.sourceLang.value = item.sourceLang;
+    this.elements.targetLang.value = item.targetLang;
+    
+    // Update dropdown displays
+    window.llotApp.modules.dropdown.synchronizeDropdowns('source_lang', item.sourceLang,
+      window.llotApp.modules.dropdown.languages.find(l => l.code === item.sourceLang)?.name);
+    window.llotApp.modules.dropdown.synchronizeDropdowns('target_lang', item.targetLang,
+      window.llotApp.modules.dropdown.languages.find(l => l.code === item.targetLang)?.name);
+    
+    window.llotApp.modules.ui.updateCharCount();
+    window.llotApp.modules.ui.updateFontSize();
+    window.llotApp.modules.translator.scheduleTranslation();
   }
 
   escapeHtml(text) {
@@ -1114,27 +1370,31 @@ class LLOTApp {
     div.textContent = text;
     return div.innerHTML;
   }
+}
 
-  initHistory() {
-    if (this.history.length > 0) {
-      this.renderHistory();
-    }
-  }
-  initializeTTS() {
-    // Use event delegation to handle dynamically created TTS buttons
+// ============================================================================
+// TTS MANAGEMENT MODULE
+// ============================================================================
+
+class TTSManager {
+  constructor(elements) {
+    this.elements = elements;
     this.streamingPlayer = new StreamingTTSPlayer();
+    this.init();
+  }
+  
+  init() {
+    if (!window.ttsEnabled) return;
     
-    // Add event listener to result container using delegation
+    // Use event delegation for TTS buttons
     if (this.elements.result) {
       this.elements.result.addEventListener('click', async (e) => {
         const ttsBtn = e.target.closest('#tts-btn');
         if (!ttsBtn) return;
-      const resultText = this.getPlainTextFromResult().trim();
-      if (!resultText) {
-        return;
-      }
-      
-        // Stop current audio if playing
+        
+        const resultText = window.llotApp.modules.ui.getPlainTextFromResult().trim();
+        if (!resultText) return;
+        
         if (this.streamingPlayer.isPlaying) {
           this.streamingPlayer.stop();
           ttsBtn.classList.remove('playing');
@@ -1143,21 +1403,8 @@ class LLOTApp {
         
         try {
           ttsBtn.classList.add('loading');
-          ttsBtn.classList.remove('disabled');
-          
-          // Get target language for TTS
           const targetLang = this.elements.targetLang?.value || 'de';
-          
-          // Map language codes to supported TTS languages
-          const langMap = {
-            'en': 'en', 'de': 'de', 'fr': 'fr', 'es': 'es', 'pt': 'pt',
-            'nl': 'nl', 'da': 'da', 'fi': 'fi', 'no': 'no', 'pl': 'pl',
-            'cs': 'cs', 'sk': 'sk', 'hu': 'hu', 'ro': 'ro', 'ru': 'ru',
-            'ar': 'ar', 'hi': 'hi', 'tr': 'tr', 'vi': 'vi', 'zh': 'zh',
-            'id': 'id'
-          };
-          
-          const ttsLang = langMap[targetLang] || 'en';
+          const ttsLang = this.mapLanguageForTTS(targetLang);
           
           const audioElement = await this.streamingPlayer.playStreaming(resultText, ttsLang);
           
@@ -1171,8 +1418,7 @@ class LLOTApp {
               this.streamingPlayer.isPlaying = false;
             });
             
-            audioElement.addEventListener('error', (error) => {
-              console.error('TTS: Audio error:', error);
+            audioElement.addEventListener('error', () => {
               ttsBtn.classList.remove('playing', 'loading');
               this.streamingPlayer.isPlaying = false;
             });
@@ -1187,96 +1433,49 @@ class LLOTApp {
     }
   }
 
-  updateTTSButton() {
-    const ttsBtn = document.getElementById('tts-btn');
-    if (!ttsBtn) return;
-    
-    const resultText = this.getPlainTextFromResult().trim();
-    const targetLang = this.elements.targetLang?.value || 'de';
-    
-    // Supported TTS languages
-    const supportedTtsLanguages = {
-      'en': true, 'de': true, 'fr': true, 'es': true, 'pt': true, 'nl': true,
-      'da': true, 'fi': true, 'no': true, 'pl': true, 'cs': true, 'sk': true,
-      'hu': true, 'ro': true, 'ru': true, 'ar': true, 'hi': true, 'tr': true,
-      'vi': true, 'zh': true, 'id': true
+  mapLanguageForTTS(targetLang) {
+    const langMap = {
+      'en': 'en', 'de': 'de', 'fr': 'fr', 'es': 'es', 'pt': 'pt',
+      'nl': 'nl', 'da': 'da', 'fi': 'fi', 'no': 'no', 'pl': 'pl',
+      'cs': 'cs', 'sk': 'sk', 'hu': 'hu', 'ro': 'ro', 'ru': 'ru',
+      'ar': 'ar', 'hi': 'hi', 'tr': 'tr', 'vi': 'vi', 'zh': 'zh', 'id': 'id'
     };
-    
-    const languageSupported = supportedTtsLanguages[targetLang];
-    
-    if (resultText && languageSupported && window.ttsEnabled) {
-      ttsBtn.style.display = 'flex';
-      ttsBtn.classList.remove('disabled');
-    } else {
-      ttsBtn.style.display = 'none';
-    }
-  }
-
-  async copyToClipboard() {
-    const copyBtn = document.getElementById('copy-btn');
-    if (!copyBtn) return;
-
-    const resultText = this.getPlainTextFromResult().trim();
-    if (!resultText) return;
-
-    try {
-      await navigator.clipboard.writeText(resultText);
-      
-      // Visual feedback
-      copyBtn.classList.add('copied');
-      const originalSVG = copyBtn.innerHTML;
-      
-      // Show checkmark
-      copyBtn.innerHTML = `
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      `;
-      
-      setTimeout(() => {
-        copyBtn.classList.remove('copied');
-        copyBtn.innerHTML = originalSVG;
-      }, 2000);
-      
-    } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
-      
-      // Fallback for older browsers
-      try {
-        const textArea = document.createElement('textarea');
-        textArea.value = resultText;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
-        // Visual feedback for fallback
-        copyBtn.classList.add('copied');
-        setTimeout(() => {
-          copyBtn.classList.remove('copied');
-        }, 2000);
-        
-      } catch (fallbackError) {
-        console.error('Fallback copy failed:', fallbackError);
-      }
-    }
-  }
-
-  updateCopyButton() {
-    const copyBtn = document.getElementById('copy-btn');
-    if (!copyBtn) return;
-    
-    const resultText = this.getPlainTextFromResult().trim();
-    
-    if (resultText) {
-      copyBtn.style.display = 'flex';
-    } else {
-      copyBtn.style.display = 'none';
-    }
+    return langMap[targetLang] || 'en';
   }
 }
 
-// Progressive Streaming TTS Implementation
+// ============================================================================
+// KEYBOARD SHORTCUTS MODULE
+// ============================================================================
+
+class KeyboardManager {
+  constructor(elements) {
+    this.elements = elements;
+    this.init();
+  }
+  
+  init() {
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'Enter' && e.shiftKey) {
+          e.preventDefault();
+          window.llotApp.modules.translator.scheduleTranslation();
+        }
+        if (e.key === 'c' && e.shiftKey) {
+          e.preventDefault();
+          window.llotApp.modules.ui.copyToClipboard();
+        }
+      }
+      
+      // Escape key handling is managed by GlobalClickManager
+    });
+  }
+}
+
+// ============================================================================
+// TTS STREAMING PLAYER (Unchanged)
+// ============================================================================
+
 class StreamingTTSPlayer {
   constructor() {
     this.audioElement = null;
@@ -1301,7 +1500,6 @@ class StreamingTTSPlayer {
       }
 
       const audioBlob = await response.blob();
-      
       this.objectUrl = URL.createObjectURL(audioBlob);
       this.audioElement = new Audio(this.objectUrl);
       
@@ -1353,7 +1551,10 @@ class StreamingTTSPlayer {
   }
 }
 
-// Initialize app when DOM is ready
+// ============================================================================
+// APPLICATION INITIALIZATION
+// ============================================================================
+
 document.addEventListener('DOMContentLoaded', () => {
   window.llotApp = new LLOTApp();
 });

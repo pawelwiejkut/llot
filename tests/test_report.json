@@ -1,0 +1,143 @@
+{
+  "summary": {
+    "total_tests": 22,
+    "passed": 18,
+    "failed": 4,
+    "success_rate": 81.81818181818183,
+    "timestamp": "2025-08-27 14:25:36"
+  },
+  "detailed_results": [
+    {
+      "test": "Basic Translation",
+      "success": true,
+      "details": "Translated to: Hallo, wie geht es Ihnen heute?...",
+      "timestamp": "2025-08-27 14:23:11"
+    },
+    {
+      "test": "Empty Input Handling",
+      "success": true,
+      "details": "No translation for empty input",
+      "timestamp": "2025-08-27 14:23:14"
+    },
+    {
+      "test": "Long Text Translation",
+      "success": true,
+      "details": "Translated 254 chars to 273 chars",
+      "timestamp": "2025-08-27 14:23:24"
+    },
+    {
+      "test": "Source Language Selection",
+      "success": false,
+      "details": "Message: \nStacktrace:\n0   chromedriver                        0x00000001047243e0 cxxbridge1$str$ptr + 2829900\n1   chromedriver                        0x000000010471c6a8 cxxbridge1$str$ptr + 2797844\n2   chromedriver                        0x0000000104259fbc cxxbridge1$string$len + 90140\n3   chromedriver                        0x00000001042a11bc cxxbridge1$string$len + 381468\n4   chromedriver                        0x00000001042e2044 cxxbridge1$string$len + 647332\n5   chromedriver                        0x00000001042953f8 cxxbridge1$string$len + 332888\n6   chromedriver                        0x00000001046e8804 cxxbridge1$str$ptr + 2585200\n7   chromedriver                        0x00000001046ebad4 cxxbridge1$str$ptr + 2598208\n8   chromedriver                        0x00000001046c9dd8 cxxbridge1$str$ptr + 2459716\n9   chromedriver                        0x00000001046ec34c cxxbridge1$str$ptr + 2600376\n10  chromedriver                        0x00000001046bb664 cxxbridge1$str$ptr + 2400464\n11  chromedriver                        0x000000010470c2b0 cxxbridge1$str$ptr + 2731292\n12  chromedriver                        0x000000010470c43c cxxbridge1$str$ptr + 2731688\n13  chromedriver                        0x000000010471c2f4 cxxbridge1$str$ptr + 2796896\n14  libsystem_pthread.dylib             0x000000018a953c0c _pthread_start + 136\n15  libsystem_pthread.dylib             0x000000018a94eb80 thread_start + 8\n",
+      "timestamp": "2025-08-27 14:23:35"
+    },
+    {
+      "test": "Target Language Selection",
+      "success": false,
+      "details": "Message: \nStacktrace:\n0   chromedriver                        0x00000001047243e0 cxxbridge1$str$ptr + 2829900\n1   chromedriver                        0x000000010471c6a8 cxxbridge1$str$ptr + 2797844\n2   chromedriver                        0x0000000104259fbc cxxbridge1$string$len + 90140\n3   chromedriver                        0x00000001042a11bc cxxbridge1$string$len + 381468\n4   chromedriver                        0x00000001042e2044 cxxbridge1$string$len + 647332\n5   chromedriver                        0x00000001042953f8 cxxbridge1$string$len + 332888\n6   chromedriver                        0x00000001046e8804 cxxbridge1$str$ptr + 2585200\n7   chromedriver                        0x00000001046ebad4 cxxbridge1$str$ptr + 2598208\n8   chromedriver                        0x00000001046c9dd8 cxxbridge1$str$ptr + 2459716\n9   chromedriver                        0x00000001046ec34c cxxbridge1$str$ptr + 2600376\n10  chromedriver                        0x00000001046bb664 cxxbridge1$str$ptr + 2400464\n11  chromedriver                        0x000000010470c2b0 cxxbridge1$str$ptr + 2731292\n12  chromedriver                        0x000000010470c43c cxxbridge1$str$ptr + 2731688\n13  chromedriver                        0x000000010471c2f4 cxxbridge1$str$ptr + 2796896\n14  libsystem_pthread.dylib             0x000000018a953c0c _pthread_start + 136\n15  libsystem_pthread.dylib             0x000000018a94eb80 thread_start + 8\n",
+      "timestamp": "2025-08-27 14:23:45"
+    },
+    {
+      "test": "Language Swap",
+      "success": false,
+      "details": "Message: \nStacktrace:\n0   chromedriver                        0x00000001047243e0 cxxbridge1$str$ptr + 2829900\n1   chromedriver                        0x000000010471c6a8 cxxbridge1$str$ptr + 2797844\n2   chromedriver                        0x0000000104259fbc cxxbridge1$string$len + 90140\n3   chromedriver                        0x00000001042a11bc cxxbridge1$string$len + 381468\n4   chromedriver                        0x00000001042e2044 cxxbridge1$string$len + 647332\n5   chromedriver                        0x00000001042953f8 cxxbridge1$string$len + 332888\n6   chromedriver                        0x00000001046e8804 cxxbridge1$str$ptr + 2585200\n7   chromedriver                        0x00000001046ebad4 cxxbridge1$str$ptr + 2598208\n8   chromedriver                        0x00000001046c9dd8 cxxbridge1$str$ptr + 2459716\n9   chromedriver                        0x00000001046ec34c cxxbridge1$str$ptr + 2600376\n10  chromedriver                        0x00000001046bb664 cxxbridge1$str$ptr + 2400464\n11  chromedriver                        0x000000010470c2b0 cxxbridge1$str$ptr + 2731292\n12  chromedriver                        0x000000010470c43c cxxbridge1$str$ptr + 2731688\n13  chromedriver                        0x000000010471c2f4 cxxbridge1$str$ptr + 2796896\n14  libsystem_pthread.dylib             0x000000018a953c0c _pthread_start + 136\n15  libsystem_pthread.dylib             0x000000018a94eb80 thread_start + 8\n",
+      "timestamp": "2025-08-27 14:23:55"
+    },
+    {
+      "test": "Source Text TTS",
+      "success": true,
+      "details": "TTS button clicked successfully",
+      "timestamp": "2025-08-27 14:24:03"
+    },
+    {
+      "test": "Translation Result TTS",
+      "success": true,
+      "details": "Result TTS button clicked successfully",
+      "timestamp": "2025-08-27 14:24:11"
+    },
+    {
+      "test": "Options Menu Open/Close",
+      "success": true,
+      "details": "Open: True, Close: True",
+      "timestamp": "2025-08-27 14:24:13"
+    },
+    {
+      "test": "Tone Selection",
+      "success": true,
+      "details": "Available tones: ['', '', '', '', '', '']",
+      "timestamp": "2025-08-27 14:24:14"
+    },
+    {
+      "test": "Model Selection",
+      "success": true,
+      "details": "Current: gemma3:27b, Available: 11 models",
+      "timestamp": "2025-08-27 14:24:15"
+    },
+    {
+      "test": "Translation History Creation",
+      "success": true,
+      "details": "Found 7 history items",
+      "timestamp": "2025-08-27 14:24:32"
+    },
+    {
+      "test": "History Item Click",
+      "success": true,
+      "details": "Reloaded: Second translation...",
+      "timestamp": "2025-08-27 14:24:46"
+    },
+    {
+      "test": "Mobile Layout",
+      "success": true,
+      "details": "Mobile elements: True, Translation: True",
+      "timestamp": "2025-08-27 14:24:54"
+    },
+    {
+      "test": "Tablet Layout",
+      "success": true,
+      "details": "Layout elements present: 2",
+      "timestamp": "2025-08-27 14:25:02"
+    },
+    {
+      "test": "Dark Theme Toggle",
+      "success": true,
+      "details": "Changed from light to dark",
+      "timestamp": "2025-08-27 14:25:03"
+    },
+    {
+      "test": "Keyboard Navigation",
+      "success": true,
+      "details": "Enter key triggers translation",
+      "timestamp": "2025-08-27 14:25:13"
+    },
+    {
+      "test": "Keyboard Shortcuts",
+      "success": true,
+      "details": "Tested Ctrl+Enter shortcut",
+      "timestamp": "2025-08-27 14:25:15"
+    },
+    {
+      "test": "Server Error Handling",
+      "success": true,
+      "details": "Handled long text, found 0 error elements",
+      "timestamp": "2025-08-27 14:25:27"
+    },
+    {
+      "test": "Invalid Input Handling",
+      "success": false,
+      "details": "Message: unknown error: ChromeDriver only supports characters in the BMP\n  (Session info: chrome=136.0.7094.0)\nStacktrace:\n0   chromedriver                        0x00000001047243e0 cxxbridge1$str$ptr + 2829900\n1   chromedriver                        0x000000010471c6a8 cxxbridge1$str$ptr + 2797844\n2   chromedriver                        0x0000000104259fbc cxxbridge1$string$len + 90140\n3   chromedriver                        0x00000001042d8710 cxxbridge1$string$len + 608112\n4   chromedriver                        0x000000010429bdb0 cxxbridge1$string$len + 359952\n5   chromedriver                        0x000000010429ab88 cxxbridge1$string$len + 355304\n6   chromedriver                        0x00000001042969a0 cxxbridge1$string$len + 338432\n7   chromedriver                        0x00000001042e2044 cxxbridge1$string$len + 647332\n8   chromedriver                        0x00000001042953f8 cxxbridge1$string$len + 332888\n9   chromedriver                        0x00000001046e8804 cxxbridge1$str$ptr + 2585200\n10  chromedriver                        0x00000001046ebad4 cxxbridge1$str$ptr + 2598208\n11  chromedriver                        0x00000001046c9dd8 cxxbridge1$str$ptr + 2459716\n12  chromedriver                        0x00000001046ec34c cxxbridge1$str$ptr + 2600376\n13  chromedriver                        0x00000001046bb664 cxxbridge1$str$ptr + 2400464\n14  chromedriver                        0x000000010470c2b0 cxxbridge1$str$ptr + 2731292\n15  chromedriver                        0x000000010470c43c cxxbridge1$str$ptr + 2731688\n16  chromedriver                        0x000000010471c2f4 cxxbridge1$str$ptr + 2796896\n17  libsystem_pthread.dylib             0x000000018a953c0c _pthread_start + 136\n18  libsystem_pthread.dylib             0x000000018a94eb80 thread_start + 8\n",
+      "timestamp": "2025-08-27 14:25:27"
+    },
+    {
+      "test": "Translation Speed",
+      "success": true,
+      "details": "Translation took 9.09 seconds",
+      "timestamp": "2025-08-27 14:25:36"
+    },
+    {
+      "test": "Page Load Performance",
+      "success": true,
+      "details": "Page loaded in 0.06 seconds",
+      "timestamp": "2025-08-27 14:25:36"
+    }
+  ]
+}

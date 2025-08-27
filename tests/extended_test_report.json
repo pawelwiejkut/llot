@@ -1,0 +1,161 @@
+{
+  "summary": {
+    "total_tests": 25,
+    "passed": 14,
+    "failed": 11,
+    "success_rate": 56.00000000000001,
+    "timestamp": "2025-08-27 14:34:34"
+  },
+  "detailed_results": [
+    {
+      "test": "Basic Translation",
+      "success": true,
+      "details": "Translated to: Hallo, wie geht es Ihnen heute?...",
+      "timestamp": "2025-08-27 14:32:05"
+    },
+    {
+      "test": "Empty Input Handling",
+      "success": true,
+      "details": "No translation for empty input",
+      "timestamp": "2025-08-27 14:32:08"
+    },
+    {
+      "test": "Long Text Translation",
+      "success": true,
+      "details": "Translated 489 chars to 611 chars",
+      "timestamp": "2025-08-27 14:32:18"
+    },
+    {
+      "test": "Language Change Before Translation",
+      "success": false,
+      "details": "Language selector not found",
+      "timestamp": "2025-08-27 14:32:18"
+    },
+    {
+      "test": "Language Change After Translation",
+      "success": false,
+      "details": "Target language selector not found",
+      "timestamp": "2025-08-27 14:32:24"
+    },
+    {
+      "test": "Language Swap Functionality",
+      "success": false,
+      "details": "Swap button not found",
+      "timestamp": "2025-08-27 14:32:25"
+    },
+    {
+      "test": "Language Persistence Across Translations",
+      "success": false,
+      "details": "Language selector not found",
+      "timestamp": "2025-08-27 14:32:25"
+    },
+    {
+      "test": "Source Text TTS",
+      "success": true,
+      "details": "TTS button clicked successfully",
+      "timestamp": "2025-08-27 14:32:28"
+    },
+    {
+      "test": "Translation Result TTS",
+      "success": true,
+      "details": "Result TTS button clicked successfully",
+      "timestamp": "2025-08-27 14:32:37"
+    },
+    {
+      "test": "TTS Empty Text Handling",
+      "success": false,
+      "details": "Message: element not interactable\n  (Session info: chrome=136.0.7094.0); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#elementnotinteractableexception\nStacktrace:\n0   chromedriver                        0x00000001034003e0 cxxbridge1$str$ptr + 2829900\n1   chromedriver                        0x00000001033f86a8 cxxbridge1$str$ptr + 2797844\n2   chromedriver                        0x0000000102f35e30 cxxbridge1$string$len + 89744\n3   chromedriver                        0x0000000102f7e1e0 cxxbridge1$string$len + 385600\n4   chromedriver                        0x0000000102f72f14 cxxbridge1$string$len + 339828\n5   chromedriver                        0x0000000102f729a0 cxxbridge1$string$len + 338432\n6   chromedriver                        0x0000000102fbe044 cxxbridge1$string$len + 647332\n7   chromedriver                        0x0000000102f713f8 cxxbridge1$string$len + 332888\n8   chromedriver                        0x00000001033c4804 cxxbridge1$str$ptr + 2585200\n9   chromedriver                        0x00000001033c7ad4 cxxbridge1$str$ptr + 2598208\n10  chromedriver                        0x00000001033a5dd8 cxxbridge1$str$ptr + 2459716\n11  chromedriver                        0x00000001033c834c cxxbridge1$str$ptr + 2600376\n12  chromedriver                        0x0000000103397664 cxxbridge1$str$ptr + 2400464\n13  chromedriver                        0x00000001033e82b0 cxxbridge1$str$ptr + 2731292\n14  chromedriver                        0x00000001033e843c cxxbridge1$str$ptr + 2731688\n15  chromedriver                        0x00000001033f82f4 cxxbridge1$str$ptr + 2796896\n16  libsystem_pthread.dylib             0x000000018a953c0c _pthread_start + 136\n17  libsystem_pthread.dylib             0x000000018a94eb80 thread_start + 8\n",
+      "timestamp": "2025-08-27 14:32:37"
+    },
+    {
+      "test": "TTS Long Text",
+      "success": false,
+      "details": "Message: element not interactable\n  (Session info: chrome=136.0.7094.0); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#elementnotinteractableexception\nStacktrace:\n0   chromedriver                        0x00000001034003e0 cxxbridge1$str$ptr + 2829900\n1   chromedriver                        0x00000001033f86a8 cxxbridge1$str$ptr + 2797844\n2   chromedriver                        0x0000000102f35e30 cxxbridge1$string$len + 89744\n3   chromedriver                        0x0000000102f7e1e0 cxxbridge1$string$len + 385600\n4   chromedriver                        0x0000000102f72f14 cxxbridge1$string$len + 339828\n5   chromedriver                        0x0000000102f729a0 cxxbridge1$string$len + 338432\n6   chromedriver                        0x0000000102fbe044 cxxbridge1$string$len + 647332\n7   chromedriver                        0x0000000102f713f8 cxxbridge1$string$len + 332888\n8   chromedriver                        0x00000001033c4804 cxxbridge1$str$ptr + 2585200\n9   chromedriver                        0x00000001033c7ad4 cxxbridge1$str$ptr + 2598208\n10  chromedriver                        0x00000001033a5dd8 cxxbridge1$str$ptr + 2459716\n11  chromedriver                        0x00000001033c834c cxxbridge1$str$ptr + 2600376\n12  chromedriver                        0x0000000103397664 cxxbridge1$str$ptr + 2400464\n13  chromedriver                        0x00000001033e82b0 cxxbridge1$str$ptr + 2731292\n14  chromedriver                        0x00000001033e843c cxxbridge1$str$ptr + 2731688\n15  chromedriver                        0x00000001033f82f4 cxxbridge1$str$ptr + 2796896\n16  libsystem_pthread.dylib             0x000000018a953c0c _pthread_start + 136\n17  libsystem_pthread.dylib             0x000000018a94eb80 thread_start + 8\n",
+      "timestamp": "2025-08-27 14:32:40"
+    },
+    {
+      "test": "TTS Multiple Languages",
+      "success": true,
+      "details": "Tested: English: Click failed, Spanish: No TTS button, French: OK, German: OK, Polish: OK",
+      "timestamp": "2025-08-27 14:32:53"
+    },
+    {
+      "test": "TTS Special Characters",
+      "success": true,
+      "details": "Results: [\"'Numbers: 123, 456, 7...': Error - Message: element not interactable\\n  (Session info: chrome=136.0.7094.0); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#elementnotinteractableexception\\nStacktrace:\\n0   chromedriver                        0x00000001034003e0 cxxbridge1$str$ptr + 2829900\\n1   chromedriver                        0x00000001033f86a8 cxxbridge1$str$ptr + 2797844\\n2   chromedriver                        0x0000000102f35e30 cxxbridge1$string$len + 89744\\n3   chromedriver                        0x0000000102f7e1e0 cxxbridge1$string$len + 385600\\n4   chromedriver                        0x0000000102f72f14 cxxbridge1$string$len + 339828\\n5   chromedriver                        0x0000000102f729a0 cxxbridge1$string$len + 338432\\n6   chromedriver                        0x0000000102fbe044 cxxbridge1$string$len + 647332\\n7   chromedriver                        0x0000000102f713f8 cxxbridge1$string$len + 332888\\n8   chromedriver                        0x00000001033c4804 cxxbridge1$str$ptr + 2585200\\n9   chromedriver                        0x00000001033c7ad4 cxxbridge1$str$ptr + 2598208\\n10  chromedriver                        0x00000001033a5dd8 cxxbridge1$str$ptr + 2459716\\n11  chromedriver                        0x00000001033c834c cxxbridge1$str$ptr + 2600376\\n12  chromedriver                        0x0000000103397664 cxxbridge1$str$ptr + 2400464\\n13  chromedriver                        0x00000001033e82b0 cxxbridge1$str$ptr + 2731292\\n14  chromedriver                        0x00000001033e843c cxxbridge1$str$ptr + 2731688\\n15  chromedriver                        0x00000001033f82f4 cxxbridge1$str$ptr + 2796896\\n16  libsystem_pthread.dylib             0x000000018a953c0c _pthread_start + 136\\n17  libsystem_pthread.dylib             0x000000018a94eb80 thread_start + 8\\n\", \"'Punctuation: Hello! ...': OK\", \"'Symbols: $100, 50%, ...': No TTS\", \"'Mixed: Hello 👋 World...': Error - Message: unknown error: ChromeDriver only supports characters in the BMP\\n  (Session info: chrome=136.0.7094.0)\\nStacktrace:\\n0   chromedriver                        0x00000001034003e0 cxxbridge1$str$ptr + 2829900\\n1   chromedriver                        0x00000001033f86a8 cxxbridge1$str$ptr + 2797844\\n2   chromedriver                        0x0000000102f35fbc cxxbridge1$string$len + 90140\\n3   chromedriver                        0x0000000102fb4710 cxxbridge1$string$len + 608112\\n4   chromedriver                        0x0000000102f77db0 cxxbridge1$string$len + 359952\\n5   chromedriver                        0x0000000102f76b88 cxxbridge1$string$len + 355304\\n6   chromedriver                        0x0000000102f729a0 cxxbridge1$string$len + 338432\\n7   chromedriver                        0x0000000102fbe044 cxxbridge1$string$len + 647332\\n8   chromedriver                        0x0000000102f713f8 cxxbridge1$string$len + 332888\\n9   chromedriver                        0x00000001033c4804 cxxbridge1$str$ptr + 2585200\\n10  chromedriver                        0x00000001033c7ad4 cxxbridge1$str$ptr + 2598208\\n11  chromedriver                        0x00000001033a5dd8 cxxbridge1$str$ptr + 2459716\\n12  chromedriver                        0x00000001033c834c cxxbridge1$str$ptr + 2600376\\n13  chromedriver                        0x0000000103397664 cxxbridge1$str$ptr + 2400464\\n14  chromedriver                        0x00000001033e82b0 cxxbridge1$str$ptr + 2731292\\n15  chromedriver                        0x00000001033e843c cxxbridge1$str$ptr + 2731688\\n16  chromedriver                        0x00000001033f82f4 cxxbridge1$str$ptr + 2796896\\n17  libsystem_pthread.dylib             0x000000018a953c0c _pthread_start + 136\\n18  libsystem_pthread.dylib             0x000000018a94eb80 thread_start + 8\\n\"]",
+      "timestamp": "2025-08-27 14:32:57"
+    },
+    {
+      "test": "Options Menu Open/Close",
+      "success": false,
+      "details": "Open: True (29 items), Close: False",
+      "timestamp": "2025-08-27 14:33:00"
+    },
+    {
+      "test": "All Options Menu Elements",
+      "success": true,
+      "details": "Found: selects: 2,   └ select options: 6, buttons: 1,   └ button clickable: True, inputs: 0, labels: 2, checkboxes: 0, radios: 0",
+      "timestamp": "2025-08-27 14:33:01"
+    },
+    {
+      "test": "Tone Selection",
+      "success": true,
+      "details": "Available tones: ['', '', '', '', '', '']",
+      "timestamp": "2025-08-27 14:33:02"
+    },
+    {
+      "test": "Model Selection",
+      "success": true,
+      "details": "Changed model from 'gemma3:27b' to 'qwen3:8b-16k'",
+      "timestamp": "2025-08-27 14:33:03"
+    },
+    {
+      "test": "Options Menu Settings Persistence",
+      "success": false,
+      "details": "Message: Could not locate element with visible text: ; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#nosuchelementexception\n",
+      "timestamp": "2025-08-27 14:33:04"
+    },
+    {
+      "test": "Translation History Creation",
+      "success": true,
+      "details": "Created 4 translations, found 6 history items",
+      "timestamp": "2025-08-27 14:33:27"
+    },
+    {
+      "test": "History Item Click",
+      "success": true,
+      "details": "Clicked history item, reloaded: 'First clickable history item...'",
+      "timestamp": "2025-08-27 14:33:41"
+    },
+    {
+      "test": "History Panel Visibility",
+      "success": true,
+      "details": "Initially visible: True, Finally visible: True",
+      "timestamp": "2025-08-27 14:33:59"
+    },
+    {
+      "test": "Mobile Layout",
+      "success": false,
+      "details": "Mobile elements: True, Translation: False",
+      "timestamp": "2025-08-27 14:34:05"
+    },
+    {
+      "test": "Keyboard Navigation",
+      "success": false,
+      "details": "Enter key triggers translation",
+      "timestamp": "2025-08-27 14:34:10"
+    },
+    {
+      "test": "Performance",
+      "success": false,
+      "details": "Load: 0.03s, Translation: 17.82s",
+      "timestamp": "2025-08-27 14:34:28"
+    },
+    {
+      "test": "Translation Direction Consistency",
+      "success": true,
+      "details": "Single direction test: '<think>\nOkay, the user wants m...'",
+      "timestamp": "2025-08-27 14:34:34"
+    }
+  ]
+}

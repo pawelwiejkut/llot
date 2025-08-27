@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="80" height="80" rx="20" fill="url(#bg-gradient)"/>
+  <circle cx="48" cy="48" r="28" fill="white"/>
+  <!-- Globe tilted like a real globe with stand -->
+  <g stroke="#2563eb" stroke-width="5" fill="none" opacity="0.9" transform="rotate(-15 48 48)">
+    <!-- Tilted vertical meridian -->
+    <line x1="48" y1="20" x2="48" y2="76"/>
+    <!-- Tilted horizontal equator -->
+    <line x1="20" y1="48" x2="76" y2="48"/>
+    <!-- Outer tilted circle -->
+    <circle cx="48" cy="48" r="28"/>
+  </g>
+  
+  <!-- Globe stand/base - scaled for 96px -->
+  <g stroke="white" stroke-width="5" fill="none" opacity="0.9">
+    <!-- Stand post -->
+    <line x1="48" y1="71" x2="48" y2="85"/>
+    <!-- Base -->
+    <line x1="40" y1="85" x2="56" y2="85"/>
+  </g>
+  
+  <!-- Modern highlight on tilted globe -->
+  <ellipse cx="33" cy="33" rx="6.5" ry="3" fill="white" opacity="0.4" transform="rotate(-15 33 33)"/>
+</svg>

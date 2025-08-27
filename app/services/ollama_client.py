@@ -138,6 +138,46 @@ class OllamaClient:
         except requests.RequestException as e:
             logger.error(f"Legacy API request failed: {e}")
             raise Exception(f"Ollama connection error: {e}")
+    
+    def get_available_models(self):
+        """Get list of available models from Ollama."""
+        url = f"{self.host}/api/tags"
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            
+            data = response.json()
+            if 'models' in data and isinstance(data['models'], list):
+                # Extract model names
+                return [model.get('name', '') for model in data['models'] if model.get('name')]
+            
+            return []
+        except Exception as e:
+            logger.error(f"Failed to get models from Ollama: {e}")
+            return []
+    
+    def change_model(self, new_model: str):
+        """Change the active model."""
+        # Test if model exists by trying to pull it
+        try:
+            # First check if model is in available models
+            available_models = self.get_available_models()
+            if new_model not in available_models:
+                logger.warning(f"Model {new_model} not found in available models: {available_models}")
+                # Try to pull the model
+                pull_url = f"{self.host}/api/pull"
+                pull_payload = {"name": new_model}
+                pull_response = requests.post(pull_url, json=pull_payload, timeout=300)
+                if not pull_response.ok:
+                    return False
+            
+            # Change the model
+            self.model = new_model
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to change model to {new_model}: {e}")
+            return False
 
 
 def get_ollama_client() -> OllamaClient:
