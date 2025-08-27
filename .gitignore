@@ -80,3 +80,15 @@ screenshots_before_refactor/
 
 # Temporary files
 temp_cleanup/
+*_frames/
+create_*.py
+fix_*.py
+generate_*.py
+simple_*.py
+test-*.html
+-colors
+*.tmp
+*.temp
+*.bak
+*.backup
+*.mp4
