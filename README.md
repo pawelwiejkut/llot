@@ -10,7 +10,12 @@
 
 ---
 
-## 📸 Modern Interface
+## 🎬 Live Demo
+
+![LLOT Demo](docs/images/llot-demo-optimized.gif)
+*Live demonstration: Real-time translation, language switching, tone selection, dark mode, and mobile responsiveness*
+
+## 📸 Interface Gallery
 
 ### 🎨 Light Mode
 ![LLOT Main Interface](docs/images/main-interface.png)
