@@ -426,14 +426,17 @@ class DropdownManager {
       if (dropdown.classList.contains('open')) {
         populateDropdown();
         
-        // iOS Safari specific fixes
+        // Mobile specific fixes
         if (this.isIOS()) {
           this.fixDropdownPositionIOS(dropdown);
+          document.body.classList.add('dropdown-open');
+        } else if (this.isAndroid()) {
+          this.fixDropdownPositionAndroid(dropdown);
           document.body.classList.add('dropdown-open');
         }
         
         setTimeout(() => searchInput?.focus(), 100);
-      } else if (this.isIOS()) {
+      } else if (this.isMobile()) {
         document.body.classList.remove('dropdown-open');
       }
     });
@@ -517,8 +520,8 @@ class DropdownManager {
       searchInput.value = '';
     }
     
-    // Clean up iOS fixes
-    if (this.isIOS()) {
+    // Clean up mobile fixes
+    if (this.isMobile()) {
       document.body.classList.remove('dropdown-open');
     }
   }
@@ -526,6 +529,14 @@ class DropdownManager {
   isIOS() {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+  
+  isAndroid() {
+    return /Android/.test(navigator.userAgent);
+  }
+  
+  isMobile() {
+    return this.isIOS() || this.isAndroid();
   }
   
   fixDropdownPositionIOS(dropdown) {
@@ -552,6 +563,54 @@ class DropdownManager {
     } else {
       panel.style.transform = 'none';
     }
+  }
+  
+  fixDropdownPositionAndroid(dropdown) {
+    const panel = dropdown.querySelector('.language-dropdown-panel');
+    if (!panel) return;
+    
+    const trigger = dropdown.querySelector('.language-dropdown-trigger');
+    if (!trigger) return;
+    
+    // Get trigger position
+    const triggerRect = trigger.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    
+    // Position dropdown panel for Android
+    panel.style.position = 'fixed';
+    panel.style.left = '50%';
+    panel.style.transform = 'translateX(-50%)';
+    
+    // Calculate available space below trigger
+    const spaceBelow = viewportHeight - triggerRect.bottom;
+    const spaceAbove = triggerRect.top;
+    
+    // Set max height based on available space
+    if (spaceBelow > 250) {
+      // Enough space below
+      panel.style.top = (triggerRect.bottom + 5) + 'px';
+      panel.style.maxHeight = Math.min(250, spaceBelow - 20) + 'px';
+    } else if (spaceAbove > 250) {
+      // Not enough space below, show above
+      panel.style.top = (triggerRect.top - 5) + 'px';
+      panel.style.transform = 'translateX(-50%) translateY(-100%)';
+      panel.style.maxHeight = Math.min(250, spaceAbove - 20) + 'px';
+    } else {
+      // Limited space both ways, use the bigger one
+      if (spaceBelow > spaceAbove) {
+        panel.style.top = (triggerRect.bottom + 5) + 'px';
+        panel.style.maxHeight = (spaceBelow - 20) + 'px';
+        panel.style.transform = 'translateX(-50%)';
+      } else {
+        panel.style.top = (triggerRect.top - 5) + 'px';
+        panel.style.transform = 'translateX(-50%) translateY(-100%)';
+        panel.style.maxHeight = (spaceAbove - 20) + 'px';
+      }
+    }
+    
+    // Ensure width fits viewport
+    panel.style.maxWidth = '70vw';
   }
   
   synchronizeDropdowns(selectId, languageCode, languageName) {
