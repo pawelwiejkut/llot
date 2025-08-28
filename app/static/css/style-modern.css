@@ -1035,7 +1035,7 @@ body.dropdown-open {
     padding: var(--space-sm);
     background: var(--bg-card);
     border-bottom: 1px solid var(--border);
-    min-height: 52px; /* Ensure minimum height for touch targets */
+    min-height: 56px; /* Increased to accommodate 48px button + padding */
     position: relative; /* Ensure proper stacking context */
     z-index: 10; /* Ensure it appears above other elements */
   }
@@ -1078,8 +1078,8 @@ body.dropdown-open {
   
   .language-controls-bar .swap-button-top {
     flex-shrink: 0;
-    width: 40px;
-    height: 40px;
+    width: 48px; /* Increased for Android touch target guidelines */
+    height: 48px; /* Increased for Android touch target guidelines */
     border: 1px solid var(--border);
     background: var(--bg-secondary);
     border-radius: var(--radius-md);
@@ -1201,10 +1201,11 @@ body.dropdown-open {
   
   /* Special handling for language controls bar dropdowns */
   .language-controls-bar .language-dropdown-panel {
-    min-width: min(250px, 75vw); /* Smaller for top bar */
-    max-width: 75vw; /* More constrained in the top bar */
+    min-width: min(240px, 70vw); /* Even smaller for Android compatibility */
+    max-width: 70vw; /* More constrained to prevent overflow */
     left: 50%; /* Center align */
     transform: translateX(-50%); /* Perfect centering */
+    box-sizing: border-box; /* Include padding/border in width calculation */
   }
   
   .language-dropdown-content {
@@ -1245,10 +1246,11 @@ body.dropdown-open {
   
   /* Top bar dropdowns on very small screens */
   .language-controls-bar .language-dropdown-panel {
-    min-width: min(220px, 65vw); /* Very compact for top bar */
-    max-width: 70vw; /* Tight constraint */
+    min-width: min(200px, 60vw); /* Ultra compact for small Android screens */
+    max-width: 65vw; /* Very tight constraint */
     left: 50%;
     transform: translateX(-50%);
+    box-sizing: border-box;
   }
   
   .language-dropdown-content {
