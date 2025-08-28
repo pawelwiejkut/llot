@@ -1100,7 +1100,7 @@ body.dropdown-open {
   /* Workspace adjustments for mobile */
   .workspace {
     border-radius: var(--radius-lg);
-    overflow: visible; /* Allow language-controls-bar to show outside workspace bounds */
+    overflow: hidden; /* Clip content to show rounded corners properly */
   }
 
   /* Hide panel headers on mobile to prevent overlap with language-controls-bar */
@@ -1128,7 +1128,7 @@ body.dropdown-open {
   }
   
   .input-panel {
-    border-radius: 0 0 0 0; /* Remove all border radius to connect cleanly */
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0; /* Round top corners - panel is at the top */
     border-top: none; /* Remove top border to connect seamlessly with language-controls-bar */
   }
   
