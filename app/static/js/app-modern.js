@@ -425,7 +425,16 @@ class DropdownManager {
       
       if (dropdown.classList.contains('open')) {
         populateDropdown();
+        
+        // iOS Safari specific fixes
+        if (this.isIOS()) {
+          this.fixDropdownPositionIOS(dropdown);
+          document.body.classList.add('dropdown-open');
+        }
+        
         setTimeout(() => searchInput?.focus(), 100);
+      } else if (this.isIOS()) {
+        document.body.classList.remove('dropdown-open');
       }
     });
 
@@ -506,6 +515,42 @@ class DropdownManager {
     const searchInput = dropdown.querySelector('.language-dropdown-search input');
     if (searchInput) {
       searchInput.value = '';
+    }
+    
+    // Clean up iOS fixes
+    if (this.isIOS()) {
+      document.body.classList.remove('dropdown-open');
+    }
+  }
+  
+  isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+  
+  fixDropdownPositionIOS(dropdown) {
+    const panel = dropdown.querySelector('.language-dropdown-panel');
+    if (!panel) return;
+    
+    const trigger = dropdown.querySelector('.language-dropdown-trigger');
+    if (!trigger) return;
+    
+    // Get trigger position
+    const triggerRect = trigger.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    
+    // Position dropdown panel
+    panel.style.position = 'fixed';
+    panel.style.left = triggerRect.left + 'px';
+    panel.style.top = (triggerRect.bottom + 5) + 'px';
+    panel.style.maxHeight = (viewportHeight - triggerRect.bottom - 50) + 'px';
+    
+    // If dropdown would go off screen, position it above trigger
+    if (triggerRect.bottom + 300 > viewportHeight) {
+      panel.style.top = (triggerRect.top - 5) + 'px';
+      panel.style.transform = 'translateY(-100%)';
+    } else {
+      panel.style.transform = 'none';
     }
   }
   

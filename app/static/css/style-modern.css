@@ -945,6 +945,15 @@ body {
     font-size: 16px;
   }
   
+  /* Fix dropdown positioning on iOS */
+  .language-dropdown-panel {
+    position: fixed !important;
+    z-index: 9999 !important;
+    /* Use transform for better positioning */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+  
   /* Better touch handling on iOS */
   .language-dropdown-trigger,
   .action-button,
@@ -952,6 +961,13 @@ body {
   .swap-button-center {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
     -webkit-touch-callout: none;
+  }
+  
+  /* Prevent scroll issues on iOS when dropdown opens */
+  body.dropdown-open {
+    position: fixed;
+    width: 100%;
+    overflow: hidden;
   }
 }
 
@@ -1056,9 +1072,15 @@ body {
   /* iOS keyboard handling */
   .text-input:focus {
     /* Prevent iOS from zooming when keyboard appears */
-    font-size: 16px;
+    font-size: 16px !important;
     /* Ensure input stays visible when keyboard appears */
     transform: translateZ(0);
+  }
+  
+  /* Fix for all inputs on iOS to prevent zoom */
+  .language-dropdown-search input:focus {
+    font-size: 16px !important;
+    zoom: 1;
   }
   
   /* Adjust font scaling for mobile - slightly smaller base sizes for both input and output */
