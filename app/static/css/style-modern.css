@@ -227,7 +227,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  overflow: visible; /* Allow rounded corners of child elements to be visible */
 }
 
 /* Control bar - hidden */
@@ -523,12 +523,16 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  /* Ensure external rounded corners are visible */
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg); /* Round external corners (left side) */
 }
 
 .output-panel {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  /* Ensure external rounded corners are visible */
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0; /* Round external corners (right side) */
 }
 
 /* Swap button */
@@ -630,6 +634,9 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   justify-content: start;
+  /* Ensure scrollbar doesn't overlap rounded corners */
+  padding-right: calc(var(--space-md) + 2px); /* Extra padding for scrollbar */
+  scrollbar-gutter: stable; /* Reserve space for scrollbar */
 }
 
 /* Custom scrollbar for dropdown */
@@ -867,6 +874,9 @@ body {
   overflow-y: auto;
   border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Round bottom corners to match panel */
   margin: 0 calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg)); /* Extend to panel edges */
+  /* Ensure scrollbar doesn't overlap rounded corners */
+  padding-right: 2px; /* Small padding to prevent scrollbar overlap */
+  scrollbar-gutter: stable; /* Reserve space for scrollbar */
 }
 
 .history-item {
@@ -1264,23 +1274,31 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
-/* Scrollbar */
+/* Scrollbar - Enhanced for rounded corners visibility */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px; /* Thinner scrollbar to avoid overlapping rounded corners */
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
   background: var(--bg-secondary);
+  margin: 2px; /* Add margin to prevent overlap with rounded corners */
+  border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: var(--radius-sm);
+  margin: 1px; /* Small margin to respect rounded corner areas */
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+/* For Safari - ensure scrollbars don't overlap rounded corners */
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* Selection */
