@@ -227,7 +227,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  overflow: visible; /* Allow rounded corners of child elements to be visible */
+  overflow: hidden; /* Clip content to workspace rounded corners */
 }
 
 /* Control bar - hidden */
@@ -523,16 +523,12 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  /* Ensure external rounded corners are visible */
-  border-radius: var(--radius-lg) 0 0 var(--radius-lg); /* Round external corners (left side) */
 }
 
 .output-panel {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  /* Ensure external rounded corners are visible */
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0; /* Round external corners (right side) */
 }
 
 /* Swap button */
