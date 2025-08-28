@@ -26,11 +26,11 @@
   --space-xl: 2rem;
   --space-2xl: 3rem;
   
-  /* Borders */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  /* Borders - Enhanced radius for better visibility */
+  --radius-sm: 0.5rem;   /* 8px - more visible rounded corners */
+  --radius-md: 0.75rem;  /* 12px - clear rounded appearance */
+  --radius-lg: 1rem;     /* 16px - prominent rounded corners */
+  --radius-xl: 1.25rem;  /* 20px - very rounded */
   
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -221,12 +221,12 @@ body {
   color: var(--text-primary);
 }
 
-/* Workspace */
+/* Workspace - Enhanced visibility */
 .workspace {
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  border: 2px solid var(--border); /* Thicker border for better definition */
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md); /* Stronger shadow for better visibility */
   overflow: hidden;
 }
 
@@ -523,12 +523,17 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  border: 1px solid var(--border); /* Add border for better definition */
+  border-radius: var(--radius-md) 0 0 var(--radius-md); /* Round left corners on desktop */
 }
 
 .output-panel {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  border: 1px solid var(--border); /* Add border for better definition */
+  border-radius: 0 var(--radius-md) var(--radius-md) 0; /* Round right corners on desktop */
+  border-left: none; /* Remove left border to connect with separator */
 }
 
 /* Swap button */
@@ -582,8 +587,8 @@ body {
   top: 100%;
   left: 0;
   background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border: 2px solid var(--border); /* Thicker border for better visibility */
+  border-radius: var(--radius-lg); /* Larger radius for more prominent rounded corners */
   box-shadow: var(--shadow-lg);
   z-index: 1000;
   min-width: 450px;
@@ -1124,11 +1129,17 @@ body.dropdown-open {
   .input-panel {
     border-radius: 0 0 0 0; /* Remove all border radius to connect cleanly */
     border-top: none; /* Remove top border to connect seamlessly with language-controls-bar */
+    border-left: 2px solid var(--border); /* Add left border for definition */
+    border-right: 2px solid var(--border); /* Add right border for definition */
+    border-bottom: 1px solid var(--border); /* Add bottom separator */
   }
   
   .output-panel {
-    border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Only round bottom corners */
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Round bottom corners - now more visible */
     border-top: 1px solid var(--border); /* Add separator between input and output */
+    border-left: 2px solid var(--border); /* Add left border for definition */
+    border-right: 2px solid var(--border); /* Add right border for definition */
+    border-bottom: 2px solid var(--border); /* Thicker bottom border to emphasize rounded corners */
   }
   
   /* Hide desktop swap button on mobile */
