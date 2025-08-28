@@ -955,6 +955,17 @@ body {
     -webkit-transform: translateZ(0);
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    /* Ensure dropdown stays within viewport */
+    max-width: 85vw !important;
+    box-sizing: border-box;
+  }
+  
+  /* iOS Safari specific dropdown positioning for top bar */
+  .language-controls-bar .language-dropdown-panel {
+    max-width: 75vw !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateZ(0) !important;
+    -webkit-transform: translateX(-50%) translateZ(0) !important;
   }
   
   /* Better touch handling on iOS - Enhanced */
@@ -1175,9 +1186,19 @@ body.dropdown-open {
     width: 6rem; /* Extra space for larger mobile buttons */
   }
   
+  /* Mobile dropdown panel sizing - responsive to screen width */
   .language-dropdown-panel {
-    min-width: 320px;
-    max-width: 90vw;
+    min-width: min(280px, 80vw); /* Responsive minimum width */
+    max-width: 85vw; /* Ensure it never exceeds 85% of viewport */
+    width: auto; /* Allow content-based sizing */
+  }
+  
+  /* Special handling for language controls bar dropdowns */
+  .language-controls-bar .language-dropdown-panel {
+    min-width: min(250px, 75vw); /* Smaller for top bar */
+    max-width: 75vw; /* More constrained in the top bar */
+    left: 50%; /* Center align */
+    transform: translateX(-50%); /* Perfect centering */
   }
   
   .language-dropdown-content {
@@ -1209,9 +1230,19 @@ body.dropdown-open {
     display: none;
   }
   
+  /* Very small screen dropdown sizing */
   .language-dropdown-panel {
-    min-width: 280px;
-    max-width: 95vw;
+    min-width: min(240px, 70vw); /* Even more constrained on small screens */
+    max-width: 90vw; /* Allow more space on very small screens */
+    width: auto;
+  }
+  
+  /* Top bar dropdowns on very small screens */
+  .language-controls-bar .language-dropdown-panel {
+    min-width: min(220px, 65vw); /* Very compact for top bar */
+    max-width: 70vw; /* Tight constraint */
+    left: 50%;
+    transform: translateX(-50%);
   }
   
   .language-dropdown-content {
