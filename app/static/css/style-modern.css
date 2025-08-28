@@ -933,42 +933,56 @@ body {
   color: var(--error);
 }
 
-/* iOS Safari fixes */
+/* iOS Safari fixes - Enhanced for better compatibility */
 @supports (-webkit-touch-callout: none) {
   .app-container {
     /* Fix for iOS Safari viewport height with address bar */
     min-height: -webkit-fill-available;
   }
   
-  /* Prevent iOS Safari zoom on input focus */
+  /* Prevent iOS Safari zoom on input focus - Enhanced */
   input, textarea, select {
-    font-size: 16px;
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100%;
   }
   
-  /* Fix dropdown positioning on iOS */
+  /* Fix dropdown positioning on iOS - Enhanced */
   .language-dropdown-panel {
     position: fixed !important;
     z-index: 9999 !important;
     /* Use transform for better positioning */
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
   
-  /* Better touch handling on iOS */
+  /* Better touch handling on iOS - Enhanced */
   .language-dropdown-trigger,
   .action-button,
   .theme-toggle,
   .swap-button-center {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
     -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
   
   /* Prevent scroll issues on iOS when dropdown opens */
   body.dropdown-open {
-    position: fixed;
+    position: fixed !important;
     width: 100%;
     overflow: hidden;
   }
+}
+
+/* General dropdown scroll lock (works on all devices) */
+body.dropdown-open {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
 }
 
 /* Responsive design */
@@ -998,32 +1012,72 @@ body {
   
   /* Show language controls bar on mobile like DeepL */
   .language-controls-bar {
-    min-height: 48px; /* Ensure minimum height for touch targets */
-    z-index: 10; /* Ensure it appears above other elements */
+    display: flex !important;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    min-height: 52px; /* Ensure minimum height for touch targets */
     position: relative; /* Ensure proper stacking context */
+    z-index: 10; /* Ensure it appears above other elements */
   }
   
   /* Language dropdowns in mobile bar */
   .language-controls-bar .language-dropdown {
     flex: 1;
+    min-width: 0; /* Allow flex shrinking */
   }
   
   .language-controls-bar .language-dropdown-trigger {
-    padding: var(--space-sm);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
     font-size: 0.875rem;
     font-weight: 500;
     width: 100%;
-    justify-content: space-between;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     color: var(--text-primary);
-    min-height: 36px;
+    min-height: 40px;
+    transition: all 0.15s ease;
+  }
+  
+  .language-controls-bar .language-dropdown-trigger:hover {
+    border-color: var(--border-focus);
+    background: var(--bg-card);
+  }
+  
+  .language-controls-bar .language-dropdown-trigger .selected-language {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: var(--space-sm);
   }
   
   .language-controls-bar .swap-button-top {
     flex-shrink: 0;
-    margin: 0 var(--space-xs);
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+    margin: 0;
+  }
+  
+  .language-controls-bar .swap-button-top:hover {
+    border-color: var(--border-focus);
+    background: var(--bg-card);
+    color: var(--accent);
   }
   
   /* Workspace adjustments for mobile */
@@ -1032,13 +1086,17 @@ body {
     overflow: visible; /* Allow language-controls-bar to show outside workspace bounds */
   }
 
-  /* Keep panel headers visible - we need them for options button */
+  /* Hide panel headers on mobile to prevent overlap with language-controls-bar */
+  .panels-header {
+    display: none !important; /* Hide completely on mobile to prevent overlap */
+  }
 
   .translation-interface {
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr;
     position: relative;
     margin-top: 0; /* Ensure no gap between language-controls-bar and interface */
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Only round bottom corners */
   }
   
   /* Change separator line to horizontal on mobile */
@@ -1053,11 +1111,13 @@ body {
   }
   
   .input-panel {
-    border-radius: 0; /* Remove top border radius to connect with language-controls-bar */
+    border-radius: 0 0 0 0; /* Remove all border radius to connect cleanly */
+    border-top: none; /* Remove top border to connect seamlessly with language-controls-bar */
   }
   
   .output-panel {
     border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Only round bottom corners */
+    border-top: 1px solid var(--border); /* Add separator between input and output */
   }
   
   /* Hide desktop swap button on mobile */
