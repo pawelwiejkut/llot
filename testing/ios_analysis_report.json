@@ -1,0 +1,46 @@
+{
+  "test_results": [
+    {
+      "test": "HTTP Response",
+      "passed": true,
+      "details": "Status: 200, Content length: 16556",
+      "timestamp": 1756378120.079084
+    },
+    {
+      "test": "Critical Mobile Elements",
+      "passed": true,
+      "details": "Found 3/4 critical elements",
+      "timestamp": 1756378120.079116
+    },
+    {
+      "test": "Mobile CSS Media Queries",
+      "passed": true,
+      "details": "Media queries: 3/3, iOS fixes: 5/5",
+      "timestamp": 1756378120.079257
+    },
+    {
+      "test": "Viewport Meta Tag",
+      "passed": true,
+      "details": "Viewport attrs: 4/4, iOS meta: 3/3",
+      "timestamp": 1756378120.079308
+    },
+    {
+      "test": "JavaScript iOS Detection",
+      "passed": true,
+      "details": "iOS detection: 4/4, JS fixes: 3/4",
+      "timestamp": 1756378120.0795798
+    },
+    {
+      "test": "CSS Mobile Specificity",
+      "passed": true,
+      "details": "Issues: 0, Recommendations: 3",
+      "timestamp": 1756378120.0797188
+    }
+  ],
+  "summary": {
+    "total_tests": 6,
+    "passed_tests": 6,
+    "success_rate": 1.0,
+    "timestamp": 1756378120.079823
+  }
+}
