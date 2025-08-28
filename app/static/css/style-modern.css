@@ -69,6 +69,8 @@ body {
 /* Layout - wider like DeepL */
 .app-container {
   min-height: 100vh;
+  /* iOS Safari vh fix */
+  min-height: -webkit-fill-available;
   padding: var(--space-sm);
 }
 
@@ -931,10 +933,34 @@ body {
   color: var(--error);
 }
 
+/* iOS Safari fixes */
+@supports (-webkit-touch-callout: none) {
+  .app-container {
+    /* Fix for iOS Safari viewport height with address bar */
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Prevent iOS Safari zoom on input focus */
+  input, textarea, select {
+    font-size: 16px;
+  }
+  
+  /* Better touch handling on iOS */
+  .language-dropdown-trigger,
+  .action-button,
+  .theme-toggle,
+  .swap-button-center {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    -webkit-touch-callout: none;
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .app-container {
     padding: var(--space-md);
+    /* Additional iOS viewport fix */
+    padding-bottom: env(safe-area-inset-bottom);
   }
   
   .header {
@@ -1025,6 +1051,14 @@ body {
   
   .text-input, .text-output {
     min-height: 200px;
+  }
+  
+  /* iOS keyboard handling */
+  .text-input:focus {
+    /* Prevent iOS from zooming when keyboard appears */
+    font-size: 16px;
+    /* Ensure input stays visible when keyboard appears */
+    transform: translateZ(0);
   }
   
   /* Adjust font scaling for mobile - slightly smaller base sizes for both input and output */
