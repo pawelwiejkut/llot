@@ -577,40 +577,42 @@ class DropdownManager {
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
     
-    // Position dropdown panel for Android
+    // Position dropdown panel for Android - similar to iOS but centered
     panel.style.position = 'fixed';
+    
+    // Center horizontally in viewport (not relative to trigger)
     panel.style.left = '50%';
-    panel.style.transform = 'translateX(-50%)';
+    panel.style.width = 'min(280px, 70vw)'; // Set consistent width
+    panel.style.minWidth = 'min(280px, 70vw)';
+    panel.style.maxWidth = '70vw';
     
     // Calculate available space below trigger
     const spaceBelow = viewportHeight - triggerRect.bottom;
     const spaceAbove = triggerRect.top;
     
-    // Set max height based on available space
-    if (spaceBelow > 250) {
+    // Set max height and position based on available space
+    if (spaceBelow > 200) {
       // Enough space below
       panel.style.top = (triggerRect.bottom + 5) + 'px';
-      panel.style.maxHeight = Math.min(250, spaceBelow - 20) + 'px';
-    } else if (spaceAbove > 250) {
+      panel.style.maxHeight = Math.min(300, spaceBelow - 20) + 'px';
+      panel.style.transform = 'translateX(-50%)'; // Center horizontally
+    } else if (spaceAbove > 200) {
       // Not enough space below, show above
       panel.style.top = (triggerRect.top - 5) + 'px';
-      panel.style.transform = 'translateX(-50%) translateY(-100%)';
-      panel.style.maxHeight = Math.min(250, spaceAbove - 20) + 'px';
+      panel.style.transform = 'translateX(-50%) translateY(-100%)'; // Center horizontally and position above
+      panel.style.maxHeight = Math.min(300, spaceAbove - 20) + 'px';
     } else {
       // Limited space both ways, use the bigger one
       if (spaceBelow > spaceAbove) {
         panel.style.top = (triggerRect.bottom + 5) + 'px';
-        panel.style.maxHeight = (spaceBelow - 20) + 'px';
+        panel.style.maxHeight = Math.max(150, spaceBelow - 20) + 'px';
         panel.style.transform = 'translateX(-50%)';
       } else {
         panel.style.top = (triggerRect.top - 5) + 'px';
         panel.style.transform = 'translateX(-50%) translateY(-100%)';
-        panel.style.maxHeight = (spaceAbove - 20) + 'px';
+        panel.style.maxHeight = Math.max(150, spaceAbove - 20) + 'px';
       }
     }
-    
-    // Ensure width fits viewport
-    panel.style.maxWidth = '70vw';
   }
   
   synchronizeDropdowns(selectId, languageCode, languageName) {
