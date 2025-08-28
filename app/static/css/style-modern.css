@@ -871,7 +871,7 @@ body {
   border-radius: 0 0 var(--radius-lg) var(--radius-lg); /* Round bottom corners to match panel */
   margin: 0 calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg)); /* Extend to panel edges */
   /* Ensure scrollbar doesn't overlap rounded corners */
-  padding-right: 2px; /* Small padding to prevent scrollbar overlap */
+  padding-right: 8px; /* More padding to prevent scrollbar from touching rounded corner */
   scrollbar-gutter: stable; /* Reserve space for scrollbar */
 }
 
@@ -1295,6 +1295,26 @@ input:focus-visible {
 /* For Safari - ensure scrollbars don't overlap rounded corners */
 ::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+/* History list specific scrollbar - extra small */
+.history-list::-webkit-scrollbar {
+  width: 4px; /* Very thin scrollbar for history */
+}
+
+.history-list::-webkit-scrollbar-track {
+  background: transparent; /* Invisible track */
+  margin: 4px; /* More margin from rounded corners */
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: var(--text-muted); /* Lighter color */
+  border-radius: 2px;
+  margin: 2px; /* Extra margin from edges */
+}
+
+.history-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
 
 /* Selection */
