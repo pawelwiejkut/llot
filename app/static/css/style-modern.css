@@ -313,6 +313,7 @@ body {
   position: absolute;
   left: 36px; /* Adjusted distance to match source symmetry */
   transform: none;
+  width: 180px; /* Same fixed width as source dropdown for symmetry */
 }
 
 .panel-header .language-dropdown-trigger {
@@ -1038,6 +1039,7 @@ body.dropdown-open {
     min-height: 56px; /* Increased to accommodate 48px button + padding */
     position: relative; /* Ensure proper stacking context */
     z-index: 10; /* Ensure it appears above other elements */
+    overflow: visible; /* Ensure rounded corners of dropdown buttons are not clipped */
   }
   
   /* Language dropdowns in mobile bar */

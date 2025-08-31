@@ -41,7 +41,7 @@ cd llot
 
 # Configure your Ollama server
 echo "OLLAMA_HOST=http://your-ollama-server:11434" > .env
-echo "OL_MODEL=gemma2:27b" >> .env
+echo "OL_MODEL=gemma3:27b" >> .env
 
 # Start LLOT
 docker-compose up -d
@@ -81,7 +81,7 @@ That's it! 🎉 **Your private translation service is running.**
 ## 🔧 Requirements
 
 ### Minimum System Requirements
-- **RAM**: 16GB+ (32GB+ recommended for gemma2:27b)
+- **RAM**: 16GB+ (32GB+ recommended for gemma3:27b)
 - **Storage**: 20GB+ free space for models
 - **CPU**: Any modern CPU (ARM64/AMD64 supported)
 - **Docker**: Docker and Docker Compose
@@ -125,7 +125,7 @@ services:
       - "8080:8080"
     environment:
       - OLLAMA_HOST=http://your-ollama:11434
-      - OL_MODEL=gemma2:27b
+      - OL_MODEL=gemma3:27b
     restart: unless-stopped
 ```
 
@@ -133,7 +133,7 @@ services:
 ```bash
 # Required
 OLLAMA_HOST=http://localhost:11434  # Your Ollama server
-OL_MODEL=gemma2:27b                # Translation model
+OL_MODEL=gemma3:27b                # Translation model
 
 # Optional  
 APP_PORT=8080                      # LLOT port
