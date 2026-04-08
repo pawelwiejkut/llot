@@ -489,6 +489,14 @@ class DropdownManager {
           this.elements.tone.value = this.elements.toneOutput.value;
           this.elements.tone.dispatchEvent(new Event('change'));
         }
+        localStorage.setItem('llot-tone', this.elements.toneOutput.value);
+      });
+    }
+
+    // Handle think select changes
+    if (this.elements.thinkSelect) {
+      this.elements.thinkSelect.addEventListener('change', (e) => {
+        localStorage.setItem('llot-think', e.target.value);
       });
     }
 
@@ -498,6 +506,9 @@ class DropdownManager {
         this.changeModel(e.target.value);
       });
     }
+
+    // Restore persisted settings
+    this.restoreSettings();
 
     // Load available models
     this.loadAvailableModels();
@@ -654,6 +665,19 @@ class DropdownManager {
     });
   }
 
+  restoreSettings() {
+    const tone = localStorage.getItem('llot-tone');
+    if (tone && this.elements.toneOutput) {
+      this.elements.toneOutput.value = tone;
+      if (this.elements.tone) this.elements.tone.value = tone;
+    }
+
+    const think = localStorage.getItem('llot-think');
+    if (think && this.elements.thinkSelect) {
+      this.elements.thinkSelect.value = think;
+    }
+  }
+
   async loadAvailableModels() {
     const modelSelect = this.elements.modelSelectOutput;
     if (!modelSelect) return;
@@ -663,36 +687,32 @@ class DropdownManager {
       const data = await response.json();
 
       if (data.models && Array.isArray(data.models) && data.models.length > 0) {
-        const currentModel = modelSelect.value;
+        const savedModel = localStorage.getItem('llot-model');
         modelSelect.innerHTML = '';
 
         data.models.forEach(model => {
           const option = document.createElement('option');
           option.value = model;
           option.textContent = model;
-          option.selected = model === currentModel;
+          option.selected = model === savedModel;
           modelSelect.appendChild(option);
         });
+
+        // If saved model not in list, fallback to first
+        if (savedModel && !data.models.includes(savedModel)) {
+          modelSelect.selectedIndex = 0;
+          localStorage.setItem('llot-model', modelSelect.value);
+        } else if (!savedModel) {
+          localStorage.setItem('llot-model', modelSelect.value);
+        }
       }
     } catch (error) {
       console.error('Failed to load models:', error);
     }
   }
 
-  async changeModel(newModel) {
-    try {
-      const response = await fetch('/api/change_model', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: newModel })
-      });
-      
-      if (response.ok) {
-        console.log('Model changed to:', newModel);
-      }
-    } catch (error) {
-      console.error('Error changing model:', error);
-    }
+  changeModel(newModel) {
+    localStorage.setItem('llot-model', newModel);
   }
   
   getLanguages() {
@@ -781,6 +801,7 @@ class TranslationManager {
     const targetLang = this.elements.targetLang?.value || 'de';
     const tone = this.elements.tone?.value || 'neutral';
     const think = this.elements.thinkSelect?.value === 'yes';
+    const model = this.elements.modelSelectOutput?.value || localStorage.getItem('llot-model') || '';
 
     // Cancel any in-flight request
     if (this.state.translationAbortController) {
@@ -799,7 +820,8 @@ class TranslationManager {
           source_lang: sourceLang,
           target_lang: targetLang,
           tone: tone,
-          think: think
+          think: think,
+          model: model
         }),
         signal: this.state.translationAbortController.signal
       });
@@ -1173,6 +1195,7 @@ class UIManager {
     const targetLang = this.elements.targetLang?.value || 'de';
     const tone = this.elements.tone?.value || 'neutral';
     const think = this.elements.thinkSelect?.value === 'yes';
+    const model = this.elements.modelSelectOutput?.value || localStorage.getItem('llot-model') || '';
 
     if (!sourceText || !currentTranslation || !clickedWord) return;
 
@@ -1187,10 +1210,10 @@ class UIManager {
       text: currentTranslation
     };
 
-    this.showWordAlternatives(wordElement, clickedWord, sourceText, currentTranslation, targetLang, tone, think);
+    this.showWordAlternatives(wordElement, clickedWord, sourceText, currentTranslation, targetLang, tone, think, model);
   }
 
-  async showWordAlternatives(wordElement, clickedWord, sourceText, currentTranslation, targetLang, tone, think = false) {
+  async showWordAlternatives(wordElement, clickedWord, sourceText, currentTranslation, targetLang, tone, think = false, model = '') {
     // Position near the clicked word
     const rect = wordElement.getBoundingClientRect();
     const position = {
@@ -1221,7 +1244,8 @@ class UIManager {
           clicked_word: clickedWord,
           target_lang: targetLang,
           tone: tone,
-          think: think
+          think: think,
+          model: model
         })
       });
 
@@ -1285,6 +1309,7 @@ class UIManager {
       const targetLang = this.elements.targetLang?.value || 'de';
       const tone = this.elements.tone?.value || 'neutral';
       const think = this.elements.thinkSelect?.value === 'yes';
+      const model = this.elements.modelSelectOutput?.value || localStorage.getItem('llot-model') || '';
 
       // Validate entire sentence coherence with backend
       const response = await fetch('/api/refine', {
@@ -1296,6 +1321,7 @@ class UIManager {
           target_lang: targetLang,
           tone: tone,
           think: think,
+          model: model,
           enforced_phrases: [],
           replacements: [{
             from: originalWord,

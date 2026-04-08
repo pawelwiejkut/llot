@@ -33,10 +33,11 @@ def translate():
         target_lang = (data.get("target_lang") or "de").strip()
         tone = (data.get("tone") or "neutral").strip()
         think = bool(data.get("think", False))
+        model = (data.get("model") or "").strip() or None
 
         # Perform translation
         translated, detected = translation_service.translate(
-            source_text, source_lang, target_lang, tone, think=think
+            source_text, source_lang, target_lang, tone, think=think, model=model
         )
         
         return jsonify({
@@ -83,12 +84,13 @@ def get_alternatives():
         target_lang = (data.get("target_lang") or "de").strip()
         tone = (data.get("tone") or "neutral").strip()
         think = bool(data.get("think", False))
+        model = (data.get("model") or "").strip() or None
 
         if not all([source_text, current_translation, clicked_word]):
             return jsonify({"alternatives": []})
 
         alternatives = translation_service.get_alternatives(
-            source_text, current_translation, clicked_word, target_lang, tone, think=think
+            source_text, current_translation, clicked_word, target_lang, tone, think=think, model=model
         )
         
         return jsonify({"alternatives": alternatives})
@@ -109,6 +111,7 @@ def refine_translation():
         target_lang = (data.get("target_lang") or "de").strip()
         tone = (data.get("tone") or "neutral").strip()
         think = bool(data.get("think", False))
+        model = (data.get("model") or "").strip() or None
 
         # Process enforced phrases
         enforced_phrases = [
@@ -131,7 +134,7 @@ def refine_translation():
 
         translated, faithful = translation_service.refine_translation(
             source_text, current_translation, target_lang, tone,
-            enforced_phrases, replacements, think=think
+            enforced_phrases, replacements, think=think, model=model
         )
         
         return jsonify({
@@ -349,24 +352,3 @@ def get_models():
         return jsonify({"error": str(e), "models": []}), 500
 
 
-@api_bp.route("/change_model", methods=["POST"])
-def change_model():
-    """Change the active Ollama model."""
-    try:
-        data = request.get_json() or {}
-        new_model = data.get("model")
-        
-        if not new_model:
-            return jsonify({"error": "Model name required"}), 400
-            
-        # Change model in translation service
-        success = translation_service.change_model(new_model)
-        
-        if success:
-            return jsonify({"success": True, "model": new_model})
-        else:
-            return jsonify({"error": "Failed to change model"}), 500
-            
-    except Exception as e:
-        logger.error(f"Error changing model: {e}")
-        return jsonify({"error": str(e)}), 500

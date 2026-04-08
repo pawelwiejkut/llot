@@ -88,9 +88,9 @@ class OllamaClient:
             return False
 
 
-def get_ollama_client() -> OllamaClient:
+def get_ollama_client(model: str = None) -> OllamaClient:
     """Get configured Ollama client instance."""
     return OllamaClient(
         host=current_app.config["OLLAMA_HOST"],
-        model=current_app.config["DEFAULT_MODEL"],
+        model=model or current_app.config["DEFAULT_MODEL"],
     )
