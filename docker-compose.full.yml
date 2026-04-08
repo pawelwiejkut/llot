@@ -12,7 +12,7 @@ services:
     environment:
       # Ollama configuration (local container)
       - OLLAMA_HOST=http://ollama:11434
-      - OL_MODEL=${OL_MODEL:-gemma3:27b}
+      - OL_MODEL=${OL_MODEL:-gemma4:26b}
       
       # Wyoming Piper TTS configuration (local container)
       - WYOMING_PIPER_HOST=piper

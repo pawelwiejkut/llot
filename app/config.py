@@ -13,8 +13,8 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     
     # Ollama configuration
-    OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://10.0.20.123:11434")
-    DEFAULT_MODEL = os.environ.get("OL_MODEL", "gemma3:27b")
+    OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+    DEFAULT_MODEL = os.environ.get("OL_MODEL", "gemma4:26b")
     
     # Application settings
     LISTEN_HOST = os.environ.get("APP_HOST", "0.0.0.0")

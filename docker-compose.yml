@@ -17,7 +17,7 @@ services:
       # - WYOMING_PIPER_PORT=10200
       
       # Application settings
-      - OL_MODEL=${OL_MODEL:-gemma3:27b}
+      - OL_MODEL=${OL_MODEL:-gemma4:26b}
       - APP_HOST=${APP_HOST:-0.0.0.0}
       - APP_PORT=${APP_PORT:-8080}
       - FLASK_ENV=${FLASK_ENV:-production}

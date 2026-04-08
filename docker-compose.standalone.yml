@@ -12,7 +12,7 @@ services:
     environment:
       # All .env variables - customize as needed
       - OLLAMA_HOST=${OLLAMA_HOST:-http://ollama:11434}
-      - OL_MODEL=${OL_MODEL:-gemma3:27b}
+      - OL_MODEL=${OL_MODEL:-gemma4:26b}
       - APP_HOST=${APP_HOST:-0.0.0.0}
       - APP_PORT=${APP_PORT:-8080}
       - FLASK_ENV=${FLASK_ENV:-production}

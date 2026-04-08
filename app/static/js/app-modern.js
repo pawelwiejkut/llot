@@ -147,6 +147,7 @@ class LLOTApp {
   constructor() {
     this.state = {
       translationTimeout: null,
+      translationAbortController: null,
       historyTimeout: null,
       currentAudio: null,
       history: this.loadHistory(),
@@ -196,7 +197,8 @@ class LLOTApp {
       historyList: document.getElementById('history-list'),
       outputOptionsDropdown: document.getElementById('output-options-dropdown'),
       toneOutput: document.getElementById('tone-output'),
-      modelSelectOutput: document.getElementById('model-select-output')
+      modelSelectOutput: document.getElementById('model-select-output'),
+      thinkSelect: document.getElementById('think-select')
     };
   }
   
@@ -655,16 +657,16 @@ class DropdownManager {
   async loadAvailableModels() {
     const modelSelect = this.elements.modelSelectOutput;
     if (!modelSelect) return;
-    
+
     try {
-      const response = await fetch('/api/health');
+      const response = await fetch('/api/models');
       const data = await response.json();
-      
-      if (data.ollama?.models && Array.isArray(data.ollama.models)) {
+
+      if (data.models && Array.isArray(data.models) && data.models.length > 0) {
         const currentModel = modelSelect.value;
         modelSelect.innerHTML = '';
-        
-        data.ollama.models.forEach(model => {
+
+        data.models.forEach(model => {
           const option = document.createElement('option');
           option.value = model;
           option.textContent = model;
@@ -747,20 +749,22 @@ class TranslationManager {
     if (this.state.translationTimeout) {
       clearTimeout(this.state.translationTimeout);
     }
-    
+
     const sourceText = this.elements.sourceText?.value?.trim();
-    
+
     let delay;
     if (!sourceText) {
       delay = 0;
     } else if (sourceText.length < 10) {
-      delay = 500;
-    } else if (sourceText.endsWith(' ') || /[.!?]$/.test(sourceText)) {
-      delay = 150;
+      delay = 600;
+    } else if (sourceText.length < 100) {
+      delay = /[.!?]$/.test(sourceText) ? 400 : 600;
+    } else if (sourceText.length < 300) {
+      delay = /[.!?]$/.test(sourceText) ? 700 : 900;
     } else {
-      delay = 400;
+      delay = /[.!?]$/.test(sourceText) ? 1000 : 1400;
     }
-    
+
     this.state.translationTimeout = setTimeout(() => {
       this.performTranslation();
     }, delay);
@@ -776,6 +780,13 @@ class TranslationManager {
     const sourceLang = this.elements.sourceLang?.value || 'auto';
     const targetLang = this.elements.targetLang?.value || 'de';
     const tone = this.elements.tone?.value || 'neutral';
+    const think = this.elements.thinkSelect?.value === 'yes';
+
+    // Cancel any in-flight request
+    if (this.state.translationAbortController) {
+      this.state.translationAbortController.abort();
+    }
+    this.state.translationAbortController = new AbortController();
 
     this.showLoading();
 
@@ -787,8 +798,10 @@ class TranslationManager {
           source_text: sourceText,
           source_lang: sourceLang,
           target_lang: targetLang,
-          tone: tone
-        })
+          tone: tone,
+          think: think
+        }),
+        signal: this.state.translationAbortController.signal
       });
 
       const data = await response.json();
@@ -803,7 +816,7 @@ class TranslationManager {
       }
 
       this.showResult(data.translated_text);
-      
+
       if (data.source_lang && data.source_lang !== 'auto') {
         this.state.lastDetectedLanguage = data.source_lang;
       }
@@ -814,6 +827,7 @@ class TranslationManager {
       );
 
     } catch (error) {
+      if (error.name === 'AbortError') return; // superseded by newer request
       console.error('Translation error:', error);
       this.showError('Translation failed');
     }
@@ -822,6 +836,7 @@ class TranslationManager {
   showResult(translation) {
     if (this.elements.result) {
       this.elements.result.classList.remove('translating');
+      this.elements.result.style.color = '';
       window.llotApp.modules.ui.makeWordsClickable(translation);
     }
     this.hideLoading();
@@ -833,6 +848,7 @@ class TranslationManager {
   clearResult() {
     if (this.elements.result) {
       this.elements.result.textContent = '';
+      this.elements.result.style.color = '';
     }
     window.llotApp.modules.ui.updateFontSize();
     this.hideLoading();
@@ -1156,6 +1172,7 @@ class UIManager {
     const currentTranslation = this.getPlainTextFromResult();
     const targetLang = this.elements.targetLang?.value || 'de';
     const tone = this.elements.tone?.value || 'neutral';
+    const think = this.elements.thinkSelect?.value === 'yes';
 
     if (!sourceText || !currentTranslation || !clickedWord) return;
 
@@ -1170,10 +1187,10 @@ class UIManager {
       text: currentTranslation
     };
 
-    this.showWordAlternatives(wordElement, clickedWord, sourceText, currentTranslation, targetLang, tone);
+    this.showWordAlternatives(wordElement, clickedWord, sourceText, currentTranslation, targetLang, tone, think);
   }
 
-  async showWordAlternatives(wordElement, clickedWord, sourceText, currentTranslation, targetLang, tone) {
+  async showWordAlternatives(wordElement, clickedWord, sourceText, currentTranslation, targetLang, tone, think = false) {
     // Position near the clicked word
     const rect = wordElement.getBoundingClientRect();
     const position = {
@@ -1203,7 +1220,8 @@ class UIManager {
           current_translation: currentTranslation,
           clicked_word: clickedWord,
           target_lang: targetLang,
-          tone: tone
+          tone: tone,
+          think: think
         })
       });
 
@@ -1266,7 +1284,8 @@ class UIManager {
       const sourceText = this.elements.sourceText?.value?.trim();
       const targetLang = this.elements.targetLang?.value || 'de';
       const tone = this.elements.tone?.value || 'neutral';
-      
+      const think = this.elements.thinkSelect?.value === 'yes';
+
       // Validate entire sentence coherence with backend
       const response = await fetch('/api/refine', {
         method: 'POST',
@@ -1276,6 +1295,7 @@ class UIManager {
           current_translation: newTranslation,
           target_lang: targetLang,
           tone: tone,
+          think: think,
           enforced_phrases: [],
           replacements: [{
             from: originalWord,

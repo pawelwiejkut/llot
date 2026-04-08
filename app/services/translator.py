@@ -13,7 +13,7 @@ class TranslationService:
     def __init__(self):
         self.language_detector = LanguageDetector()
     
-    def translate(self, source_text: str, source_lang: str, target_lang: str, tone: str = "neutral") -> Tuple[str, Optional[str]]:
+    def translate(self, source_text: str, source_lang: str, target_lang: str, tone: str = "neutral", think: bool = False) -> Tuple[str, Optional[str]]:
         """Translate text from source language to target language.
         
         Args:
@@ -41,7 +41,7 @@ class TranslationService:
         try:
             client = get_ollama_client()
             logger.info(f"Translation prompt: {prompt[:500]}...")
-            translated = client.chat_completion(prompt, temperature=0.0)
+            translated = client.chat_completion(prompt, temperature=0.0, think=think)
             
             if not translated:
                 raise Exception("Empty response from Ollama")
@@ -53,8 +53,8 @@ class TranslationService:
             logger.error(f"Translation failed: {e}")
             raise
     
-    def get_alternatives(self, source_text: str, current_translation: str, clicked_word: str, 
-                        target_lang: str, tone: str) -> List[str]:
+    def get_alternatives(self, source_text: str, current_translation: str, clicked_word: str,
+                        target_lang: str, tone: str, think: bool = False) -> List[str]:
         """Get alternative translations for a specific word/phrase.
         
         Args:
@@ -76,7 +76,7 @@ class TranslationService:
         
         try:
             client = get_ollama_client()
-            response = client.chat_completion(prompt, max_tokens=512, temperature=0.0)
+            response = client.chat_completion(prompt, max_tokens=512, temperature=0.0, think=think)
             
             if not response:
                 return []
@@ -88,9 +88,9 @@ class TranslationService:
             logger.warning(f"Failed to get alternatives: {e}")
             return []
     
-    def refine_translation(self, source_text: str, current_translation: str, 
+    def refine_translation(self, source_text: str, current_translation: str,
                           target_lang: str, tone: str, enforced_phrases: List[str],
-                          replacements: List[Dict[str, str]]) -> Tuple[str, bool]:
+                          replacements: List[Dict[str, str]], think: bool = False) -> Tuple[str, bool]:
         """
         Refine translation with user constraints.
         
@@ -115,7 +115,7 @@ class TranslationService:
         
         try:
             client = get_ollama_client()
-            response = client.chat_completion(prompt, max_tokens=768, temperature=0.0)
+            response = client.chat_completion(prompt, max_tokens=768, temperature=0.0, think=think)
             
             if not response:
                 return current_translation, False

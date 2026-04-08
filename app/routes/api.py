@@ -32,10 +32,11 @@ def translate():
         source_lang = (data.get("source_lang") or "auto").strip()
         target_lang = (data.get("target_lang") or "de").strip()
         tone = (data.get("tone") or "neutral").strip()
-        
+        think = bool(data.get("think", False))
+
         # Perform translation
         translated, detected = translation_service.translate(
-            source_text, source_lang, target_lang, tone
+            source_text, source_lang, target_lang, tone, think=think
         )
         
         return jsonify({
@@ -81,12 +82,13 @@ def get_alternatives():
         clicked_word = (data.get("clicked_word") or "").strip()
         target_lang = (data.get("target_lang") or "de").strip()
         tone = (data.get("tone") or "neutral").strip()
-        
+        think = bool(data.get("think", False))
+
         if not all([source_text, current_translation, clicked_word]):
             return jsonify({"alternatives": []})
-        
+
         alternatives = translation_service.get_alternatives(
-            source_text, current_translation, clicked_word, target_lang, tone
+            source_text, current_translation, clicked_word, target_lang, tone, think=think
         )
         
         return jsonify({"alternatives": alternatives})
@@ -106,13 +108,14 @@ def refine_translation():
         current_translation = (data.get("current_translation") or "").strip()
         target_lang = (data.get("target_lang") or "de").strip()
         tone = (data.get("tone") or "neutral").strip()
-        
+        think = bool(data.get("think", False))
+
         # Process enforced phrases
         enforced_phrases = [
             p.strip() for p in (data.get("enforced_phrases") or [])
             if isinstance(p, str) and p.strip()
         ]
-        
+
         # Process replacements
         raw_replacements = data.get("replacements") or []
         replacements = []
@@ -122,13 +125,13 @@ def refine_translation():
                 to_word = (r.get("to") or "").strip()
                 if from_word and to_word:
                     replacements.append({"from": from_word, "to": to_word})
-        
+
         if not source_text:
             return jsonify({"translated": ""})
-        
+
         translated, faithful = translation_service.refine_translation(
             source_text, current_translation, target_lang, tone,
-            enforced_phrases, replacements
+            enforced_phrases, replacements, think=think
         )
         
         return jsonify({
@@ -290,19 +293,10 @@ def health_check():
         # Check Ollama
         try:
             client = get_ollama_client()
-            # Try a simple API call to check if Ollama is responding
-            response = client.chat_completion("hi", temperature=0.0, max_tokens=5)
-            if not response or len(response.strip()) == 0:
-                raise Exception("Empty response from Ollama")
-            
-            # Get available models
-            try:
-                models = client.get_available_models()
-                status["ollama"]["models"] = models
-            except Exception as model_error:
-                logger.warning(f"Could not get models: {model_error}")
-                status["ollama"]["models"] = []
-                
+            models = client.get_available_models()
+            if not models:
+                raise Exception("No models available")
+            status["ollama"]["models"] = models
         except Exception as e:
             status["ollama"]["status"] = "error"
             status["ollama"]["error"] = str(e)

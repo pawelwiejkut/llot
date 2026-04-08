@@ -34,6 +34,11 @@
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+- Docker with **Docker Compose v2** (plugin) — `docker compose version`
+- A running [Ollama](https://ollama.com) server with at least one model pulled
+
 ### 🎯 Option 1: Use Your Existing Ollama Server
 ```bash
 git clone https://github.com/pawelwiejkut/llot.git
@@ -41,10 +46,10 @@ cd llot
 
 # Configure your Ollama server
 echo "OLLAMA_HOST=http://your-ollama-server:11434" > .env
-echo "OL_MODEL=gemma3:27b" >> .env
+echo "OL_MODEL=gemma4:26b" >> .env
 
 # Start LLOT
-docker-compose up -d
+docker compose up -d
 
 # Access at http://localhost:8080
 ```
@@ -55,7 +60,7 @@ git clone https://github.com/pawelwiejkut/llot.git
 cd llot
 
 # Includes Ollama + Wyoming Piper TTS + LLOT
-docker-compose -f docker-compose.full.yml up -d
+docker compose -f docker-compose.full.yml up -d
 
 # Access at http://localhost:8080
 # First run will download models (may take time)
@@ -67,30 +72,57 @@ That's it! 🎉 **Your private translation service is running.**
 
 ## 🎛️ Key Features
 
-- ✅ **Real-time translation** as you type
-- ✅ **65+ languages** with auto-detection  
+- ✅ **Real-time translation** as you type with smart debounce
+- ✅ **65+ languages** with auto-detection
 - ✅ **Multiple tones** (formal, casual, technical, etc.)
+- ✅ **Think mode** — enable/disable chain-of-thought reasoning per request
+- ✅ **Dynamic model switching** — change Ollama model on the fly
 - ✅ **Text-to-speech** for pronunciation
 - ✅ **Dark/light theme** toggle
 - ✅ **Mobile responsive** design
-- ✅ **Translation history** and alternatives
-- ✅ **Modern clean UI** inspired by professional services
+- ✅ **Translation history** and word alternatives
+
+---
+
+## 🧠 Think Mode
+
+LLOT supports **Think mode** for reasoning-capable models (e.g. `gemma4`, `qwen3`).
+
+Toggle **Think: Yes / No** in the options panel:
+
+| | Think: No | Think: Yes |
+|---|---|---|
+| Speed | ~3x faster | Slower |
+| Tokens used | Response only | Reasoning + response |
+| Best for | Short, common phrases | Complex or ambiguous text |
+
+Think mode is sent directly to Ollama's `/api/chat` endpoint via the `think` parameter. Works with any model — for models that don't support thinking, it is simply ignored.
 
 ---
 
 ## 🔧 Requirements
 
 ### Minimum System Requirements
-- **RAM**: 16GB+ (32GB+ recommended for gemma3:27b)
+- **RAM**: 16GB+ (32GB+ recommended for 27B+ models)
 - **Storage**: 20GB+ free space for models
 - **CPU**: Any modern CPU (ARM64/AMD64 supported)
-- **Docker**: Docker and Docker Compose
+- **Docker**: Docker Engine + Compose v2 plugin
 
 ### Recommended Setup
 - **GPU**: NVIDIA RTX 3090 or better for optimal performance
 - **Existing Ollama server** with translation-capable models
 - **Optional**: Wyoming Piper for text-to-speech
 - **Optional**: Reverse proxy (Nginx, Traefik) for HTTPS
+
+### Recommended Models
+
+| Model | Size | Quality | Think support |
+|---|---|---|---|
+| `gemma4:26b` | ~18 GB | Excellent | Yes |
+| `gemma4:e4b` | ~9 GB | Very good | Yes |
+| `gemma3:27b` | ~17 GB | Excellent | No |
+| `qwen3:14b` | ~9 GB | Very good | Yes |
+| `qwen2.5:14b` | ~9 GB | Good | No |
 
 ---
 
@@ -117,7 +149,6 @@ High-quality neural voices for 20+ languages via Wyoming Piper:
 
 ### Standard Setup (docker-compose.yml)
 ```yaml
-version: '3.8'
 services:
   llot:
     build: .
@@ -125,7 +156,7 @@ services:
       - "8080:8080"
     environment:
       - OLLAMA_HOST=http://your-ollama:11434
-      - OL_MODEL=gemma3:27b
+      - OL_MODEL=gemma4:26b
     restart: unless-stopped
 ```
 
@@ -133,14 +164,26 @@ services:
 ```bash
 # Required
 OLLAMA_HOST=http://localhost:11434  # Your Ollama server
-OL_MODEL=gemma3:27b                # Translation model
+OL_MODEL=gemma4:26b                # Translation model
 
-# Optional  
+# Optional
 APP_PORT=8080                      # LLOT port
 WYOMING_PIPER_HOST=localhost       # TTS server
-WYOMING_PIPER_PORT=10200          # TTS port
-DEBUG_LOGGING=false               # Debug mode
+WYOMING_PIPER_PORT=10200           # TTS port
+TRANSLATION_LANGUAGES=en,de,pl,cs  # Limit available languages
+DEBUG_LOGGING=false                # Debug mode
 ```
+
+---
+
+## 🔌 Ollama API
+
+LLOT uses Ollama's native **`/api/chat`** endpoint exclusively. This ensures:
+- Full compatibility with all current Ollama models
+- Support for the `think` parameter (reasoning models)
+- Correct handling of streaming and non-streaming responses
+
+Requires **Ollama 0.1.x or newer**.
 
 ---
 
