@@ -1,20 +1,55 @@
-from flask import request, jsonify, current_app, Response
+import logging
+import socket
+import threading
+from collections import OrderedDict
+
+from flask import Response, current_app, jsonify, request
+
+from app.models.language import LanguageService
 from app.routes import api_bp
 from app.services.translator import TranslationService
-from app.models.history import history_manager
-from app.utils.debug import debug_print
-import logging
-import os
+from app.services.tts import TTSError, TTSVoiceNotFound, get_tts_address, get_tts_service
+
+logger = logging.getLogger(__name__)
+translation_service = TranslationService()
+
+MAX_TEXT_LENGTH = 10000
+MAX_CONSTRAINTS = 20
 
 
 def _get_request_data():
     """Extract data from request (JSON or form)."""
     if request.is_json:
-        return request.get_json() or {}
+        data = request.get_json(silent=True)
+        return data if isinstance(data, dict) else {}
     return request.form.to_dict()
 
-logger = logging.getLogger(__name__)
-translation_service = TranslationService()
+
+def _str(data, key, default=""):
+    value = data.get(key)
+    return value.strip() if isinstance(value, str) else default
+
+
+def _common_params(data):
+    """Parse and validate parameters shared by translation endpoints."""
+    target_lang = _str(data, "target_lang") or "de"
+    if target_lang not in current_app.config["ALL_LANGUAGES"]:
+        raise ValueError(f"Unsupported target language: {target_lang}")
+
+    tone = _str(data, "tone") or "neutral"
+    if tone not in LanguageService.TONE_VALUES:
+        tone = "neutral"
+
+    return {
+        "target_lang": target_lang,
+        "tone": tone,
+        "think": data.get("think") is True,
+        "model": _str(data, "model") or None,
+    }
+
+
+def _too_long(*texts):
+    return any(len(t) > MAX_TEXT_LENGTH for t in texts)
 
 
 @api_bp.route("/translate", methods=["POST"])
@@ -22,79 +57,60 @@ def translate():
     """Main translation endpoint."""
     try:
         data = _get_request_data()
-        debug_print(f"Translation request data: {data}")
-        
-        # Validate and extract parameters
-        source_text = (data.get("source_text") or "").strip()
+        logger.debug(f"Translation request: {data}")
+
+        source_text = _str(data, "source_text")
         if not source_text:
             return jsonify({"error": "EMPTY", "translated_text": ""})
-        
-        source_lang = (data.get("source_lang") or "auto").strip()
-        target_lang = (data.get("target_lang") or "de").strip()
-        tone = (data.get("tone") or "neutral").strip()
-        think = bool(data.get("think", False))
-        model = (data.get("model") or "").strip() or None
+        if _too_long(source_text):
+            return jsonify(
+                {"error": f"Text too long (max {MAX_TEXT_LENGTH} characters)", "translated_text": ""}
+            ), 413
 
-        # Perform translation
-        translated, detected = translation_service.translate(
-            source_text, source_lang, target_lang, tone, think=think, model=model
+        source_lang = _str(data, "source_lang") or "auto"
+        if source_lang != "auto" and source_lang not in current_app.config["ALL_LANGUAGES"]:
+            source_lang = "auto"
+        params = _common_params(data)
+
+        translated, detected = translation_service.translate(source_text, source_lang, **params)
+
+        return jsonify(
+            {
+                "translated_text": translated,
+                "source_lang": detected or source_lang,
+                "target_lang": params["target_lang"],
+            }
         )
-        
-        return jsonify({
-            "translated_text": translated,
-            "source_lang": detected or source_lang,
-            "target_lang": target_lang
-        })
-        
+
+    except ValueError as e:
+        return jsonify({"error": str(e), "translated_text": ""}), 400
     except Exception as e:
         logger.error(f"Translation error: {e}")
-        return jsonify({"error": f"Translation error: {str(e)}"})
-
-
-@api_bp.route("/history/save", methods=["POST"])
-def save_history():
-    """Save translation to history."""
-    try:
-        data = request.get_json(silent=True) or {}
-        
-        source_text = (data.get("source_text") or "").strip()
-        translated = (data.get("translated") or "").strip()
-        target_lang = (data.get("target_lang") or "de").strip()
-        
-        if not source_text or not translated:
-            return jsonify({"ok": False, "error": "EMPTY"})
-        
-        success = history_manager.add_item(source_text, translated, target_lang)
-        return jsonify({"ok": success})
-        
-    except Exception as e:
-        logger.error(f"History save error: {e}")
-        return jsonify({"ok": False, "error": str(e)})
+        return jsonify({"error": f"Translation error: {e}"}), 502
 
 
 @api_bp.route("/alternatives", methods=["POST"])
 def get_alternatives():
     """Get alternative translations for a word."""
     try:
-        data = request.get_json(silent=True) or {}
-        
-        source_text = (data.get("source_text") or "").strip()
-        current_translation = (data.get("current_translation") or "").strip()
-        clicked_word = (data.get("clicked_word") or "").strip()
-        target_lang = (data.get("target_lang") or "de").strip()
-        tone = (data.get("tone") or "neutral").strip()
-        think = bool(data.get("think", False))
-        model = (data.get("model") or "").strip() or None
+        data = _get_request_data()
+
+        source_text = _str(data, "source_text")
+        current_translation = _str(data, "current_translation")
+        clicked_word = _str(data, "clicked_word")
 
         if not all([source_text, current_translation, clicked_word]):
             return jsonify({"alternatives": []})
+        if _too_long(source_text, current_translation, clicked_word):
+            return jsonify({"alternatives": []}), 413
 
         alternatives = translation_service.get_alternatives(
-            source_text, current_translation, clicked_word, target_lang, tone, think=think, model=model
+            source_text, current_translation, clicked_word, **_common_params(data)
         )
-        
         return jsonify({"alternatives": alternatives})
-        
+
+    except ValueError:
+        return jsonify({"alternatives": []}), 400
     except Exception as e:
         logger.error(f"Alternatives error: {e}")
         return jsonify({"alternatives": []})
@@ -103,252 +119,155 @@ def get_alternatives():
 @api_bp.route("/refine", methods=["POST"])
 def refine_translation():
     """Refine translation with user constraints."""
+    data = _get_request_data()
+    current_translation = _str(data, "current_translation")
     try:
-        data = request.get_json(silent=True) or {}
-        
-        source_text = (data.get("source_text") or "").strip()
-        current_translation = (data.get("current_translation") or "").strip()
-        target_lang = (data.get("target_lang") or "de").strip()
-        tone = (data.get("tone") or "neutral").strip()
-        think = bool(data.get("think", False))
-        model = (data.get("model") or "").strip() or None
+        source_text = _str(data, "source_text")
+        if not source_text:
+            return jsonify({"translated": ""})
+        if _too_long(source_text, current_translation):
+            return jsonify(
+                {"translated": current_translation, "faithful": False, "error": "Text too long"}
+            ), 413
 
-        # Process enforced phrases
         enforced_phrases = [
-            p.strip() for p in (data.get("enforced_phrases") or [])
-            if isinstance(p, str) and p.strip()
-        ]
+            p.strip() for p in (data.get("enforced_phrases") or []) if isinstance(p, str) and p.strip()
+        ][:MAX_CONSTRAINTS]
 
-        # Process replacements
-        raw_replacements = data.get("replacements") or []
         replacements = []
-        for r in raw_replacements:
+        for r in (data.get("replacements") or [])[:MAX_CONSTRAINTS]:
             if isinstance(r, dict):
-                from_word = (r.get("from") or "").strip()
-                to_word = (r.get("to") or "").strip()
+                from_word = _str(r, "from")
+                to_word = _str(r, "to")
                 if from_word and to_word:
                     replacements.append({"from": from_word, "to": to_word})
 
-        if not source_text:
-            return jsonify({"translated": ""})
-
         translated, faithful = translation_service.refine_translation(
-            source_text, current_translation, target_lang, tone,
-            enforced_phrases, replacements, think=think, model=model
+            source_text,
+            current_translation,
+            enforced_phrases=enforced_phrases,
+            replacements=replacements,
+            **_common_params(data),
         )
-        
-        return jsonify({
-            "translated": translated,
-            "faithful": faithful
-        })
-        
+        return jsonify({"translated": translated, "faithful": faithful})
+
     except Exception as e:
         logger.error(f"Refinement error: {e}")
-        return jsonify({
-            "translated": current_translation,
-            "faithful": False,
-            "error": str(e)
-        })
+        status = 400 if isinstance(e, (ValueError, TypeError)) else 200
+        return jsonify(
+            {
+                "translated": current_translation,
+                "faithful": False,
+                "error": str(e),
+            }
+        ), status
 
 
-# TTS cache for performance
 class TTSCache:
+    """Small thread-safe LRU cache for synthesized audio."""
+
     def __init__(self, max_size=50):
-        self._cache = {}
+        self._cache = OrderedDict()
+        self._lock = threading.Lock()
         self.max_size = max_size
-    
+
     def get(self, key):
-        return self._cache.get(key)
-    
+        with self._lock:
+            value = self._cache.get(key)
+            if value is not None:
+                self._cache.move_to_end(key)
+            return value
+
     def set(self, key, value):
-        if len(self._cache) >= self.max_size:
-            self._cache.clear()
-        self._cache[key] = value
-    
-    def clear(self):
-        self._cache.clear()
+        with self._lock:
+            self._cache[key] = value
+            self._cache.move_to_end(key)
+            while len(self._cache) > self.max_size:
+                self._cache.popitem(last=False)
+
 
 tts_cache = TTSCache()
 
+
+def _wav_response(wav: bytes) -> Response:
+    return Response(wav, mimetype="audio/wav", headers={"Content-Disposition": "inline; filename=tts.wav"})
+
+
 @api_bp.route("/tts", methods=["POST"])
 def text_to_speech():
-    """Convert text to speech using Wyoming Piper TTS with streaming support."""
-    from flask import request as flask_request
-    debug_print("TTS endpoint called!")
+    """Convert text to speech using the configured Wyoming TTS server."""
+    tts = get_tts_service()
+    if tts is None:
+        return jsonify({"error": "TTS service not configured. Set WYOMING_TTS_HOST."}), 503
+
+    data = _get_request_data()
+    text = _str(data, "text")
+    language = _str(data, "language") or "en"
+    if not text:
+        return jsonify({"error": "No text provided"}), 400
+
+    cache_key = (tts.host, tts.port, language, text)
+    cached = tts_cache.get(cache_key)
+    if cached:
+        return _wav_response(cached)
+
     try:
-        debug_print("In try block")
-        data = flask_request.get_json(silent=True) or {}
-        
-        debug_print(f"Received TTS data: {data}")
-        
-        text = (data.get("text") or "").strip()
-        debug_print(f"TTS request for text: {text}")
-        if not text:
-            return jsonify({"error": "No text provided"}), 400
-        
-        # Get language and streaming preference
-        language = data.get("language", "pl")
-        use_streaming = data.get("streaming", False)  # Use streaming when requested
-        debug_print(f"TTS language: {language}, streaming param: {data.get('streaming')}, use_streaming: {use_streaming}")
-        
-        # Map languages to Wyoming Piper TTS voices (only supported languages)
-        voice_map = {
-            # Western European
-            "en": "en_US-lessac-medium",
-            "de": "de_DE-thorsten-medium", 
-            "fr": "fr_FR-siwis-medium",
-            "es": "es_ES-sharvard-medium",
-            "pt": "pt_BR-faber-medium",
-            "nl": "nl_NL-mls_5809-low",
-            "da": "da_DK-talesyntese-medium",
-            "fi": "fi_FI-harri-medium", 
-            "no": "no_NO-talesyntese-medium",
-            
-            # Central/Eastern European
-            "pl": "pl_PL-darkman-medium",
-            "cs": "cs_CZ-jirka-medium",
-            "sk": "sk_SK-lili-medium",
-            "hu": "hu_HU-anna-medium",
-            "ro": "ro_RO-mihai-medium",
-            "ru": "ru_RU-ruslan-medium",
-            
-            # Other languages
-            "ar": "ar_JO-kareem-low",
-            "hi": "hi_IN-male-medium",
-            "tr": "tr_TR-dfki-medium",
-            "vi": "vi_VN-vais1000-medium",
-            "zh": "zh_CN-huayan-x_low",
-            "id": "id_ID-fajri-medium"
-        }
-        
-        # Primary voice selection with fallback chain
-        voice = voice_map.get(language)
-        if not voice:
-            # Fallback chain: requested -> English -> Polish
-            voice = voice_map.get("en", voice_map.get("pl", "pl_PL-darkman-medium"))
-        
-        # Check cache first (only for non-streaming requests)
-        cache_key = f"{text}:{voice}"
-        if not use_streaming:
-            cached_audio = tts_cache.get(cache_key)
-            if cached_audio:
-                debug_print("Found in cache, returning cached audio")
-                return Response(
-                    cached_audio,
-                    mimetype="audio/wav",
-                    headers={
-                        "Content-Disposition": "attachment; filename=tts.wav",
-                        "Content-Length": str(len(cached_audio))
-                    }
-                )
-        
-        # Check if Wyoming Piper is configured
-        wyoming_host = os.getenv("WYOMING_PIPER_HOST")
-        if not wyoming_host:
-            return jsonify({"error": "TTS service not configured. Set WYOMING_PIPER_HOST environment variable."}), 500
-            
-        logger.info(f"TTS: Using Wyoming TTS for text: '{text}', voice: '{voice}', streaming: {use_streaming}")
-        
-        # Use simple Wyoming TTS compatible with wyoming 1.5.4
-        debug_print(f"Using simple Wyoming TTS for text: '{text}', voice: '{voice}'")
-        try:
-            from app.services.wyoming_tts_simple import SimpleWyomingTTSService
-            
-            simple_tts = SimpleWyomingTTSService()
-            wav_content = simple_tts.synthesize(text, voice)
-            debug_print(f"Generated WAV with {len(wav_content)} bytes using simple Wyoming")
-            
-            # Cache the result
-            tts_cache.set(cache_key, wav_content)
-            debug_print("Cached TTS result")
-            
-            return Response(
-                wav_content,
-                mimetype="audio/wav",
-                headers={
-                    "Content-Disposition": "attachment; filename=tts.wav",
-                    "Content-Length": str(len(wav_content))
-                }
-            )
-            
-        except Exception as e:
-            debug_print(f"Simple TTS error: {e}")
-            return jsonify({"error": f"TTS service error: {str(e)}"}), 500
-            
-    except Exception as e:
-        logger.error(f"TTS endpoint error: {e}")
-        return jsonify({"error": f"TTS error: {str(e)}"}), 500
+        wav = tts.synthesize(text, language)
+    except TTSVoiceNotFound as e:
+        return jsonify({"error": str(e)}), 404
+    except TTSError as e:
+        logger.error(f"TTS error: {e}")
+        return jsonify({"error": str(e)}), 502
+
+    tts_cache.set(cache_key, wav)
+    return _wav_response(wav)
+
+
+@api_bp.route("/tts/languages", methods=["GET"])
+def tts_languages():
+    """List language codes the TTS server has voices for."""
+    tts = get_tts_service()
+    if tts is None:
+        return jsonify({"enabled": False, "languages": []})
+    try:
+        return jsonify({"enabled": True, "languages": tts.get_languages()})
+    except TTSError as e:
+        logger.warning(f"TTS voice discovery failed: {e}")
+        return jsonify({"enabled": True, "languages": [], "error": str(e)}), 502
 
 
 @api_bp.route("/health", methods=["GET"])
 def health_check():
     """Check health status of all services."""
-    try:
-        from app.services.ollama_client import get_ollama_client
-        import requests
-        
-        status = {
-            "ollama": {"status": "ok", "error": None},
-            "tts": {"status": "ok", "error": None},
-            "overall": "ok"
-        }
-        
-        # Check Ollama
+    status = {
+        "ollama": {"status": "ok", "error": None},
+        "tts": {"status": "ok", "error": None},
+        "overall": "ok",
+    }
+
+    models = translation_service.get_available_models()
+    status["ollama"]["models"] = models
+    if not models:
+        status["ollama"].update(status="error", error="Ollama unreachable or no models available")
+        status["overall"] = "error"
+
+    host, port = get_tts_address()
+    if host:
         try:
-            client = get_ollama_client()
-            models = client.get_available_models()
-            if not models:
-                raise Exception("No models available")
-            status["ollama"]["models"] = models
-        except Exception as e:
-            status["ollama"]["status"] = "error"
-            status["ollama"]["error"] = str(e)
-            status["ollama"]["models"] = []
-            status["overall"] = "error"
-        
-        # Check TTS service
-        wyoming_host = os.getenv("WYOMING_PIPER_HOST")
-        if wyoming_host:
-            try:
-                # Simple connection test to Wyoming Piper
-                wyoming_port = os.getenv("WYOMING_PIPER_PORT", "10200")
-                import socket
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.settimeout(2)
-                result = sock.connect_ex((wyoming_host, int(wyoming_port)))
-                sock.close()
-                if result != 0:
-                    raise Exception(f"Cannot connect to {wyoming_host}:{wyoming_port}")
-            except Exception as e:
-                status["tts"]["status"] = "error" 
-                status["tts"]["error"] = str(e)
-                if status["overall"] == "ok":
-                    status["overall"] = "warning"  # TTS error is warning, not critical
-        else:
-            status["tts"]["status"] = "disabled"
-            status["tts"]["error"] = "TTS not configured"
-            if status["overall"] == "ok":
-                status["overall"] = "warning"
-        
-        return jsonify(status)
-        
-    except Exception as e:
-        logger.error(f"Health check error: {e}")
-        return jsonify({
-            "ollama": {"status": "error", "error": str(e)},
-            "tts": {"status": "unknown", "error": "Health check failed"},
-            "overall": "error"
-        }), 500
+            with socket.create_connection((host, port), timeout=2):
+                pass
+        except OSError as e:
+            status["tts"].update(status="error", error=f"Cannot connect to {host}:{port}: {e}")
+    else:
+        status["tts"].update(status="disabled", error="TTS not configured")
+
+    if status["overall"] == "ok" and status["tts"]["status"] != "ok":
+        status["overall"] = "warning"
+
+    return jsonify(status)
 
 
 @api_bp.route("/models", methods=["GET"])
 def get_models():
     """Get available Ollama models."""
-    try:
-        models = translation_service.get_available_models()
-        return jsonify({"models": models})
-    except Exception as e:
-        logger.error(f"Error getting models: {e}")
-        return jsonify({"error": str(e), "models": []}), 500
-
-
+    return jsonify({"models": translation_service.get_available_models()})

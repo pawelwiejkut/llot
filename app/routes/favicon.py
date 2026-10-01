@@ -1,6 +1,7 @@
 import base64
-import json
-from flask import make_response, Response
+
+from flask import Response, make_response
+
 from app.routes import favicon_bp
 
 
@@ -99,43 +100,5 @@ def favicon_svg():
 def safari_pinned():
     resp = make_response(SAFARI_PINNED_SVG)
     resp.mimetype = "image/svg+xml"
-    resp.headers['Content-Type'] = 'image/svg+xml'
-    return _nocache(resp)
-
-
-@favicon_bp.route("/manifest.json")
-def manifest():
-    manifest_data = {
-        "name": "llot - local llm ollama translator",
-        "short_name": "llot",
-        "description": "Lokalny translator używający Ollama",
-        "start_url": "/",
-        "display": "standalone",
-        "background_color": "#f7f8fb",
-        "theme_color": "#2563eb",
-        "icons": [
-            {
-                "src": "/apple-touch-icon-57x57.png",
-                "sizes": "57x57",
-                "type": "image/png"
-            },
-            {
-                "src": "/apple-touch-icon-120x120.png",
-                "sizes": "120x120",
-                "type": "image/png"
-            },
-            {
-                "src": "/apple-touch-icon-152x152.png",
-                "sizes": "152x152",
-                "type": "image/png"
-            },
-            {
-                "src": "/apple-touch-icon-180x180.png",
-                "sizes": "180x180",
-                "type": "image/png"
-            }
-        ]
-    }
-    resp = make_response(json.dumps(manifest_data, indent=2))
-    resp.mimetype = "application/json"
+    resp.headers["Content-Type"] = "image/svg+xml"
     return _nocache(resp)

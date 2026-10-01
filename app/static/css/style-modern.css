@@ -240,7 +240,6 @@ body {
   display: none;
 }
 
-
 /* Panel headers container with swap button */
 .panels-header {
   display: flex;
@@ -261,8 +260,6 @@ body {
   flex: 1;
   position: relative;
 }
-
-
 
 /* Ensure consistent width for language dropdowns */
 .panel-header .language-dropdown:first-child {
@@ -381,25 +378,6 @@ body {
   color: var(--text-primary);
 }
 
-
-.options-content {
-  padding: 0;
-  background: var(--bg-card);
-}
-
-.option-section {
-  padding: var(--space-md);
-}
-
-.option-header {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: var(--space-md);
-  padding-bottom: var(--space-sm);
-  border-bottom: 1px solid var(--border);
-}
-
 .option-item {
   margin-bottom: var(--space-lg);
   position: relative;
@@ -410,72 +388,6 @@ body {
 }
 
 /* Better layout for options with custom selects */
-.option-section {
-  padding: var(--space-lg) !important; /* Minimal padding - dropdowns escape completely */
-}
-
-.option-controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-lg);
-  align-items: start;
-}
-
-@media (max-width: 768px) {
-  .option-controls {
-    grid-template-columns: 1fr;
-    gap: var(--space-md);
-  }
-  
-}
-
-.option-label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: var(--space-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.option-select {
-  width: 100%;
-  height: 44px;
-  padding: 0 var(--space-md);
-  background: var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 12px center;
-  background-repeat: no-repeat;
-  background-size: 16px;
-  padding-right: 44px;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 2001;
-}
-
-.option-select:hover {
-  border-color: var(--accent);
-  background-color: var(--bg-secondary);
-}
-
-.option-select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-  background-color: var(--bg-primary);
-}
-
 
 .swap-button-top {
   width: 36px;
@@ -533,16 +445,6 @@ body {
 }
 
 /* Swap button */
-.swap-button-center {
-  display: none;
-}
-
-.swap-button-center:hover {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
-
 
 /* Language dropdowns */
 .language-dropdown {
@@ -654,7 +556,6 @@ body {
 .language-dropdown-content::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
 }
-
 
 /* Clean translation states */
 .text-output {
@@ -931,14 +832,6 @@ body {
 }
 
 /* Error message */
-.error-message {
-  background: var(--bg-card);
-  border: 1px solid var(--error);
-  border-radius: var(--radius-md);
-  padding: var(--space-md) var(--space-lg);
-  margin-top: var(--space-lg);
-  color: var(--error);
-}
 
 /* iOS Safari fixes - Enhanced for better compatibility */
 @supports (-webkit-touch-callout: none) {
@@ -978,8 +871,7 @@ body {
   /* Better touch handling on iOS - Enhanced */
   .language-dropdown-trigger,
   .action-button,
-  .theme-toggle,
-  .swap-button-center {
+  .theme-toggle {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -1042,6 +934,12 @@ body.dropdown-open {
     overflow: visible; /* Ensure rounded corners of dropdown buttons are not clipped */
   }
   
+  /* Options menu is moved into the mobile bar by JS (DropdownManager.initOptionsDropdown) */
+  .language-controls-bar .options-menu {
+    position: relative;
+    flex: 0 0 auto;
+  }
+
   /* Language dropdowns in mobile bar */
   .language-controls-bar .language-dropdown {
     flex: 1;
@@ -1140,9 +1038,7 @@ body.dropdown-open {
   }
   
   /* Hide desktop swap button on mobile */
-  .swap-button-center {
-    display: none;
-  }
+
   
   .text-input, .text-output {
     min-height: 200px;
@@ -1411,56 +1307,6 @@ input:focus-visible {
   display: block;
 }
 
-.validation-message {
-  font-size: 1rem;
-  color: var(--text-primary);
-  margin-bottom: var(--space-lg);
-  text-align: center;
-}
-
-.validation-actions {
-  display: flex;
-  gap: var(--space-sm);
-  justify-content: center;
-}
-
-.validation-btn {
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border: 1px solid var(--border);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
-.validation-btn:hover {
-  background: var(--bg-card);
-  transform: translateY(-1px);
-}
-
-.validation-btn.accept {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
-
-.validation-btn.accept:hover {
-  background: var(--accent-hover);
-}
-
-.validation-btn.reject {
-  background: var(--error);
-  color: white;
-  border-color: var(--error);
-}
-
-.validation-btn.reject:hover {
-  background: #dc2626;
-}
-
 /* Validating word state */
 .clickable-word.validating {
   background: rgba(245, 158, 11, 0.2);
@@ -1552,7 +1398,6 @@ input:focus-visible {
   opacity: 0.6;
   cursor: not-allowed;
 }
-
 
 /* Dark theme action buttons */
 [data-theme="dark"] .action-button {

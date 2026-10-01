@@ -1,6 +1,6 @@
 /**
- * LLOT Modern JavaScript - Clean Refactored Version 2025
- * Modular, clean, and maintainable code structure
+ * LLOT front-end. Plain ES2020, no build step.
+ * Modules (classes below) are created by LLOTApp and reachable via window.llotApp.modules.
  */
 
 // ============================================================================
@@ -35,21 +35,14 @@ class GlobalClickManager {
     // 3. Language dropdowns
     // 4. Other elements
     
-    // Check if click is in any active popup
-    let handledByPopup = false;
-    
     // Handle word alternatives (highest priority)
     if (this.hasActivePopup('word-alternatives')) {
       const popup = document.querySelector('.word-alternatives');
       if (popup && !popup.contains(e.target)) {
-        // Click outside word alternatives - close it
         this.closePopup('word-alternatives');
-        handledByPopup = true;
       }
     }
-    
-    // Custom selects have been replaced with classic HTML select elements
-    
+
     // Handle dropdowns
     const dropdown = e.target.closest('.language-dropdown, .options-menu');
     if (dropdown) {
@@ -67,7 +60,7 @@ class GlobalClickManager {
     }
   }
   
-  registerPopup(type, element) {
+  registerPopup(type) {
     this.activePopups.add(type);
   }
   
@@ -102,13 +95,28 @@ class GlobalClickManager {
   }
 }
 
+const MAX_HISTORY_TEXT = 5000;
+
+function truncate(text, length) {
+  return text.length > length ? `${text.substring(0, length)}…` : text;
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 class PopupManager {
   constructor(globalClickManager) {
     this.globalClickManager = globalClickManager;
     this.zIndexCounter = 2000;
   }
   
-  createPopup(type, content, position, options = {}) {
+  createPopup(type, content, position) {
     // Close any existing popup of this type
     this.globalClickManager.closePopup(type);
     
@@ -129,7 +137,7 @@ class PopupManager {
     document.body.appendChild(popup);
     
     // Register with global manager
-    this.globalClickManager.registerPopup(type, popup);
+    this.globalClickManager.registerPopup(type);
     
     return popup;
   }
@@ -149,7 +157,6 @@ class LLOTApp {
       translationTimeout: null,
       translationAbortController: null,
       historyTimeout: null,
-      currentAudio: null,
       history: this.loadHistory(),
       lastDetectedLanguage: 'en'
     };
@@ -373,11 +380,7 @@ class DropdownManager {
     this.initDropdown('target-lang-dropdown', 'target_lang', targetLanguages, 'de');
     this.initDropdown('target-lang-dropdown-top', 'target_lang', targetLanguages, 'de');
     
-    // Initialize options dropdown - SIMPLIFIED VERSION
     this.initOptionsDropdown();
-    
-    // Global click handler to close dropdowns
-    this.initGlobalHandlers();
   }
   
   initDropdown(dropdownId, selectId, languages, defaultValue) {
@@ -455,14 +458,12 @@ class DropdownManager {
       });
     }
 
-    // Setup hidden select
-    this.populateHiddenSelect(hiddenSelect, languages, defaultValue);
-    
-    // Set initial display
-    const defaultLang = languages.find(lang => lang.code === defaultValue);
-    if (defaultLang) {
-      selectedSpan.textContent = defaultLang.name;
-    }
+    // Setup hidden select; fall back to the first language when the default
+    // was filtered out by TRANSLATION_LANGUAGES
+    const defaultLang = languages.find(lang => lang.code === defaultValue) || languages[0];
+    if (!defaultLang) return;
+    this.populateHiddenSelect(hiddenSelect, languages, defaultLang.code);
+    selectedSpan.textContent = defaultLang.name;
   }
   
   initOptionsDropdown() {
@@ -471,6 +472,18 @@ class DropdownManager {
 
     const trigger = dropdown.querySelector('.options-trigger');
     if (!trigger) return;
+
+    // The panel headers are hidden on narrow screens, so move the menu (same element,
+    // listeners intact) into the visible language bar there and back on wide screens
+    const homeParent = dropdown.parentElement;
+    const mobileBar = document.querySelector('.language-controls-bar');
+    const narrow = window.matchMedia('(max-width: 768px)');
+    const placeMenu = () => {
+      const target = narrow.matches && mobileBar ? mobileBar : homeParent;
+      if (dropdown.parentElement !== target) target.appendChild(dropdown);
+    };
+    placeMenu();
+    narrow.addEventListener('change', placeMenu);
 
     // SIMPLE click handler - no complex event management
     trigger.addEventListener('click', (e) => {
@@ -513,12 +526,7 @@ class DropdownManager {
     // Load available models
     this.loadAvailableModels();
   }
-  
-  
-  initGlobalHandlers() {
-    // Global click handling is now managed by GlobalClickManager
-    // No need for separate document listeners here
-  }
+
   
   closeAllDropdowns() {
     document.querySelectorAll('.language-dropdown.open, .options-menu.open').forEach(d => {
@@ -682,28 +690,36 @@ class DropdownManager {
     const modelSelect = this.elements.modelSelectOutput;
     if (!modelSelect) return;
 
+    // Older versions auto-saved the first listed model under 'llot-model',
+    // which could pin browsers to an unsuitable model (e.g. an OCR model)
+    localStorage.removeItem('llot-model');
+
     try {
       const response = await fetch('/api/models');
       const data = await response.json();
 
       if (data.models && Array.isArray(data.models) && data.models.length > 0) {
-        const savedModel = localStorage.getItem('llot-model');
+        const savedModel = localStorage.getItem('llot-model-choice');
         modelSelect.innerHTML = '';
 
         data.models.forEach(model => {
           const option = document.createElement('option');
           option.value = model;
           option.textContent = model;
-          option.selected = model === savedModel;
           modelSelect.appendChild(option);
         });
 
-        // If saved model not in list, fallback to first
-        if (savedModel && !data.models.includes(savedModel)) {
+        // Prefer the user's explicit choice, then the server default (OL_MODEL).
+        // Only explicit choices are persisted (see changeModel), so a new browser
+        // never gets stuck on whatever model Ollama happens to list first.
+        const preferred = [savedModel, window.defaultModel].find(m => m && data.models.includes(m));
+        if (preferred) {
+          modelSelect.value = preferred;
+        } else {
           modelSelect.selectedIndex = 0;
-          localStorage.setItem('llot-model', modelSelect.value);
-        } else if (!savedModel) {
-          localStorage.setItem('llot-model', modelSelect.value);
+        }
+        if (savedModel && !data.models.includes(savedModel)) {
+          localStorage.removeItem('llot-model-choice');
         }
       }
     } catch (error) {
@@ -712,7 +728,7 @@ class DropdownManager {
   }
 
   changeModel(newModel) {
-    localStorage.setItem('llot-model', newModel);
+    localStorage.setItem('llot-model-choice', newModel);
   }
   
   getLanguages() {
@@ -801,7 +817,7 @@ class TranslationManager {
     const targetLang = this.elements.targetLang?.value || 'de';
     const tone = this.elements.tone?.value || 'neutral';
     const think = this.elements.thinkSelect?.value === 'yes';
-    const model = this.elements.modelSelectOutput?.value || localStorage.getItem('llot-model') || '';
+    const model = this.elements.modelSelectOutput?.value || localStorage.getItem('llot-model-choice') || '';
 
     // Cancel any in-flight request
     if (this.state.translationAbortController) {
@@ -962,11 +978,6 @@ class UIManager {
       this.autoResizeTextarea();
     }
     this.updateFontSize();
-    
-    // Show initial translated text if present
-    if (window.initialTranslated) {
-      this.makeWordsClickable(window.initialTranslated);
-    }
   }
 
   updateCharCount() {
@@ -1013,7 +1024,6 @@ class UIManager {
     const textarea = this.elements.sourceText;
     const minHeight = 400;
     
-    const currentHeight = textarea.style.height;
     textarea.style.height = 'auto';
     
     const scrollHeight = textarea.scrollHeight;
@@ -1031,11 +1041,12 @@ class UIManager {
   makeWordsClickable(translation) {
     const parts = translation.split(/(\s+|[^\p{L}\p{N}\p{M}]+)/u);
     
-    const clickableHtml = parts.map(part => 
-      /[\p{L}\p{N}]/u.test(part) 
-        ? `<span class="clickable-word" data-word="${part}">${part}</span>`
-        : part
-    ).join('');
+    const clickableHtml = parts.map(part => {
+      const safe = escapeHtml(part);
+      return /[\p{L}\p{N}]/u.test(part)
+        ? `<span class="clickable-word" data-word="${safe}">${safe}</span>`
+        : safe;
+    }).join('');
     
     this.elements.result.innerHTML = clickableHtml;
     
@@ -1076,8 +1087,8 @@ class UIManager {
       actionsContainer.appendChild(copyBtn);
     }
     
-    // Ensure TTS button if enabled
-    if (window.ttsEnabled && !actionsContainer.querySelector('#tts-btn')) {
+    // Ensure TTS button (shown only for languages with a server or local browser voice)
+    if (!actionsContainer.querySelector('#tts-btn')) {
       const ttsBtn = document.createElement('button');
       Object.assign(ttsBtn, {
         id: 'tts-btn',
@@ -1102,15 +1113,9 @@ class UIManager {
       copyBtn.style.display = resultText ? 'flex' : 'none';
     }
     
-    if (ttsBtn && window.ttsEnabled) {
-      const supportedTtsLanguages = {
-        'en': true, 'de': true, 'fr': true, 'es': true, 'pt': true, 'nl': true,
-        'da': true, 'fi': true, 'no': true, 'pl': true, 'cs': true, 'sk': true,
-        'hu': true, 'ro': true, 'ru': true, 'ar': true, 'hi': true, 'tr': true,
-        'vi': true, 'zh': true, 'id': true
-      };
-      
-      const languageSupported = supportedTtsLanguages[targetLang];
+    if (ttsBtn) {
+      const tts = window.llotApp?.modules.tts;
+      const languageSupported = tts ? tts.supportsLanguage(targetLang) : false;
       ttsBtn.style.display = (resultText && languageSupported) ? 'flex' : 'none';
     }
   }
@@ -1195,7 +1200,7 @@ class UIManager {
     const targetLang = this.elements.targetLang?.value || 'de';
     const tone = this.elements.tone?.value || 'neutral';
     const think = this.elements.thinkSelect?.value === 'yes';
-    const model = this.elements.modelSelectOutput?.value || localStorage.getItem('llot-model') || '';
+    const model = this.elements.modelSelectOutput?.value || localStorage.getItem('llot-model-choice') || '';
 
     if (!sourceText || !currentTranslation || !clickedWord) return;
 
@@ -1255,13 +1260,13 @@ class UIManager {
       // Update popup with alternatives
       if (alternatives.length > 0) {
         const listHtml = alternatives.map(alt => `
-          <div class="alternative-item ${alt === clickedWord ? 'current' : ''}" data-alternative="${alt}">
-            ${alt}
+          <div class="alternative-item ${alt === clickedWord ? 'current' : ''}" data-alternative="${escapeHtml(alt)}">
+            ${escapeHtml(alt)}
           </div>
         `).join('');
 
         popup.innerHTML = `
-          <div class="alternatives-header">Alternatives for "${clickedWord}"</div>
+          <div class="alternatives-header">Alternatives for "${escapeHtml(clickedWord)}"</div>
           <div class="alternatives-list">${listHtml}</div>
         `;
 
@@ -1275,14 +1280,14 @@ class UIManager {
         });
       } else {
         popup.innerHTML = `
-          <div class="alternatives-header">Alternatives for "${clickedWord}"</div>
+          <div class="alternatives-header">Alternatives for "${escapeHtml(clickedWord)}"</div>
           <div class="alternatives-loading">No alternatives found</div>
         `;
       }
     } catch (error) {
       console.error('Error fetching alternatives:', error);
       popup.innerHTML = `
-        <div class="alternatives-header">Alternatives for "${clickedWord}"</div>
+        <div class="alternatives-header">Alternatives for "${escapeHtml(clickedWord)}"</div>
         <div class="alternatives-loading">Error loading alternatives</div>
       `;
     }
@@ -1309,7 +1314,7 @@ class UIManager {
       const targetLang = this.elements.targetLang?.value || 'de';
       const tone = this.elements.tone?.value || 'neutral';
       const think = this.elements.thinkSelect?.value === 'yes';
-      const model = this.elements.modelSelectOutput?.value || localStorage.getItem('llot-model') || '';
+      const model = this.elements.modelSelectOutput?.value || localStorage.getItem('llot-model-choice') || '';
 
       // Validate entire sentence coherence with backend
       const response = await fetch('/api/refine', {
@@ -1442,8 +1447,8 @@ class HistoryManager {
   addToHistory(sourceText, translatedText, sourceLang, targetLang) {
     const entry = {
       id: Date.now(),
-      sourceText: sourceText.substring(0, 100),
-      translatedText: translatedText.substring(0, 100),
+      sourceText: sourceText.substring(0, MAX_HISTORY_TEXT),
+      translatedText: translatedText.substring(0, MAX_HISTORY_TEXT),
       sourceLang,
       targetLang,
       timestamp: new Date().toLocaleString()
@@ -1474,12 +1479,12 @@ class HistoryManager {
     this.elements.historyList.innerHTML = this.state.history.map(item => `
       <div class="history-item" data-id="${item.id}">
         <div class="history-text">
-          <div class="history-source">${this.escapeHtml(item.sourceText)}</div>
-          <div class="history-result">${this.escapeHtml(item.translatedText)}</div>
+          <div class="history-source">${escapeHtml(truncate(item.sourceText, 100))}</div>
+          <div class="history-result">${escapeHtml(truncate(item.translatedText, 100))}</div>
         </div>
         <div class="history-meta">
-          <div class="history-lang">${item.sourceLang} → ${item.targetLang}</div>
-          <div class="history-time">${item.timestamp}</div>
+          <div class="history-lang">${escapeHtml(item.sourceLang)} → ${escapeHtml(item.targetLang)}</div>
+          <div class="history-time">${escapeHtml(item.timestamp)}</div>
         </div>
       </div>
     `).join('');
@@ -1513,12 +1518,6 @@ class HistoryManager {
     window.llotApp.modules.ui.updateFontSize();
     window.llotApp.modules.translator.scheduleTranslation();
   }
-
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
 }
 
 // ============================================================================
@@ -1528,68 +1527,83 @@ class HistoryManager {
 class TTSManager {
   constructor(elements) {
     this.elements = elements;
-    this.streamingPlayer = new StreamingTTSPlayer();
+    this.player = new TTSPlayer();
+    this.browserVoices = new BrowserVoices(() => window.llotApp?.modules.ui.updateActionButtons());
+    this.languages = new Set();
     this.init();
   }
-  
+
   init() {
-    if (!window.ttsEnabled) return;
-    
+    if (window.ttsEnabled) this.loadLanguages();
+
     // Use event delegation for TTS buttons
     if (this.elements.result) {
       this.elements.result.addEventListener('click', async (e) => {
         const ttsBtn = e.target.closest('#tts-btn');
-        if (!ttsBtn) return;
-        
+        if (!ttsBtn || ttsBtn.classList.contains('loading')) return;
+
         const resultText = window.llotApp.modules.ui.getPlainTextFromResult().trim();
         if (!resultText) return;
-        
-        if (this.streamingPlayer.isPlaying) {
-          this.streamingPlayer.stop();
+
+        if (this.player.isPlaying || this.browserVoices.isSpeaking) {
+          this.player.stop();
+          this.browserVoices.stop();
           ttsBtn.classList.remove('playing');
           return;
         }
-        
+
+        const targetLang = this.elements.targetLang?.value || 'de';
+        const onEnd = () => ttsBtn.classList.remove('playing');
+
+        // No server voice: speak with a local browser voice. Like unlock() below,
+        // this has to run synchronously inside the click for Safari.
+        if (!this.languages.has(targetLang)) {
+          if (this.browserVoices.speak(resultText, targetLang, onEnd)) {
+            ttsBtn.classList.add('playing');
+          }
+          return;
+        }
+
+        this.player.unlock();
+
         try {
           ttsBtn.classList.add('loading');
-          const targetLang = this.elements.targetLang?.value || 'de';
-          const ttsLang = this.mapLanguageForTTS(targetLang);
-          
-          const audioElement = await this.streamingPlayer.playStreaming(resultText, ttsLang);
-          
+          await this.player.play(resultText, targetLang, onEnd);
           ttsBtn.classList.remove('loading');
           ttsBtn.classList.add('playing');
-          this.streamingPlayer.isPlaying = true;
-          
-          if (audioElement) {
-            audioElement.addEventListener('ended', () => {
-              ttsBtn.classList.remove('playing');
-              this.streamingPlayer.isPlaying = false;
-            });
-            
-            audioElement.addEventListener('error', () => {
-              ttsBtn.classList.remove('playing', 'loading');
-              this.streamingPlayer.isPlaying = false;
-            });
-          }
-          
         } catch (error) {
           console.error('TTS error:', error);
           ttsBtn.classList.remove('playing', 'loading');
-          this.streamingPlayer.isPlaying = false;
+          this.showError(error.message);
         }
       });
     }
   }
 
-  mapLanguageForTTS(targetLang) {
-    const langMap = {
-      'en': 'en', 'de': 'de', 'fr': 'fr', 'es': 'es', 'pt': 'pt',
-      'nl': 'nl', 'da': 'da', 'fi': 'fi', 'no': 'no', 'pl': 'pl',
-      'cs': 'cs', 'sk': 'sk', 'hu': 'hu', 'ro': 'ro', 'ru': 'ru',
-      'ar': 'ar', 'hi': 'hi', 'tr': 'tr', 'vi': 'vi', 'zh': 'zh', 'id': 'id'
-    };
-    return langMap[targetLang] || 'en';
+  async loadLanguages() {
+    try {
+      const response = await fetch('/api/tts/languages');
+      const data = await response.json();
+      this.languages = new Set(data.languages || []);
+    } catch (error) {
+      console.warn('TTS: could not load voice list:', error);
+      this.languages = new Set();
+    }
+    window.llotApp?.modules.ui.updateActionButtons();
+  }
+
+  supportsLanguage(code) {
+    return this.languages.has(code) || this.browserVoices.has(code);
+  }
+
+  showError(message) {
+    const statusText = this.elements.statusText;
+    if (!statusText) return;
+    statusText.textContent = `TTS: ${message}`;
+    clearTimeout(this.errorTimer);
+    this.errorTimer = setTimeout(() => {
+      statusText.textContent = 'Ready to translate';
+    }, 5000);
   }
 }
 
@@ -1622,80 +1636,119 @@ class KeyboardManager {
 }
 
 // ============================================================================
-// TTS STREAMING PLAYER (Unchanged)
+// BROWSER (Web Speech API) VOICES
 // ============================================================================
 
-class StreamingTTSPlayer {
+// Fallback for languages the TTS server has no voice for. Only on-device voices
+// (localService) are used so the text never leaves the machine, e.g. Chrome's
+// network "Google" voices are skipped.
+class BrowserVoices {
+  constructor(onChange) {
+    this.synth = window.speechSynthesis;
+    this.voices = [];
+    this.isSpeaking = false;
+    if (!this.synth) return;
+    const load = () => {
+      this.voices = this.synth.getVoices().filter(v => v.localService);
+      onChange();
+    };
+    load();
+    this.synth.addEventListener?.('voiceschanged', load);
+  }
+
+  find(code) {
+    const matches = this.voices.filter(v => v.lang.toLowerCase().replace('_', '-').split('-')[0] === code);
+    return matches.find(v => v.default) || matches[0] || null;
+  }
+
+  has(code) {
+    return !!this.find(code);
+  }
+
+  speak(text, code, onEnd) {
+    const voice = this.find(code);
+    if (!voice) return false;
+    this.synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+    utterance.onend = utterance.onerror = () => {
+      this.isSpeaking = false;
+      onEnd();
+    };
+    this.isSpeaking = true;
+    this.synth.speak(utterance);
+    return true;
+  }
+
+  stop() {
+    if (this.synth && this.isSpeaking) this.synth.cancel();
+    this.isSpeaking = false;
+  }
+}
+
+// ============================================================================
+// TTS PLAYER
+// ============================================================================
+
+// 0.1 s of silence; played inside the click gesture to unlock audio on iOS Safari
+const SILENT_WAV = 'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
+
+class TTSPlayer {
   constructor() {
-    this.audioElement = null;
+    this.audio = new Audio();
     this.objectUrl = null;
     this.isPlaying = false;
   }
 
-  async playStreaming(text, language) {
-    try {
-      const response = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: text,
-          language: language,
-          streaming: true
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Streaming failed with status: ${response.status}`);
-      }
-
-      const audioBlob = await response.blob();
-      this.objectUrl = URL.createObjectURL(audioBlob);
-      this.audioElement = new Audio(this.objectUrl);
-      
-      await this.audioElement.play();
-      return this.audioElement;
-      
-    } catch (streamError) {
-      console.warn('TTS: Streaming failed, using fast mode:', streamError.message);
-      return await this.playFast(text, language);
-    }
+  // Safari only lets an element play audio if play() was first called on it
+  // during a user gesture. Synthesis takes seconds, so the real play() runs after
+  // the gesture has expired; priming the reusable element here avoids that.
+  unlock() {
+    this.audio.src = SILENT_WAV;
+    this.audio.play().catch(() => {});
   }
 
-  async playFast(text, language) {
+  async play(text, language, onEnd) {
+    this.stop();
+
     const response = await fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text: text,
-        language: language,
-        streaming: false
-      })
+      body: JSON.stringify({ text, language })
     });
 
     if (!response.ok) {
-      throw new Error('TTS request failed');
+      let message = `TTS request failed (${response.status})`;
+      try { message = (await response.json()).error || message; } catch {}
+      throw new Error(message);
     }
 
     const audioBlob = await response.blob();
     this.objectUrl = URL.createObjectURL(audioBlob);
-    
-    this.audioElement = new Audio(this.objectUrl);
-    await this.audioElement.play();
-    
-    return this.audioElement;
+    this.audio.src = this.objectUrl;
+
+    const finish = () => {
+      this.stop();
+      if (onEnd) onEnd();
+    };
+    this.audio.onended = finish;
+    this.audio.onerror = finish;
+
+    await this.audio.play();
+    this.isPlaying = true;
   }
 
   stop() {
-    if (this.audioElement) {
-      this.audioElement.pause();
-      this.audioElement.currentTime = 0;
-    }
-    
+    this.audio.onended = null;
+    this.audio.onerror = null;
+    this.audio.pause();
+
     if (this.objectUrl) {
       URL.revokeObjectURL(this.objectUrl);
       this.objectUrl = null;
     }
-    
+
     this.isPlaying = false;
   }
 }

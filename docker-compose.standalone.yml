@@ -1,8 +1,6 @@
 # Standalone setup with included Ollama
 # Use this if you don't have Ollama installed on your host
 
-version: '3.8'
-
 services:
   llot:
     build: .
@@ -13,12 +11,9 @@ services:
       # All .env variables - customize as needed
       - OLLAMA_HOST=${OLLAMA_HOST:-http://ollama:11434}
       - OL_MODEL=${OL_MODEL:-gemma4:26b}
-      - APP_HOST=${APP_HOST:-0.0.0.0}
-      - APP_PORT=${APP_PORT:-8080}
-      - FLASK_ENV=${FLASK_ENV:-production}
       - FLASK_DEBUG=${FLASK_DEBUG:-0}
-      - WYOMING_PIPER_HOST=${WYOMING_PIPER_HOST:-}
-      - WYOMING_PIPER_PORT=${WYOMING_PIPER_PORT:-}
+      - WYOMING_TTS_HOST=${WYOMING_TTS_HOST:-}
+      - WYOMING_TTS_PORT=${WYOMING_TTS_PORT:-10200}
       - TRANSLATION_LANGUAGES=${TRANSLATION_LANGUAGES:-}
     depends_on:
       ollama:
@@ -41,7 +36,7 @@ services:
     networks:
       - llot-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 10s
       retries: 5
