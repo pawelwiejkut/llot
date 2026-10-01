@@ -4,7 +4,7 @@
 > ✨ No API keys • No cloud services • No data collection • 100% self-hosted ✨
 
 [![Self-Hosted](https://img.shields.io/badge/Self--Hosted-100%25-green?style=for-the-badge&logo=docker)](https://github.com/pawelwiejkut/llot)
-[![Languages](https://img.shields.io/badge/Languages-65%2B-blue?style=for-the-badge)](https://github.com/pawelwiejkut/llot)
+[![Languages](https://img.shields.io/badge/Languages-38-blue?style=for-the-badge)](https://github.com/pawelwiejkut/llot)
 [![Privacy](https://img.shields.io/badge/Privacy-First-red?style=for-the-badge&logo=shield)](https://github.com/pawelwiejkut/llot)
 
 ---
@@ -24,11 +24,11 @@
 | Zero cloud dependencies | Real-time as-you-type translation | Uses your existing Ollama server |
 | No external API calls | Smart language auto-detection | Lightweight Python Flask app |
 
-| 🌍 **65+ Languages** | 🔊 **Neural TTS** | 🎛️ **Full Control** |
+| 🌍 **38 Languages** | 🔊 **Neural TTS** | 🎛️ **Full Control** |
 |:---:|:---:|:---:|
 | Major world languages supported | High-quality speech synthesis | Choose your AI models |
-| Auto language detection | 20+ TTS voices available | Configurable tone & style |
-| European languages included | Crystal-clear pronunciation | Your hardware, your rules |
+| Auto language detection | Any Wyoming TTS server | Configurable tone & style |
+| European languages included | Voices auto-discovered | Your hardware, your rules |
 
 ---
 
@@ -44,9 +44,9 @@
 git clone https://github.com/pawelwiejkut/llot.git
 cd llot
 
-# Configure your Ollama server
-echo "OLLAMA_HOST=http://your-ollama-server:11434" > .env
-echo "OL_MODEL=gemma4:26b" >> .env
+# Configure your Ollama server (and optionally a Wyoming TTS server)
+cp .env.example .env
+nano .env   # set OLLAMA_HOST, OL_MODEL, WYOMING_TTS_HOST/PORT
 
 # Start LLOT
 docker compose up -d
@@ -73,7 +73,7 @@ That's it! 🎉 **Your private translation service is running.**
 ## 🎛️ Key Features
 
 - ✅ **Real-time translation** as you type with smart debounce
-- ✅ **65+ languages** with auto-detection
+- ✅ **38 languages** with auto-detection
 - ✅ **Multiple tones** (formal, casual, technical, etc.)
 - ✅ **Think mode** — enable/disable chain-of-thought reasoning per request
 - ✅ **Dynamic model switching** — change Ollama model on the fly
@@ -96,7 +96,7 @@ Toggle **Think: Yes / No** in the options panel:
 | Tokens used | Response only | Reasoning + response |
 | Best for | Short, common phrases | Complex or ambiguous text |
 
-Think mode is sent directly to Ollama's `/api/chat` endpoint via the `think` parameter. Works with any model — for models that don't support thinking, it is simply ignored.
+Think mode is sent to Ollama's `/api/chat` endpoint via the `think` parameter. Models without reasoning support reject it, so LLOT automatically retries those requests with thinking disabled.
 
 ---
 
@@ -128,7 +128,7 @@ Think mode is sent directly to Ollama's `/api/chat` endpoint via the `think` par
 
 ## 🌐 Supported Languages
 
-**Major languages**: English, Chinese, Spanish, French, German, Italian, Portuguese, Russian, Japanese, Korean, Arabic, Hindi, Polish, Dutch, and 50+ more.
+**Major languages**: English, Chinese, Spanish, French, German, Italian, Portuguese, Russian, Japanese, Korean, Arabic, Hindi, Polish, Dutch, and 24 more.
 
 **Auto-detection**: Automatically detects input language, or choose manually from dropdown.
 
@@ -138,52 +138,89 @@ Think mode is sent directly to Ollama's `/api/chat` endpoint via the `think` par
 
 ## 🔊 Text-to-Speech
 
-High-quality neural voices for 20+ languages via Wyoming Piper:
-- English (US), German, French, Spanish, Portuguese
-- Polish, Italian, Dutch, Russian, and more
-- Crystal-clear pronunciation with natural intonation
+LLOT speaks to any server implementing the [Wyoming protocol](https://github.com/OHF-Voice/wyoming):
+
+- [wyoming-piper](https://github.com/rhasspy/wyoming-piper) (local Piper voices, default port `10200`)
+- [wyoming_openai](https://github.com/roryeckel/wyoming_openai) (proxy to OpenAI-compatible TTS such as Speaches/Kokoro, default port `10300`)
+- anything else that answers Wyoming `describe` / `synthesize`
+
+Voices are **discovered automatically** from the server. For languages the server has no voice
+for, LLOT falls back to the browser's built-in speech synthesis, using **on-device voices only**
+(e.g. Safari/macOS/iOS voices) so the text never leaves your machine. The speaker button appears
+whenever either source has a voice for the target language. To pin a specific voice, set
+`WYOMING_TTS_VOICES=pl=pl_PL-gosia-medium,en=en_US-lessac-medium`.
 
 ---
 
 ## 🐳 Docker Configuration
 
 ### Standard Setup (docker-compose.yml)
+
+`docker-compose.yml` loads your `.env` file into the container, so all configuration
+lives in one place:
+
 ```yaml
 services:
   llot:
     build: .
     ports:
-      - "8080:8080"
-    environment:
-      - OLLAMA_HOST=http://your-ollama:11434
-      - OL_MODEL=gemma4:26b
+      - "${APP_PORT:-8080}:8080"
+    env_file:
+      - path: .env
+        required: false
     restart: unless-stopped
 ```
+
+| File | What it starts |
+|---|---|
+| `docker-compose.yml` | LLOT only (uses your Ollama / TTS servers) |
+| `docker-compose.standalone.yml` | LLOT + Ollama |
+| `docker-compose.full.yml` | LLOT + Ollama + Wyoming Piper |
 
 ### Environment Variables
 ```bash
 # Required
 OLLAMA_HOST=http://localhost:11434  # Your Ollama server
-OL_MODEL=gemma4:26b                # Translation model
+OL_MODEL=gemma4:26b                 # Default translation model
 
 # Optional
-APP_PORT=8080                      # LLOT port
-WYOMING_PIPER_HOST=localhost       # TTS server
-WYOMING_PIPER_PORT=10200           # TTS port
-TRANSLATION_LANGUAGES=en,de,pl,cs  # Limit available languages
-DEBUG_LOGGING=false                # Debug mode
+APP_PORT=8080                       # LLOT port
+WYOMING_TTS_HOST=192.168.1.10       # Wyoming TTS server (unset = TTS disabled)
+WYOMING_TTS_PORT=10200              # 10200 = wyoming-piper, 10300 = wyoming_openai
+WYOMING_TTS_VOICES=pl=pl_PL-gosia-medium  # Pin voices per language
+TRANSLATION_LANGUAGES=en,de,pl,cs   # Limit available languages
+DEBUG_LOGGING=false                 # Verbose debug output
 ```
+
+`WYOMING_PIPER_HOST` / `WYOMING_PIPER_PORT` from older versions are still accepted.
+
+### Updating
+```bash
+scripts/deploy.sh --pull   # pull, test, rebuild, health-check, auto-rollback
+```
+
+Prebuilt multi-arch images are published to `ghcr.io/pawelwiejkut/llot`; see
+[Production & CI](DOCUMENTATION.md#-production--ci).
+
+> ⚠️ LLOT has no built-in authentication. Expose it only on a trusted network or behind
+> a reverse proxy with auth.
 
 ---
 
 ## 🔌 Ollama API
 
-LLOT uses Ollama's native **`/api/chat`** endpoint exclusively. This ensures:
-- Full compatibility with all current Ollama models
-- Support for the `think` parameter (reasoning models)
-- Correct handling of streaming and non-streaming responses
+LLOT uses Ollama's native, current API (checked against Ollama 0.35):
 
-Requires **Ollama 0.1.x or newer**.
+| Endpoint | Used for |
+|---|---|
+| `POST /api/chat` | All translation work, with `think` for reasoning models |
+| `POST /api/chat` + `format` (JSON schema) | Word alternatives and refinement: structured outputs guarantee valid JSON |
+| `GET /api/tags` | Model list |
+| `POST /api/show` | Model `capabilities`: hides embedding-only models, sends `think` only to models that support it |
+
+Nothing deprecated is used (Ollama's deprecations are `context` on `/api/generate` and the
+`typical_p` option). Think mode and capabilities need Ollama 0.9 or newer; with older servers
+LLOT falls back to retrying without `think`.
 
 ---
 
@@ -211,7 +248,7 @@ If LLOT helps you achieve translation privacy and independence:
 
 Built with ❤️ for the self-hosting community using:
 - **[Ollama](https://ollama.com)** - Local LLM deployment made simple
-- **[Wyoming Piper](https://github.com/rhasspy/wyoming-piper)** - Excellent local TTS
+- **[Wyoming](https://github.com/OHF-Voice/wyoming)** - Open voice protocol used for TTS
 - **[Flask](https://flask.palletsprojects.com)** - Robust Python web framework
 
 ---

@@ -9,6 +9,7 @@
 - [🎛️ Features](#-features)
 - [🔧 Configuration](#-configuration)
 - [🐳 Docker Deployment](#-docker-deployment)
+- [🚀 Production & CI](#-production--ci)
 - [🌍 Supported Languages](#-supported-languages)
 - [🔊 Text-to-Speech](#-text-to-speech-support)
 - [🧪 Testing & Quality](#-testing--quality)
@@ -24,11 +25,11 @@
 
 ### 🌐 **Translation Engine**
 - **Real-time translation** as you type
-- **65+ languages** supported
+- **38 languages** supported
 - **Auto language detection** powered by `langdetect`
 - **Multiple tones**: neutral, formal, informal, friendly, technical, poetic
 - **Model switching** - use any Ollama-compatible LLM
-- **Translation history** with quick recall
+- **Translation history** stored locally in your browser
 - **Alternative suggestions** for better translations
 - **Smart refinement** with user constraints
 
@@ -42,15 +43,15 @@
 - **Character counter** and smart layout
 
 ### 🔊 **Text-to-Speech**
-- **High-quality neural TTS** via Wyoming Piper
-- **20+ language voices** with natural pronunciation
-- **Source and target** text playback
-- **Caching system** for improved performance
+- Works with **any Wyoming TTS server** (wyoming-piper, wyoming_openai, ...)
+- **Voices discovered automatically** from the server
+- Speaker button shown only for languages that have a voice
+- **In-memory cache** for repeated phrases
 
 ### 🛠️ **Technical Excellence**
 - **Modern Python** Flask application
 - **Clean, refactored codebase** with proper error handling
-- **Comprehensive test suite** with automated UI testing
+- **pytest + Playwright test suites** (fake Wyoming TTS server, browser tests)
 - **Docker deployment** with multiple configurations
 - **Environment-based configuration**
 - **Health monitoring** and status checks
@@ -62,70 +63,104 @@
 
 ### Environment Variables
 
-Create `.env` file in project root:
+Copy `.env.example` to `.env` in the project root. The same file is used by
+`python run.py` and by `docker compose` (via `env_file`).
 
-```bash
-# Ollama Configuration
-OLLAMA_HOST=http://localhost:11434
-OL_MODEL=llama3.2:3b
+| Variable | Default | Description |
+|---|---|---|
+| `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
+| `OL_MODEL` | `gemma4:26b` | Default model (users can switch in the UI) |
+| `APP_HOST` / `APP_PORT` | `0.0.0.0` / `8080` | Listen address for `run.py`; with Docker, `APP_PORT` is the published host port |
+| `FLASK_DEBUG` | `0` | Flask debug mode (never enable on a network-exposed instance) |
+| `DEBUG_LOGGING` | `false` | Verbose debug output (may include request text) |
+| `WYOMING_TTS_HOST` | – | Wyoming TTS server host; unset disables TTS |
+| `WYOMING_TTS_PORT` | `10200` | Wyoming TTS server port |
+| `WYOMING_TTS_VOICES` | – | Pin voices per language, e.g. `pl=pl_PL-gosia-medium,en=en_US-lessac-medium` |
+| `TRANSLATION_LANGUAGES` | all | Comma-separated language codes to offer |
+| `SECRET_KEY` | random | Only used for the debug-mode UI language switcher |
 
-# Application Settings
-APP_HOST=0.0.0.0
-APP_PORT=8080
-FLASK_DEBUG=0
-
-# TTS Configuration (optional)
-WYOMING_PIPER_HOST=localhost
-WYOMING_PIPER_PORT=10200
-
-# Language Filtering (optional)
-TRANSLATION_LANGUAGES=en,de,fr,es,it,pt,pl,ru,zh,ja,ko,ar,hi
-
-# Debug Settings
-DEBUG_LOGGING=false
-```
+`WYOMING_PIPER_HOST` / `WYOMING_PIPER_PORT` (older names) are still accepted.
 
 ### Recommended Models
 
-LLOT works with any Ollama-compatible model:
+LLOT works with any Ollama chat model:
 
-| Model | Size | Speed | Quality | Best For |
-|-------|------|--------|---------|----------|
-| `qwen2.5:3b` | 1.9GB | ⚡⚡⚡ | ⭐⭐⭐ | Fast translation |
-| `llama3.2:3b` | 2GB | ⚡⚡⚡ | ⭐⭐⭐ | Balanced performance |
-| `qwen2.5:7b` | 4.4GB | ⚡⚡ | ⭐⭐⭐⭐ | High quality |
-| `llama3.1:8b` | 4.7GB | ⚡⚡ | ⭐⭐⭐⭐ | Professional use |
+| Model | Size | Quality | Think support |
+|---|---|---|---|
+| `gemma4:26b` | ~18 GB | Excellent | Yes |
+| `gemma4:e4b` | ~9 GB | Very good | Yes |
+| `gemma3:27b` | ~17 GB | Excellent | No |
+| `qwen3:14b` | ~9 GB | Very good | Yes |
+| `qwen2.5:14b` | ~9 GB | Good | No |
 
 ---
 
 ## 🐳 Docker Deployment
 
-### Standard Setup (Use Existing Ollama)
-```yaml
-version: '3.8'
-services:
-  llot:
-    build: .
-    ports:
-      - "8080:8080"
-    environment:
-      - OLLAMA_HOST=http://your-ollama-server:11434
-      - OL_MODEL=qwen2.5:3b
-    volumes:
-      - ./logs:/app/logs
+| File | What it starts |
+|---|---|
+| `docker-compose.yml` | LLOT only, using your existing Ollama / TTS servers from `.env` |
+| `docker-compose.standalone.yml` | LLOT + Ollama |
+| `docker-compose.full.yml` | LLOT + Ollama + Wyoming Piper (voices downloaded on first use) |
+
+```bash
+docker compose up -d                                   # standard
+docker compose -f docker-compose.full.yml up -d        # everything bundled
+docker compose up -d --build                           # after git pull
 ```
 
-### Full Setup (Includes Ollama + TTS)
+The image runs gunicorn with 2 workers × 4 threads and a 180 s worker timeout
+(think-mode requests can take up to 120 s). `.env` is **not** baked into the image;
+it is passed at runtime.
+
+---
+
+## 🚀 Production & CI
+
+### Deploying on a Docker host
 ```bash
-# Launches everything you need
-docker-compose -f docker-compose.full.yml up -d
+scripts/deploy.sh            # or: make deploy
+scripts/deploy.sh --pull     # git pull --ff-only first
 ```
+The script runs the unit tests, keeps the running image as `llot:previous`, builds,
+starts the container, waits for the Docker healthcheck and `/api/health`, and
+**rolls back automatically** if either fails.
+
+### Published images
+The `Publish image` workflow pushes multi-arch images to `ghcr.io/pawelwiejkut/llot`
+(`latest` from `main`, `sha-…`, and `X.Y.Z` / `X.Y` for `vX.Y.Z` tags). To run one instead
+of building locally:
+```bash
+LLOT_IMAGE=ghcr.io/pawelwiejkut/llot:latest docker compose pull
+LLOT_IMAGE=ghcr.io/pawelwiejkut/llot:latest docker compose up -d --no-build
+```
+
+### Continuous integration
+`.github/workflows/ci.yml` runs on every push and pull request: ruff, unit tests with
+coverage, `pip-audit`, Playwright browser tests and a Docker build. Dependabot
+(`.github/dependabot.yml`) opens weekly PRs for Python packages, the base image and
+GitHub Actions.
+
+### Security notes
+- LLOT has **no authentication**. Keep it on a trusted network, or put it behind a
+  reverse proxy that adds auth and HTTPS (e.g. Caddy `basic_auth`, Authelia, Traefik
+  forward-auth).
+- Example Caddyfile:
+  ```
+  translate.example.com {
+      basic_auth {
+          alice <bcrypt-hash from `caddy hash-password`>
+      }
+      reverse_proxy localhost:8080
+  }
+  ```
+- Anyone who can reach LLOT can use your Ollama server through it (any installed model).
 
 ---
 
 ## 🌍 Supported Languages
 
-**65+ languages supported** with smart auto-detection:
+**38 languages supported** with smart auto-detection:
 
 ### Major Languages
 🇺🇸 English • 🇨🇳 中文 (Chinese) • 🇮🇳 हिन्दी (Hindi) • 🇪🇸 Español • 🇫🇷 Français • 🇸🇦 العربية (Arabic)  
@@ -143,50 +178,63 @@ docker-compose -f docker-compose.full.yml up -d
 
 ## 🔊 Text-to-Speech Support
 
-### Supported TTS Languages
-- **English** (US) - Multiple voices
-- **German** (DE) - Professional quality  
-- **French** (FR) - Natural pronunciation
-- **Spanish** (ES) - Clear articulation
-- **Portuguese** (BR) - Brazilian accent
-- **Polish** (PL) - Native speaker quality
-- **And 15+ more languages**
+LLOT talks to TTS servers over the [Wyoming protocol](https://github.com/OHF-Voice/wyoming):
 
-### TTS Setup
+1. On first use it sends `describe` and caches the server's voice list for 5 minutes.
+2. For each request it picks a voice whose language matches the target language
+   (preferring `medium` quality Piper voices), unless `WYOMING_TTS_VOICES` pins one.
+3. It sends `synthesize`, collects audio between `audio-start` and `audio-stop`,
+   and returns a WAV file using the sample rate/width/channels reported by the server.
+
+The first request in a new language can take 15-30 s with wyoming-piper while it downloads
+the voice; later requests are fast.
+
+### Option A: wyoming-piper (local voices)
 ```bash
-# Install Wyoming Piper (if not using Docker)
-pip install wyoming-piper
-
-# Start TTS service
-wyoming-piper --voice pl_PL-darkman-medium --port 10200
-
-# Configure LLOT
-echo "WYOMING_PIPER_HOST=localhost" >> .env
-echo "WYOMING_PIPER_PORT=10200" >> .env
+docker run -d -p 10200:10200 -v piper-data:/data rhasspy/wyoming-piper --voice en_US-lessac-medium
+echo "WYOMING_TTS_HOST=<server-ip>" >> .env
+echo "WYOMING_TTS_PORT=10200" >> .env
 ```
+
+### Option B: wyoming_openai (OpenAI-compatible TTS, e.g. Speaches)
+Point LLOT at the proxy's Wyoming port (default `10300`):
+```bash
+echo "WYOMING_TTS_HOST=<server-ip>" >> .env
+echo "WYOMING_TTS_PORT=10300" >> .env
+```
+
+Check what LLOT sees: `curl http://localhost:8080/api/tts/languages`
+
+### Browser fallback
+For target languages without a server voice, the front-end uses the Web Speech API with
+on-device voices only (`SpeechSynthesisVoice.localService`). Network voices such as Chrome's
+"Google …" voices are deliberately skipped because they send the text to a cloud service.
+Which languages work therefore depends on the voices installed in the viewer's OS/browser.
 
 ---
 
 ## 🧪 Testing & Quality
 
-### Comprehensive Test Suite
 ```bash
-# Unit tests
-python -m pytest tests/ -v
-
-# Comprehensive UI tests
-python tests/comprehensive_app_tests.py
-
-# Generate test reports
-python tests/comprehensive_app_tests_extended.py
+make install   # creates .venv with app + dev tools and headless Chromium
+make lint      # ruff lint + format check
+make test      # unit tests with coverage
+make audit     # dependency vulnerability scan (pip-audit)
+make check     # lint + test + audit (what CI runs, minus browser tests)
+make e2e       # Playwright browser tests against a running instance
 ```
 
-### Test Coverage
-- ✅ **API Endpoints** - All translation, history, TTS endpoints
-- ✅ **UI Functionality** - Language selection, dark mode, mobile responsive
-- ✅ **Error Handling** - Empty inputs, server errors, timeouts
-- ✅ **Performance** - Translation speed, page load times
-- ✅ **Accessibility** - Keyboard navigation, screen readers
+| Suite | What it covers |
+|---|---|
+| `tests/test_app.py` | API validation (languages, sizes, tone/think), health, errors, redirect, manifest |
+| `tests/test_translator.py` | Prompt building and LLM response parsing (Ollama mocked) |
+| `tests/test_ollama_client.py` | Ollama client incl. think-mode fallback |
+| `tests/test_tts.py` | TTS client against an in-process fake Wyoming server |
+| `tests/e2e/test_ui.py` | Browser: no console errors, XSS-safe rendering, default model, speaker visibility, live translate + speak |
+
+Browser tests default to `http://localhost:8080`; point them elsewhere with
+`LLOT_URL=http://host:port make e2e`. Tests needing a real Ollama or TTS server skip
+themselves when it isn't reachable (`.venv/bin/pytest -m e2e -rs` shows why).
 
 ---
 
@@ -199,7 +247,7 @@ python tests/comprehensive_app_tests_extended.py
 - **TTS Generation**: ~1-3s per sentence
 
 ### Optimization Tips
-1. **Use faster models** like `qwen2.5:3b` for speed
+1. **Use faster models** like `gemma4:e4b`, and keep Think mode off for short text
 2. **Enable TTS caching** (enabled by default)
 3. **Configure language filtering** to reduce options
 4. **Use SSD storage** for model loading
@@ -215,20 +263,14 @@ python tests/comprehensive_app_tests_extended.py
 git clone https://github.com/pawelwiejkut/llot.git
 cd llot
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or: venv\Scripts\activate  # Windows
-
-# Install dependencies
-pip install -r requirements.txt
+# Create .venv with dependencies, dev tools and headless Chromium
+make install
 
 # Setup environment
 cp .env.example .env
 
-# Run in development mode
-export FLASK_DEBUG=1
-python run.py
+# Run in development mode (Flask dev server, auto-reload with FLASK_DEBUG=1)
+FLASK_DEBUG=1 make dev
 ```
 
 ### Code Structure
@@ -237,76 +279,65 @@ llot/
 ├── app/
 │   ├── __init__.py           # Flask app factory
 │   ├── config.py             # Configuration management
-│   ├── routes/               # API and web routes
-│   │   ├── main.py          # Main web routes
-│   │   ├── api.py           # Translation API
-│   │   └── favicon.py       # Static asset routes
-│   ├── services/            # Business logic
-│   │   ├── translator.py    # Translation service
-│   │   ├── ollama_client.py # Ollama API client
-│   │   └── language_detector.py # Language detection
-│   ├── models/              # Data models
-│   │   ├── history.py       # Translation history
-│   │   └── language.py      # Language definitions
-│   ├── static/              # Frontend assets
-│   │   ├── css/style-modern.css # Modern UI styles
-│   │   └── js/app-modern.js  # Modern UI JavaScript
-│   └── templates/           # Jinja2 templates
-│       ├── index-modern.html # Modern UI template
-│       └── backup/          # Classic UI backup
-├── tests/                   # Test suites
-├── docs/                    # Documentation
-└── docker-compose.yml      # Docker configuration
+│   ├── routes/
+│   │   ├── main.py           # Web page (/)
+│   │   ├── api.py            # REST API
+│   │   └── favicon.py        # Icons and manifest
+│   ├── services/
+│   │   ├── translator.py     # Prompts + translation logic
+│   │   ├── ollama_client.py  # Ollama /api/chat client
+│   │   ├── tts.py            # Wyoming TTS client
+│   │   └── language_detector.py
+│   ├── models/language.py    # Languages and tones
+│   ├── static/               # CSS / JS (app-modern.js = default UI)
+│   ├── templates/            # index-modern.html (the only page)
+│   └── translations/         # UI translations (Babel)
+├── tests/                    # pytest suite (tests/e2e = Playwright browser tests)
+├── scripts/deploy.sh         # Build, deploy, health-check, rollback
+└── docker-compose*.yml       # Docker configurations
 ```
 
 ---
 
 ## 📚 API Documentation
 
-### Translation Endpoint
-```bash
-POST /api/translate
-Content-Type: application/json
+All POST endpoints accept JSON. Text fields are limited to 10,000 characters
+(413 otherwise). `target_lang` must be one of the supported language codes (400 otherwise).
+Unknown `tone` values fall back to `neutral`; `think` must be the JSON boolean `true` to enable.
 
-{
-  "source_text": "Hello world",
-  "source_lang": "en",    # or "auto"
-  "target_lang": "pl", 
-  "tone": "neutral"       # optional
-}
-
-# Response
-{
-  "translated_text": "Witaj świecie",
-  "source_lang": "en",
-  "target_lang": "pl"
-}
+### `POST /api/translate`
+```json
+{"source_text": "Hello world", "source_lang": "auto", "target_lang": "pl",
+ "tone": "neutral", "think": false, "model": "gemma4:26b"}
 ```
+Response: `{"translated_text": "Witaj świecie", "source_lang": "en", "target_lang": "pl"}`
+(`source_lang` is the detected language when `auto` was sent). Errors return `{"error": "..."}`
+with status 400/413/502; empty input returns `{"error": "EMPTY"}`.
 
-### Text-to-Speech Endpoint
-```bash
-POST /api/tts
-Content-Type: application/json
+### `POST /api/alternatives`
+`{"source_text", "current_translation", "clicked_word", "target_lang", "tone", "think", "model"}`
+→ `{"alternatives": ["...", ...]}` (max 6)
 
-{
-  "text": "Witaj świecie",
-  "language": "pl"
-}
+### `POST /api/refine`
+`{"source_text", "current_translation", "target_lang", "tone", "enforced_phrases": [...], "replacements": [{"from": "...", "to": "..."}]}`
+→ `{"translated": "...", "faithful": true}`
 
-# Response: audio/wav binary data
+### `POST /api/tts`
+`{"text": "Witaj świecie", "language": "pl"}` → `audio/wav`.
+Status 404 when the server has no voice for the language, 502 on TTS server errors,
+503 when TTS is not configured.
+
+### `GET /api/tts/languages`
+`{"enabled": true, "languages": ["pl"]}`
+
+### `GET /api/models`
+`{"models": ["gemma4:26b", ...]}` (chat-capable models only; embedding models are hidden)
+
+### `GET /api/health`
+```json
+{"ollama": {"status": "ok", "models": ["..."]}, "tts": {"status": "ok"}, "overall": "ok"}
 ```
-
-### Health Check
-```bash
-GET /api/health
-
-# Response
-{
-  "ollama": {"status": "ok", "models": [...]},
-  "tts": {"status": "ok"},
-  "overall": "ok"
-}
-```
+`overall` is `warning` when only TTS is down or disabled.
 
 ---
 
@@ -315,14 +346,18 @@ GET /api/health
 ### Common Issues
 
 **Translation not working?**
+- ✅ Ollama on the same host as Docker? `OLLAMA_HOST=http://host.docker.internal:11434`, and Ollama
+  must listen on all interfaces (it binds to 127.0.0.1 by default): set `OLLAMA_HOST=0.0.0.0` in
+  Ollama's own environment (e.g. `systemctl edit ollama`) and restart it
 - ✅ Check Ollama server is running: `curl http://localhost:11434/api/tags`
 - ✅ Verify model is available: `ollama list`
-- ✅ Check LLOT logs: `docker-compose logs llot`
+- ✅ Check LLOT logs: `docker compose logs llot`
 
 **TTS not working?**
-- ✅ Verify Wyoming Piper is running: `curl http://localhost:10200`
-- ✅ Check TTS configuration in `.env`
-- ✅ Test direct API: `curl -X POST http://localhost:8080/api/tts -d '{"text":"test","language":"en"}'`
+- ✅ Check which languages have voices: `curl http://localhost:8080/api/tts/languages`
+- ✅ Check `WYOMING_TTS_HOST` / `WYOMING_TTS_PORT` in `.env` (wyoming-piper uses 10200, wyoming_openai 10300)
+- ✅ Test the API: `curl -X POST http://localhost:8080/api/tts -H 'Content-Type: application/json' -d '{"text":"test","language":"en"}' -o test.wav`
+- ✅ After changing `.env`, recreate the container: `docker compose up -d`
 
 **UI issues?**
 - ✅ Clear browser cache and refresh
@@ -330,20 +365,22 @@ GET /api/health
 - ✅ Verify all static assets are loading
 
 **Performance issues?**
-- ✅ Use smaller, faster models (e.g., `qwen2.5:3b`)
+- ✅ Use smaller, faster models (e.g., `gemma4:e4b`)
 - ✅ Increase system RAM
 - ✅ Check available disk space
 - ✅ Monitor system resources
 
 ### Debug Mode
 ```bash
-# Enable detailed logging
+# Enable detailed logging (logs go to `docker compose logs llot`)
 echo "DEBUG_LOGGING=true" >> .env
-echo "FLASK_DEBUG=1" >> .env
 
-# Restart application
-docker-compose restart
+# Recreate the container so it picks up .env changes
+docker compose up -d
 ```
+
+`FLASK_DEBUG=1` only affects `make dev` and enables the interactive Werkzeug debugger;
+never use it on an instance reachable from other machines.
 
 ---
 
@@ -367,7 +404,7 @@ We welcome contributions! Here's how you can help:
 1. Fork the repository
 2. Create feature branch: `git checkout -b feature/amazing-feature`
 3. Make changes with tests
-4. Run test suite: `python -m pytest`
+4. Run test suite: `make test`
 5. Submit pull request
 
 ### 🌐 Translations
@@ -388,7 +425,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ## 🙏 Acknowledgments
 
 - **[Ollama](https://ollama.com)** - For making local LLM deployment simple
-- **[Wyoming Piper](https://github.com/rhasspy/wyoming-piper)** - For excellent local TTS
+- **[Wyoming](https://github.com/OHF-Voice/wyoming)** / **[Piper](https://github.com/rhasspy/wyoming-piper)** - For local TTS
 - **[Flask](https://flask.palletsprojects.com)** - For the robust web framework
 - **[langdetect](https://github.com/Mimino666/langdetect)** - For language detection
 - **Self-hosting community** - For inspiring privacy-first solutions

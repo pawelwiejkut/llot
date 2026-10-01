@@ -1,8 +1,6 @@
 # Complete setup with Ollama + Wyoming Piper TTS
 # Use this for a fully self-contained installation
 
-version: '3.8'
-
 services:
   llot:
     build: .
@@ -15,13 +13,12 @@ services:
       - OL_MODEL=${OL_MODEL:-gemma4:26b}
       
       # Wyoming Piper TTS configuration (local container)
-      - WYOMING_PIPER_HOST=piper
-      - WYOMING_PIPER_PORT=10200
+      - WYOMING_TTS_HOST=piper
+      - WYOMING_TTS_PORT=10200
+      # Piper offers several voices per language; pin the preferred ones
+      - WYOMING_TTS_VOICES=${WYOMING_TTS_VOICES:-en=en_US-lessac-medium,de=de_DE-thorsten-medium,pl=pl_PL-gosia-medium}
       
       # Application settings
-      - APP_HOST=0.0.0.0
-      - APP_PORT=8080
-      - FLASK_ENV=${FLASK_ENV:-production}
       - FLASK_DEBUG=${FLASK_DEBUG:-0}
       
       # Optional: Limit available languages  
@@ -49,7 +46,7 @@ services:
     networks:
       - llot-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      test: ["CMD", "ollama", "list"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -70,37 +67,12 @@ services:
       - "10200:10200"
     volumes:
       - piper_data:/data
-    environment:
-      - PIPER_PORT=10200
-      - PIPER_HOST=0.0.0.0
-    command: >
-      --piper /usr/share/piper/piper
-      --data-dir /data
-      --download-dir /data
-      --voice en_US-lessac-medium
-      --voice de_DE-thorsten-medium
-      --voice pl_PL-darkman-medium
-      --voice es_ES-sharvard-medium
-      --voice fr_FR-siwis-medium
-      --voice pt_BR-faber-medium
-      --voice ru_RU-ruslan-medium
-      --voice cs_CZ-jirka-medium
-      --voice nl_NL-mls_5809-low
-      --voice da_DK-talesyntese-medium
-      --voice fi_FI-harri-medium
-      --voice ar_JO-kareem-low
-      --voice hi_IN-male-medium
-      --voice tr_TR-dfki-medium
-      --voice zh_CN-huayan-x_low
+    # Default voice; other voices are downloaded on demand when first requested
+    command: --voice en_US-lessac-medium --download-dir /data
     restart: unless-stopped
     networks:
       - llot-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:10200/"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 120s
+    # The image ships its own Wyoming healthcheck
 
 networks:
   llot-network:

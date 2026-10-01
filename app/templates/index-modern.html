@@ -27,7 +27,7 @@
   <meta name="theme-color" content="#60a5fa" media="(prefers-color-scheme: dark)">
   
   <!-- Styles -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style-modern.css') }}?v={{ range(1000, 9999) | random }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style-modern.css') }}?v={{ asset_version }}">
 </head>
 <body>
   <div class="app-container">
@@ -80,28 +80,8 @@
 
       <!-- Main workspace -->
       <main class="workspace">
-        <!-- Control bar (hidden) -->
+        <!-- Hidden tone select kept in sync with the options menu -->
         <div class="control-bar">
-          <div class="language-controls">
-            <div class="language-select">
-              <select id="source_lang_old" name="source_lang_old" aria-label="{{ _('Source language') }}">
-                {% for code, name in languages %}
-                  <option value="{{ code }}" {% if code=='auto' %}selected{% endif %}>{{ name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            
-            <div class="language-select">
-              <select id="target_lang_old" name="target_lang_old" aria-label="{{ _('Target language') }}">
-                {% for code, name in languages %}
-                  {% if code != 'auto' %}
-                    <option value="{{ code }}" {% if code=='de' %}selected{% endif %}>{{ name }}</option>
-                  {% endif %}
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          
           <div class="language-select">
             <select id="tone" name="tone" aria-label="{{ _('Translation tone') }}">
               {% for val, label in tones %}
@@ -139,7 +119,7 @@
 
           <div class="language-dropdown" id="target-lang-dropdown-top">
             <button class="language-dropdown-trigger" type="button" aria-label="{{ _('Target language') }}">
-              <span class="selected-language">Deutsch</span>
+              <span class="selected-language"></span>
             </button>
             <div class="language-dropdown-panel">
               <div class="language-dropdown-search">
@@ -191,7 +171,7 @@
           <div class="panel-header">
               <div class="language-dropdown" id="target-lang-dropdown">
                 <button class="language-dropdown-trigger" type="button" aria-label="{{ _('Target language') }}">
-                  <span class="selected-language">Deutsch</span>
+                  <span class="selected-language"></span>
                 </button>
                 <div class="language-dropdown-panel">
                   <div class="language-dropdown-search">
@@ -254,13 +234,12 @@
             <textarea class="text-input" id="source_text" name="source_text"
                       placeholder="{{ _('Enter text to translate...') }}"
                       aria-label="{{ _('Text to translate') }}"
-                      spellcheck="false">{{ last_input|default('') }}</textarea>
+                      spellcheck="false"></textarea>
           </div>
           
           <!-- Output panel -->
           <div class="output-panel">
             <div class="text-output" id="result" aria-live="polite" aria-label="{{ _('Translation result') }}">
-              {{ translated|default('') }}
               <!-- Action buttons container -->
               <div class="output-actions">
                 <button id="copy-btn" class="action-button copy-button" title="{{ _('Copy to clipboard') }}" style="display: none;">
@@ -269,13 +248,11 @@
                     <path d="m5 15-2-2v-4.586a1 1 0 0 1 .293-.707l5.414-5.414a1 1 0 0 1 .707-.293h4.586l2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                   </svg>
                 </button>
-                {% if tts_enabled %}
                 <button id="tts-btn" class="action-button tts-button" title="{{ _('Listen to pronunciation') }}" style="display: none;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                     <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </button>
-                {% endif %}
               </div>
             </div>
           </div>
@@ -302,20 +279,15 @@
       </div>
       
       
-      {% if error %}
-      <div class="error-message" role="alert">
-        <strong>{{ _('Error:') }}</strong> {{ error }}
-      </div>
-      {% endif %}
     </div>
   </div>
 
   <!-- Scripts -->
-  <script src="{{ url_for('static', filename='js/app-modern.js') }}?v={{ range(1000, 9999) | random }}"></script>
+  <script src="{{ url_for('static', filename='js/app-modern.js') }}?v={{ asset_version }}"></script>
   <script>
     // Initialize with template data
-    window.initialTranslated = {{ translated|tojson|safe if translated is defined else '""' }};
     window.ttsEnabled = {{ 'true' if tts_enabled else 'false' }};
+    window.defaultModel = {{ model|tojson }};
     
     // Language switching function
     function changeLanguage(lang) {

@@ -1,4 +1,4 @@
-.PHONY: help install run test clean dev prod docker docker-standalone docker-down setup-env
+.PHONY: help setup-env install dev prod deploy audit test e2e lint format check clean clean-docker status logs pull-model docker docker-standalone docker-full docker-down extract-strings update-translations compile-translations
 
 help:		## Show this help
 	@echo "🌐 LLOT - Local LLM Ollama Translator"
@@ -7,65 +7,81 @@ help:		## Show this help
 
 # 🚀 Quick Start Commands
 docker:		## Start with Docker Compose (requires existing Ollama)
-	docker-compose up -d
+	docker compose up -d
 	@echo "✅ LLOT started! Open http://localhost:8080"
 
 docker-standalone:	## Start with bundled Ollama (complete setup)
-	docker-compose -f docker-compose.standalone.yml up -d
+	docker compose -f docker-compose.standalone.yml up -d
 	@echo "⏳ Starting Ollama... This may take a minute"
 	@echo "📥 Don't forget to pull a model: make pull-model"
 
+docker-full:	## Start bundled Ollama + Wyoming Piper TTS + LLOT
+	docker compose -f docker-compose.full.yml up -d
+
 docker-down:	## Stop all Docker services
-	docker-compose down
-	docker-compose -f docker-compose.standalone.yml down
+	docker compose down
+	docker compose -f docker-compose.standalone.yml down
+	docker compose -f docker-compose.full.yml down
 
 pull-model:	## Pull recommended translation model
 	@if [ -x "$$(command -v ollama)" ]; then \
-		echo "📥 Pulling gemma2:9b model..."; \
-		ollama pull gemma2:9b; \
+		echo "📥 Pulling gemma4:26b model..."; \
+		ollama pull gemma4:26b; \
 	else \
 		echo "📥 Pulling model via Docker..."; \
-		docker exec llot-ollama ollama pull gemma2:9b; \
+		docker exec llot-ollama ollama pull gemma4:26b; \
 	fi
 
 # 🔧 Development Commands  
-setup-env:	## Setup development environment
-	python3 -m venv venv
-	@echo "📦 Virtual environment created!"
-	@echo "🔧 Activate with: source venv/bin/activate"
-	@echo "📥 Then run: make install"
+VENV ?= .venv
+BIN := $(VENV)/bin
 
-install:	## Install Python dependencies
-	pip install -r requirements.txt
-	@echo "✅ Dependencies installed!"
+setup-env install:	## Create .venv with app + dev tools and a headless browser for e2e tests
+	python3 -m venv $(VENV)
+	$(BIN)/pip install -q --upgrade pip
+	$(BIN)/pip install -q -r requirements-dev.txt
+	$(BIN)/playwright install --with-deps chromium
+	@echo "✅ Dev environment ready in $(VENV)"
 
 dev:		## Run development server
-	@echo "🚀 Starting development server..."
-	python run.py
+	$(BIN)/python run.py
 
 prod:		## Run production server with gunicorn
-	gunicorn -w 4 -b 0.0.0.0:8080 wsgi:app
+	$(BIN)/gunicorn -w 2 --threads 4 --timeout 180 -b 0.0.0.0:8080 wsgi:app
+
+deploy:		## Build, deploy with docker compose, health-check, auto-rollback
+	scripts/deploy.sh
+
+audit:		## Check dependencies for known vulnerabilities
+	$(BIN)/pip-audit -r requirements.txt
 
 # 🧪 Testing & Quality
-test:		## Run tests
-	pytest tests/ -v
+test:		## Run unit tests with coverage
+	$(BIN)/pytest --cov --cov-report=term-missing
 
-lint:		## Lint code with flake8 (if installed)
-	@command -v flake8 >/dev/null 2>&1 && flake8 app/ tests/ || echo "💡 Install flake8 for linting: pip install flake8"
+e2e:		## Run browser tests against a running instance (LLOT_URL, default http://localhost:8080)
+	$(BIN)/pytest -m e2e
 
-format:		## Format code with black (if installed)
-	@command -v black >/dev/null 2>&1 && black app/ tests/ || echo "💡 Install black for formatting: pip install black"
+lint:		## Lint and check formatting with ruff
+	$(BIN)/ruff check .
+	$(BIN)/ruff format --check .
+
+format:		## Auto-fix lint issues and format with ruff
+	$(BIN)/ruff check --fix .
+	$(BIN)/ruff format .
+
+check: lint test audit	## Everything CI runs except e2e
 
 # 🧹 Cleanup
 clean:		## Clean up cache files
 	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
-	rm -rf .pytest_cache/
+	rm -rf .pytest_cache/ .ruff_cache/ .coverage htmlcov/
 	@echo "🧹 Cache cleaned!"
 
 clean-docker:	## Clean up Docker containers and images
-	docker-compose down --rmi all --volumes --remove-orphans
-	docker-compose -f docker-compose.standalone.yml down --rmi all --volumes --remove-orphans
+	docker compose down --rmi all --volumes --remove-orphans
+	docker compose -f docker-compose.standalone.yml down --rmi all --volumes --remove-orphans
 	@echo "🧹 Docker cleaned!"
 
 # 📊 Info Commands
@@ -86,11 +102,14 @@ status:		## Show service status
 	fi
 
 logs:		## Show application logs
-	docker-compose logs -f llot
+	docker compose logs -f llot
 
 # 🌍 Translation Management  
 extract-strings:	## Extract translatable strings (requires babel)
-	@command -v pybabel >/dev/null 2>&1 && pybabel extract -F babel.cfg -k _l -o app/translations/messages.pot . || echo "💡 Install babel: pip install Flask-Babel"
+	$(BIN)/pybabel extract -F babel.cfg -k _l -o app/translations/messages.pot app
 
 update-translations:	## Update translation files (requires babel)
-	@command -v pybabel >/dev/null 2>&1 && pybabel update -i app/translations/messages.pot -d app/translations || echo "💡 Install babel: pip install Flask-Babel"
+	$(BIN)/pybabel update -i app/translations/messages.pot -d app/translations
+
+compile-translations:	## Compile .po files to .mo
+	$(BIN)/pybabel compile -d app/translations

@@ -22,12 +22,15 @@ wheels/
 MANIFEST
 
 # Virtual Environment
+.venv/
 venv/
 env/
 ENV/
 
 # Environment Variables
 .env
+.env.backup.*
+.llot_setup.conf
 
 # Flask
 instance/
@@ -58,7 +61,6 @@ test_*.js
 *_new.py
 streaming_audio_example.js
 convert_pcm_to_wav.py
-wyoming_*.py
 opencode.json
 
 # Audio test files
@@ -73,6 +75,9 @@ screenshot*.py
 force_history_test.py
 simple_corner_test.py
 quick_debug.py
+
+# Keep the real test suite despite the patterns above
+!tests/**/*.py
 
 # Test directories
 tests/screenshots/
@@ -92,3 +97,10 @@ test-*.html
 *.bak
 *.backup
 *.mp4
+
+# Tool caches and test output
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+test-results/

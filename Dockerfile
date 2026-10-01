@@ -1,35 +1,29 @@
-FROM python:3.11-slim
+FROM python:3.13-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONPATH=/app
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy requirements first for better caching
+# Install dependencies first for better layer caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy application code
+# Copy application code (.env and other local files are excluded via .dockerignore)
 COPY . .
 
 # Create non-root user
-RUN useradd --create-home --shell /bin/bash app \
+RUN useradd --create-home --shell /usr/sbin/nologin app \
     && chown -R app:app /app
 USER app
 
-# Expose port
 EXPOSE 8080
 
-# Set environment variables
-ENV FLASK_APP=wsgi.py
-ENV PYTHONPATH=/app
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8080/', timeout=4).status == 200 else 1)"
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/ || exit 1
-
-# Run application
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "4", "wsgi:app"]
+# LLM calls can take up to 120s (think mode), so the worker timeout must exceed that
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--threads", "4", "--timeout", "180", "wsgi:app"]

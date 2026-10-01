@@ -1,0 +1,36 @@
+[project]
+name = "llot"
+version = "1.1.0"
+description = "Local LLM Ollama Translator - privacy-first, self-hosted translation"
+requires-python = ">=3.11"
+license = "MIT"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers -m 'not e2e'"
+markers = [
+    "e2e: browser end-to-end tests against a running LLOT instance (opt-in: -m e2e)",
+]
+filterwarnings = [
+    # wyoming falls back to its own audioop copy on Python 3.13+
+    "ignore:'audioop' is deprecated:DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["app"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+extend-exclude = ["app/translations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = [
+    "B904",  # raise ... from err inside except: noisy for API error wrapping
+    "E501",  # line length is enforced by `ruff format`; long prompt/base64 strings are fine
+]
+
+[tool.ruff.lint.per-file-ignores]
+# blueprints must exist before their route modules are imported
+"app/routes/__init__.py" = ["E402", "F401"]

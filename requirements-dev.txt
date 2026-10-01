@@ -1,0 +1,7 @@
+-r requirements.txt
+pytest==9.1.1
+pytest-cov==7.1.0
+pytest-playwright==0.9.0
+playwright==1.63.0
+ruff==0.16.9
+pip-audit==2.10.1

@@ -1,62 +1,22 @@
-version: '3.8'
+# LLOT with an existing Ollama server (and optional Wyoming TTS server).
+# Configure everything in .env (see .env.example), then: docker compose up -d
 
 services:
   llot:
     build: .
+    # Locally built image by default; set LLOT_IMAGE=ghcr.io/pawelwiejkut/llot:latest
+    # and run `docker compose pull && docker compose up -d --no-build` to use a published image
+    image: ${LLOT_IMAGE:-llot:latest}
     container_name: llot
     ports:
-      - "8080:8080"
+      - "${APP_PORT:-8080}:8080"
+    env_file:
+      - path: .env
+        required: false
     environment:
-      # 🔗 CONFIGURE YOUR OLLAMA SERVER URL HERE
-      # Replace with your actual Ollama server URL:
-      - OLLAMA_HOST=${OLLAMA_HOST:-http://your-ollama-server:11434}
-      
-      # 🔗 OPTIONAL: Configure Wyoming Piper TTS (for audio)
-      # Replace with your actual Wyoming Piper server:
-      # - WYOMING_PIPER_HOST=your-piper-server
-      # - WYOMING_PIPER_PORT=10200
-      
-      # Application settings
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
       - OL_MODEL=${OL_MODEL:-gemma4:26b}
-      - APP_HOST=${APP_HOST:-0.0.0.0}
-      - APP_PORT=${APP_PORT:-8080}
-      - FLASK_ENV=${FLASK_ENV:-production}
       - FLASK_DEBUG=${FLASK_DEBUG:-0}
-      
-      # Optional: Limit available languages (comma-separated)
-      # - TRANSLATION_LANGUAGES=${TRANSLATION_LANGUAGES:-en,de,pl,es,fr}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
-    networks:
-      - llot-network
-
-  # Optional: Include Ollama if you don't have it installed
-  # Uncomment this section if you want LLOT to manage Ollama for you
-  # ollama:
-  #   image: ollama/ollama:latest
-  #   container_name: llot-ollama
-  #   ports:
-  #     - "11434:11434"
-  #   volumes:
-  #     - ollama_data:/root/.ollama
-  #     - ./models:/root/.ollama/models  # Optional: bind mount for model persistence
-  #   environment:
-  #     - OLLAMA_HOST=0.0.0.0
-  #   restart: unless-stopped
-  #   networks:
-  #     - llot-network
-  #   # Uncomment for GPU support (NVIDIA)
-  #   # deploy:
-  #   #   resources:
-  #   #     reservations:
-  #   #       devices:
-  #   #         - driver: nvidia
-  #   #           count: 1
-  #   #           capabilities: [gpu]
-
-networks:
-  llot-network:
-    driver: bridge
-
-# Uncomment if using bundled Ollama
-# volumes:
-#   ollama_data:
