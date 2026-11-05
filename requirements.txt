@@ -4,4 +4,4 @@ requests==2.34.2
 langdetect==1.0.9
 python-dotenv==1.2.4
 gunicorn==26.2.0
-wyoming==1.10.2
+wyoming==1.11.0
