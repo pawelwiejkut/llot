@@ -3,5 +3,5 @@ Flask-Babel==4.0.0
 requests==2.34.2
 langdetect==1.0.9
 python-dotenv==1.2.4
-gunicorn==26.2.0
-wyoming==1.10.2
+gunicorn==27.0.1
+wyoming==1.11.0
